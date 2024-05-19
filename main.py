@@ -1,10 +1,10 @@
 import hikari
 import lightbulb
 import random
-#import asyncio
+import asyncio
 
 bot = lightbulb.BotApp(
-	intents=hikari.Intents.GUILD_MESSAGES,
+	intents = hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
 	token = 'ODAxNDMxNDQ1NDUyNzUwODc5.G82qGH.zqBwCgebcJ5sbbfxmpZaNifVQguEc7k3i3NvVo'
 )
 
@@ -23,7 +23,7 @@ response = [
 ]
 
 prem_users = [
-	'364400063281102852', '553266484449771520', '1171986063036797011'
+	'364400063281102852', '601858736205856768'
 ]
 
 #server count
@@ -37,14 +37,14 @@ async def on_starting(_: hikari.StartedEvent) -> None:
 	)
 
 #main thing
-"""@bot.listen(hikari.MessageCreateEvent)
+@bot.listen(hikari.MessageCreateEvent)
 async def on_message(event):
-	print(f"Received message: {event.content}")
+	#print(f"Received message: {event.content}")
 	if event.is_human:
 		if isinstance(event.content, str):
 			if any(word in event.content.lower() for word in hearing):
 				await event.message.respond(random.choice(response))
-				await asyncio.sleep(5)"""
+				await asyncio.sleep(10)
 
 #help command
 @bot.command
