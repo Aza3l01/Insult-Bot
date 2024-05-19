@@ -36,7 +36,7 @@ async def on_starting(_: hikari.StartedEvent) -> None:
 		)
 	)
 
-#main thing
+#main
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event):
 	#print(f"Received message: {event.content}")
@@ -81,7 +81,7 @@ async def help(ctx):
 		)
 		await ctx.respond(embed=embed)
 
-#test command
+#insult command
 @bot.command
 @lightbulb.add_cooldown(length = 30, uses = 1, bucket = lightbulb.UserBucket)
 @lightbulb.command('insult', 'Generate a random insult.')
@@ -209,14 +209,14 @@ async def donate(ctx):
 		await ctx.command.cooldown_manager.reset_cooldown(ctx)
 		embed = hikari.Embed(
 			title = '',
-			description = '**Donate:** \n [Buy me a coffee](https://www.buymeacoffee.com/azael) to support me in making Insult Bot. \n Thank you! :)',
+			description = '**Donate:** \n [Buy me a coffee](https://buymeacoffee.com/azael/membership) to keep Insult Bot online. \n Thank you! :)',
 			color = 0x2f3136
 		)
 		await ctx.respond(embed = embed)
 	else:
 		embed = hikari.Embed(
 			title = '',
-			description = '**Donate:** \n [Buy me a coffee](https://www.buymeacoffee.com/azael) to support me in making Insult Bot. \n Thank you! :)',
+			description = '**Donate:** \n [Buy me a coffee](https://buymeacoffee.com/azael/membership) to keep Insult Bot online. \n Thank you! :)',
 			color = 0x2f3136
 		)
 		await ctx.respond(embed = embed)
