@@ -13,13 +13,13 @@ hearing = [
 	'bitch', 'cunt', 'shithead', 'fuck off', 'you\'re gay', 'ur gay', 'your gay', 'suck my dick', 'suck a dick', 
 	'shut your mouth', 'dumbass', 'twat', 'you\'re dumb', 'your dumb', 'kys', 'kill yourself', 'kill urself', 
 	'wanker', 'tosser', 'ming', 'prick', 'clunge', 'slut', 'bastard', 'twit', 'pillock', 'bint', 'asslicker',
-	'asswipe', 'nob jocky', 'your mom', 'you\'re mom', 'minger', 'little shit'
+	'asswipe', 'nob jocky', 'your mom', 'you\'re mom', 'minger', 'little shit', 'moron'
 ]
 
 response = [
 	'no u', 'fuck you', 'your mom', 'stfu', 'bruh', 'dickhead', 'asshole', 'idiot', 'you can do better', 
 	'stfu inbred', 'yeah', 'scumbag', 'shithead', 'scumbag', 'go fuck yourself', 'insecure turd goblin', 
-	'pussy', 'bitch pls', 'fuck off', 'shut your mouth', 'dumbass', 'you\'re dumb'
+	'pussy', 'bitch pls', 'fuck off', 'shut your mouth', 'dumbass', 'you\'re dumb', 'moron'
 ]
 
 prem_users = [
@@ -39,12 +39,11 @@ async def on_starting(_: hikari.StartedEvent) -> None:
 #main
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event):
-	#print(f"Received message: {event.content}")
 	if event.is_human:
 		if isinstance(event.content, str):
 			if any(word in event.content.lower() for word in hearing):
 				await event.message.respond(random.choice(response))
-				await asyncio.sleep(10)
+				await asyncio.sleep(15)
 
 #help command
 @bot.command
