@@ -184,7 +184,7 @@ async def support(ctx):
     embed = hikari.Embed(
         description=(
             '**Support:**\n'
-            'Click [here](https://discord.com/invite/xNb8mpySK8) to join the support server.'
+            'Click [here](https://discord.com/invite/CvpujuXmEf) to join the support server.'
         ),
         color=0x2f3136
     )
