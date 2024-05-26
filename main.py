@@ -4,7 +4,7 @@ import random
 import asyncio
 
 bot = lightbulb.BotApp(
-	intents = hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
+	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
 	token = 'ODAxNDMxNDQ1NDUyNzUwODc5.G82qGH.zqBwCgebcJ5sbbfxmpZaNifVQguEc7k3i3NvVo'
 )
 
@@ -49,7 +49,11 @@ async def on_message(event):
 @lightbulb.command('help', 'You know what this is ;)')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def help(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -80,14 +84,17 @@ async def help(ctx):
     )
     await ctx.respond(embed=thank_you_embed)
 
-
 #insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command('insult', 'Generate a random insult.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def insult(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     
@@ -99,7 +106,11 @@ async def insult(ctx):
 @lightbulb.command('list', 'List of all the insults.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def list(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     
@@ -132,14 +143,17 @@ async def list(ctx):
     )
     await ctx.respond(embed=thank_you_embed)
 
-
 #invite command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command('invite', "Get the bot's invite link.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def invite(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     
@@ -158,7 +172,11 @@ async def invite(ctx):
 @lightbulb.command('vote', 'Get the link to vote at top.gg.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def vote(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -177,7 +195,11 @@ async def vote(ctx):
 @lightbulb.command('support', 'Invite to join the support server.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def support(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -196,7 +218,11 @@ async def support(ctx):
 @lightbulb.command('donate', 'Donate to support Insult Bot.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def donate(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -216,7 +242,11 @@ async def donate(ctx):
 @lightbulb.command("more", "Check out more bots from me.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def more(ctx):
-    await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -234,12 +264,17 @@ async def more(ctx):
 @lightbulb.command("privacy", "View the privacy policy statement.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def privacy(ctx):
-	embed = hikari.Embed(
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+    embed = hikari.Embed(
 		title="",
 		description="**Privacy Policy:** \n The personal information of any user, including the message content it replies to, is not tracked by Insult Bot.",
 		color=0x2f3136
 	)
-	await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed)
 
 #error handling
 @bot.listen(lightbulb.CommandErrorEvent)
