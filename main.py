@@ -36,12 +36,15 @@ async def on_starting(_: hikari.StartedEvent) -> None:
 
 #main
 @bot.listen(hikari.MessageCreateEvent)
-async def on_message(event):
-	if event.is_human:
-		if isinstance(event.content, str):
-			if any(word in event.content.lower() for word in hearing):
-				await event.message.respond(random.choice(response))
-				await asyncio.sleep(15)
+async def on_message(event: hikari.MessageCreateEvent):
+    if not event.is_human:
+        return
+    if isinstance(event.content, str) and any(word in event.content.lower() for word in hearing):
+        await event.message.respond(random.choice(response))
+        guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
+        guild_name = guild.name if guild else "DM"
+        await bot.rest.create_message(1013490212736876594, f"`keyword` was used in `{guild_name}`.\n\"{event.content}\"")
+        await asyncio.sleep(5)
 
 #help command
 @bot.command
