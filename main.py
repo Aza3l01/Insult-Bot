@@ -43,7 +43,7 @@ async def on_message(event: hikari.MessageCreateEvent):
         await event.message.respond(random.choice(response))
         guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
         guild_name = guild.name if guild else "DM"
-        await bot.rest.create_message(1013490212736876594, f"`keyword` was used in `{guild_name}`.\n\"{event.content}\"")
+        await bot.rest.create_message(1013490212736876594, f"`keyword` was used in `{guild_name}`.")
         await asyncio.sleep(5)
 
 #help command
