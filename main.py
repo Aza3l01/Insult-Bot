@@ -2,6 +2,7 @@ import hikari
 import lightbulb
 import random
 import asyncio
+import aiohttp
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -13,26 +14,57 @@ hearing = [
 	'bitch', 'cunt', 'shithead', 'fuck off', 'you\'re gay', 'ur gay', 'your gay', 'suck my dick', 'suck a dick', 
 	'shut your mouth', 'dumbass', 'twat', 'you\'re dumb', 'your dumb', 'kys', 'kill yourself', 'kill urself', 
 	'wanker', 'tosser', 'ming', 'prick', 'clunge', 'slut', 'bastard', 'twit', 'pillock', 'bint', 'asslicker',
-	'asswipe', 'nob jocky', 'your mom', 'you\'re mom', 'minger', 'little shit', 'moron', 'stupid bot', 'eat shit'
+	'asswipe', 'nob jocky', 'your mom', 'you\'re mom', 'minger', 'little shit', 'moron', 'stupid bot', 'eat shit', 'scumbag', 'nigga'
 ]
 
 response = [
 	'no u', 'fuck you', 'your mom', 'stfu', 'bruh', 'dickhead', 'asshole', 'idiot', 'you can do better', 
 	'stfu inbred', 'yeah', 'scumbag', 'shithead', 'scumbag', 'go fuck yourself', 'insecure turd goblin', 
-	'pussy', 'bitch pls', 'fuck off', 'shut your mouth', 'dumbass', 'you\'re dumb', 'moron', 'eat shit', 'do you suck dicks'
+	'pussy', 'bitch pls', 'fuck off', 'shut your mouth', 'dumbass', 'you\'re dumb', 'moron', 'eat shit', 'do you suck dicks', 'stfu little bitch'
 ]
 
 prem_users = ['364400063281102852', '601858736205856768']
 
-#server count
-@bot.listen()
-async def on_starting(_: hikari.StartedEvent) -> None:
-	await bot.update_presence(
-		activity=hikari.Activity(
-			name=f"{len([*await bot.rest.fetch_my_guilds()])} servers! | /help",
-			type=hikari.ActivityType.WATCHING,
-		)
-	)
+class TopGGClient:
+    def __init__(self, bot, token):
+        self.bot = bot
+        self.token = token
+        self.session = aiohttp.ClientSession()
+
+    async def post_guild_count(self, count):
+        url = f"https://top.gg/api/bots/{self.bot.get_me().id}/stats"
+        headers = {
+            "Authorization": self.token
+        }
+        payload = {
+            "server_count": count
+        }
+        async with self.session.post(url, json=payload, headers=headers) as response:
+            if response.status != 200:
+                print(f"Failed to post guild count to Top.gg: {response.status}")
+            else:
+                print("Posted server count to Top.gg")
+    async def close(self):
+        await self.session.close()
+
+topgg_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjgwMTQzMTQ0NTQ1Mjc1MDg3OSIsImJvdCI6dHJ1ZSwiaWF0IjoxNjIwOTExMjI4fQ.l1P8aJTCG2K785MBjQ84F2INzIvgW3KGuCRJ0JCxgBg"
+topgg_client = TopGGClient(bot, topgg_token)
+
+# Server count update
+@bot.listen(hikari.StartedEvent)
+async def on_starting(event: hikari.StartedEvent) -> None:
+    guilds = await bot.rest.fetch_my_guilds()
+    server_count = len(guilds)
+    
+    await bot.update_presence(
+        activity=hikari.Activity(
+            name=f"{server_count} servers! | /help",
+            type=hikari.ActivityType.WATCHING,
+        )
+    )
+    
+    # Post server count to Top.gg
+    await topgg_client.post_guild_count(server_count)
 
 #main
 @bot.listen(hikari.MessageCreateEvent)
@@ -43,7 +75,7 @@ async def on_message(event: hikari.MessageCreateEvent):
         await event.message.respond(random.choice(response))
         guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
         guild_name = guild.name if guild else "DM"
-        await bot.rest.create_message(1013490212736876594, f"`keyword` was used in `{guild_name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`keyword` was used in `{guild_name}`.")
         await asyncio.sleep(5)
 
 #help command
@@ -54,9 +86,9 @@ async def on_message(event: hikari.MessageCreateEvent):
 async def help(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -95,9 +127,9 @@ async def help(ctx):
 async def insult(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     
@@ -111,9 +143,9 @@ async def insult(ctx):
 async def list(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     
@@ -154,9 +186,9 @@ async def list(ctx):
 async def invite(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     
@@ -177,9 +209,9 @@ async def invite(ctx):
 async def vote(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -200,9 +232,9 @@ async def vote(ctx):
 async def support(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -223,9 +255,9 @@ async def support(ctx):
 async def donate(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -247,9 +279,9 @@ async def donate(ctx):
 async def more(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
@@ -269,9 +301,9 @@ async def more(ctx):
 async def privacy(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(1013490212736876594, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1245407986625810534, f"`{ctx.command.name}` was used.")
     embed = hikari.Embed(
 		title="",
 		description="**Privacy Policy:** \n The personal information of any user, including the message content it replies to, is not tracked by Insult Bot.",
@@ -292,5 +324,9 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️ \n To avoid cooldowns, become a member at https://www.buymeacoffee.com/azael. \n It helps keep the bot online. 👉👈")
 	else:
 		raise exception
+
+@bot.listen(hikari.StoppedEvent)
+async def on_stopping(event: hikari.StoppedEvent) -> None:
+    await topgg_client.close()
 
 bot.run()
