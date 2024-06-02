@@ -68,17 +68,13 @@ async def on_message(event: hikari.MessageCreateEvent):
     if not event.is_human:
         return
     if isinstance(event.content, str) and any(word in event.content.lower() for word in hearing):
+        await event.message.respond(random.choice(response))
+        guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
+        guild_name = guild.name if guild else "DM"
         try:
-            await event.message.respond(random.choice(response))
+            await bot.rest.create_message(channel, f"`keyword` was used in `{guild_name}`.")
         except hikari.ForbiddenError:
-            guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
-            guild_name = guild.name if guild else "DM"
-            try:
-                await bot.rest.create_message(channel, f"`keyword` was used in `{guild_name}`.")
-            except hikari.ForbiddenError:
-                await bot.rest.create_message(channel, f"`Bot doesn't have permission to send messages in `{guild_name}`.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
+            await event.message.respond("I don't have permission to send messages in that channel.")
         await asyncio.sleep(5)
 
 #help command
