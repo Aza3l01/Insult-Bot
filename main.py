@@ -18,6 +18,8 @@ response = response_string.split(",")
 prem_users_string = os.getenv("PREM_USERS_LIST")
 prem_users = prem_users_string.split(",")
 
+custom_insults = {857112618963566592: ['test insult', 'test insult 24'], 1006195077409951864: ['support insult']}
+
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
 	token=os.getenv('BOT_TOKEN')
@@ -62,61 +64,132 @@ async def on_starting(event: hikari.StartedEvent) -> None:
     )
     await topgg_client.post_guild_count(server_count)
 
-#main
+#Core----------------------------------------------------------------------------------------------------------------------------------------
+
+#message event
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event: hikari.MessageCreateEvent):
     if not event.is_human:
         return
     if isinstance(event.content, str) and any(word in event.content.lower() for word in hearing):
-        await event.message.respond(random.choice(response))
+        guild_id = event.guild_id
+        if guild_id in custom_insults:
+            all_responses = response + custom_insults[guild_id]
+        else:
+            all_responses = response
+        selected_response = random.choice(all_responses)
+        await event.message.respond(f"{selected_response}")
         guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
         guild_name = guild.name if guild else "DM"
-        try:
-            await bot.rest.create_message(channel, f"`keyword` was used in `{guild_name}`.")
-        except hikari.ForbiddenError:
-            await event.message.respond("I don't have permission to send messages in that channel.")
+        await bot.rest.create_message(channel, f"`keyword` was used in `{guild_name}`.")
         await asyncio.sleep(5)
 
-#help command
+#add insult
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('help', 'You know what this is ;)')
+@lightbulb.command('addinsult', 'Add a custom insult to a server of your choice.')
 @lightbulb.implements(lightbulb.SlashCommand)
-async def help(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+async def addinsult(ctx):
+    if str(ctx.author.id) not in prem_users:
+        await ctx.respond("You need to be a premium member to use this command.")
+        return
+    await ctx.respond("Please enter the ID of the server where you want to add the insult:")
+    def check_server_id(event):
+        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
+    try:
+        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
+        server_id = int(server_id_event.content)
+        await ctx.respond("Please provide the insult text:")
+        def check_insult_message(event):
+            return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
+        insult_message_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_message)
+        insult = insult_message_event.content
+        if server_id not in custom_insults:
+            custom_insults[server_id] = []
+        custom_insults[server_id].append(insult)
+        await ctx.respond(f"Insult added to the server with ID: {server_id}.")
+        log_message = (
+            f"`addinsult` invoked by user {ctx.author.id}\n"
+            f"Received server ID: {server_id_event.content}\n"
+            f"Received insult: {insult_message_event.content}\n"
+            f"Updated custom_insults = {custom_insults}\n\n"
+        )
+        await bot.rest.create_message(1246889573141839934, content=log_message)
+    except asyncio.TimeoutError:
+        await ctx.respond("You took too long to respond.")
+    except Exception as e:
+        await ctx.respond("An error occurred while processing your request.")
 
-    embed = hikari.Embed(
-        title='__**Commands**__',
-        description=(
-            '**__Main:__**\n'
-            '**/insult:** Generate a random insult.\n'
-            '**/list:** List of all the insults.\n\n'
-            '**__Misc:__**\n'
-            '**/invite:** Get the bot\'s invite link.\n'
-            '**/vote:** Get the link to vote at top.gg.\n'
-            '**/support:** Join the support server.\n'
-            '**/donate:** Support Insult Bot.\n'
-            '**/more:** Check out more bots from me.'
-        ),
-        color=0x2f3136
-    )
-    await ctx.respond(embed=embed)
+#remove insult
+@bot.command
+@lightbulb.command('removeinsult', 'Remove a custom insult from a server of your choice.')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def removeinsult(ctx):
+    if str(ctx.author.id) not in prem_users:
+        await ctx.respond("You need to be a premium member to use this command.")
+        return
+    await ctx.respond("Please enter the ID of the server where you want to remove the insult:")
+    def check_server_id(event):
+        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
+    try:
+        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
+        server_id = int(server_id_event.content)
+        if server_id not in custom_insults or not custom_insults[server_id]:
+            await ctx.respond(f"No custom insults found for the server with ID: {server_id}.")
+            return
+        insults_list = "\n".join(f"{i+1}. {insult}" for i, insult in enumerate(custom_insults[server_id]))
+        await ctx.respond(f"Select the number to the left of the insult to remove from the server with ID {server_id}:\n{insults_list}")
+        def check_insult_index(event):
+            return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
+        insult_index_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_index)
+        insult_index = int(insult_index_event.content) - 1
+        if insult_index < 0 or insult_index >= len(custom_insults[server_id]):
+            await ctx.respond("Invalid insult index.")
+            return
+        await ctx.respond("The selected insult will be removed shortly.")
+        log_message = (
+            f"`removeinsult` invoked by user {ctx.author.id}\n"
+            f"Received server ID: {server_id_event.content}\n"
+            f"Received insult index: {insult_index_event.content}\n\n"
+        )
+        await bot.rest.create_message(1246889573141839934, content=log_message)
+    except asyncio.TimeoutError:
+        await ctx.respond("You took too long to respond.")
 
-    thank_you_embed = hikari.Embed(
-        description=(
-            '**Thank you!**\n'
-            'If you like using Insult Bot, consider [voting](https://top.gg/bot/801431445452750879/vote) or leaving a [review](https://top.gg/bot/801431445452750879).\n'
-            'To help keep Insult Bot online, consider becoming a [member](https://buymeacoffee.com/azael/membership).'
-        ),
-        color=0x2f3136
-    )
-    await ctx.respond(embed=thank_you_embed)
+#viewinsults
+@bot.command
+@lightbulb.command('viewinsults', 'View custom insults added to a server.')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def viewinsults(ctx):
+    if str(ctx.author.id) not in prem_users:
+        await ctx.respond("You need to be a premium member to use this command.")
+        return
+    await ctx.respond("Please enter the ID of the server you want to view insults for:")
+    
+    def check_server_id(event):
+        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
+    
+    try:
+        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
+        server_id = int(server_id_event.content)
+        
+        if server_id in custom_insults:
+            insults_list = custom_insults[server_id]
+            insults_text = '\n'.join(insults_list)
+            await ctx.respond(f"Custom insults for server ID {server_id}:\n{insults_text}")
+        else:
+            await ctx.respond(f"No custom insults found for server ID {server_id}.")
+        
+        log_message = (
+            f"`viewinsults` invoked by user {ctx.author.id}\n"
+            f"Received server ID: {server_id_event.content}\n"
+            f"Displayed insults: {custom_insults.get(server_id, 'No insults found')}\n\n"
+        )
+        await bot.rest.create_message(1246889573141839934, content=log_message)
+    
+    except asyncio.TimeoutError:
+        await ctx.respond("You took too long to respond.")
+    except Exception as e:
+        await ctx.respond("An error occurred while processing your request.")
 
 #insult command
 @bot.command
@@ -134,12 +207,52 @@ async def insult(ctx):
     
     await ctx.respond(random.choice(response))
 
-#list command
+#Gimmick------------------------------------------------------------------------------------------------------------------------------------
+
+#howhorny
+@bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("user", "The user to tag", hikari.User)
+@lightbulb.command("howhorny", "Find out how horny someone is.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def howhorny(ctx: lightbulb.Context) -> None:
+    if any(word in str(ctx.author.id) for word in prem_users):
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+    
+    horny_level = random.randint(0, 100)
+    await ctx.respond(f"{ctx.options.user.mention} is **{horny_level}%** horny.")
+
+#howgay
+@bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("user", "The user to tag", hikari.User)
+@lightbulb.command("howgay", "Find out how horny someone is.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def howgay(ctx: lightbulb.Context) -> None:
+    if any(word in str(ctx.author.id) for word in prem_users):
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+    
+    horny_level = random.randint(0, 100)
+    await ctx.respond(f"{ctx.options.user.mention} is **{horny_level}%** gay.")
+
+#MISC----------------------------------------------------------------------------------------------------------------------------------------
+
+#help command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('list', 'List of all the insults.')
+@lightbulb.command('help', 'You know what this is ;)')
 @lightbulb.implements(lightbulb.SlashCommand)
-async def list(ctx):
+async def help(ctx):
     guild = ctx.get_guild()
     if guild is not None:
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
@@ -147,31 +260,38 @@ async def list(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    
-    insult_list = (
-        "No you | Fuck you | Your mom\n"
-        "Stfu | Bruh | Dickhead | Asshole\n"
-        "Idiot | Go fuck yourself | Pussy\n"
-        "Insecure turd goblin | Shithead\n"
-        "You can do better | Stfu inbred\n"
-        "Bitch pls | Shut your mouth\n"
-        "You disgust me | Fuck off\n"
-        "Dumbass | You're dumb\n"
-        "*Includes different variations.*"
-    )
-    
+
     embed = hikari.Embed(
-        title="__**Insults**__",
-        description=insult_list,
+        title='__**Help**__',
+        description=(
+            '**Core Commands:**\n'
+            '**/help:** You just used this command.\n'
+            '**/insult:** Generate a random insult.\n\n'
+            '**Premium Commands:**\n'
+            '**/addinsult:** Add a custom insult to a server of your choice.\n'
+            '**/removeinsult:** Remove a custom insult you added.\n'
+            '**/viewinsults:** View the custom insults you have added.\n'
+            'Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership) for $3/M.\n\n'
+            '**Gimmicks:**\n'
+            '**/howhorny:** Find out how horny someone is.\n'
+            '**/howgay:** Find out how gay someone is.\n\n'
+            '**Miscellaneous Commands:**\n'
+            '**/invite:** Get the bot\'s invite link.\n'
+            '**/vote:** Get the link to vote at top.gg.\n'
+            '**/support:** Join the support server.\n'
+            '**/donate:** Support Insult Bot.\n'
+            '**/more:** Check out more bots from me.'
+            '**/privacy:** View our privacy policy.'
+        ),
         color=0x2f3136
     )
     await ctx.respond(embed=embed)
-    
+
     thank_you_embed = hikari.Embed(
         description=(
             '**Thank you!**\n'
             'If you like using Insult Bot, consider [voting](https://top.gg/bot/801431445452750879/vote) or leaving a [review](https://top.gg/bot/801431445452750879).\n'
-            'To help keep Anicord online, consider becoming a [member](https://buymeacoffee.com/azael/membership).'
+            'To help keep Insult Bot online, consider becoming a [member](https://buymeacoffee.com/azael/membership).'
         ),
         color=0x2f3136
     )
@@ -240,7 +360,7 @@ async def support(ctx):
     embed = hikari.Embed(
         description=(
             '**Support:**\n'
-            'Click [here](https://discord.com/invite/CvpujuXmEf) to join the support server.'
+            'Click [here](https://discord.com/invite/x7MdgVFUwa) to join the support server.'
         ),
         color=0x2f3136
     )
