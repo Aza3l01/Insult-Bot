@@ -64,8 +64,25 @@ async def on_starting(event: hikari.StartedEvent) -> None:
     )
     await topgg_client.post_guild_count(server_count)
 
-#Core----------------------------------------------------------------------------------------------------------------------------------------
+#join
+@bot.listen(hikari.GuildJoinEvent)
+async def on_guild_join(event):
+    guild = event.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(channel, f"Joined `{guild.name}`.")
+    else:
+        await bot.rest.create_message(channel, f"Joined unknown server.")
 
+#leave
+@bot.listen(hikari.GuildLeaveEvent)
+async def on_guild_leave(event):
+    guild = event.old_guild
+    if guild is not None:
+        await bot.rest.create_message(channel, f"Left `{guild.name}`.")
+    else:
+        await bot.rest.create_message(channel, f"Left unknown server.")
+
+#Core----------------------------------------------------------------------------------------------------------------------------------------
 #message event
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event: hikari.MessageCreateEvent):
@@ -90,7 +107,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("You need to be a premium member to use this command.")
+        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership) for $3/M.")
         return
     await ctx.respond("Please enter the ID of the server where you want to add the insult:")
     def check_server_id(event):
@@ -106,7 +123,7 @@ async def addinsult(ctx):
         if server_id not in custom_insults:
             custom_insults[server_id] = []
         custom_insults[server_id].append(insult)
-        await ctx.respond(f"Insult added to the server with ID: {server_id}.")
+        await ctx.respond(f"Insult added to the server!")
         log_message = (
             f"`addinsult` invoked by user {ctx.author.id}\n"
             f"Received server ID: {server_id_event.content}\n"
@@ -125,7 +142,7 @@ async def addinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("You need to be a premium member to use this command.")
+        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership) for $3/M.")
         return
     await ctx.respond("Please enter the ID of the server where you want to remove the insult:")
     def check_server_id(event):
@@ -134,18 +151,18 @@ async def removeinsult(ctx):
         server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
         server_id = int(server_id_event.content)
         if server_id not in custom_insults or not custom_insults[server_id]:
-            await ctx.respond(f"No custom insults found for the server with ID: {server_id}.")
+            await ctx.respond(f"No custom insults found.")
             return
         insults_list = "\n".join(f"{i+1}. {insult}" for i, insult in enumerate(custom_insults[server_id]))
-        await ctx.respond(f"Select the number to the left of the insult to remove from the server with ID {server_id}:\n{insults_list}")
+        await ctx.respond(f"Select the number to the left of the insult to remove from the server:\n{insults_list}")
         def check_insult_index(event):
             return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
         insult_index_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_index)
         insult_index = int(insult_index_event.content) - 1
         if insult_index < 0 or insult_index >= len(custom_insults[server_id]):
-            await ctx.respond("Invalid insult index.")
+            await ctx.respond("Please select the number next to the insult.")
             return
-        await ctx.respond("The selected insult will be removed shortly.")
+        await ctx.respond("The selected insult will be removed shortly. Please allow up to a few hours for the list to update.")
         log_message = (
             f"`removeinsult` invoked by user {ctx.author.id}\n"
             f"Received server ID: {server_id_event.content}\n"
@@ -161,7 +178,7 @@ async def removeinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("You need to be a premium member to use this command.")
+        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership) for $3/M.")
         return
     await ctx.respond("Please enter the ID of the server you want to view insults for:")
     
@@ -175,9 +192,9 @@ async def viewinsults(ctx):
         if server_id in custom_insults:
             insults_list = custom_insults[server_id]
             insults_text = '\n'.join(insults_list)
-            await ctx.respond(f"Custom insults for server ID {server_id}:\n{insults_text}")
+            await ctx.respond(f"Custom insults in this server:\n{insults_text}")
         else:
-            await ctx.respond(f"No custom insults found for server ID {server_id}.")
+            await ctx.respond(f"No custom insults found.")
         
         log_message = (
             f"`viewinsults` invoked by user {ctx.author.id}\n"
@@ -208,7 +225,6 @@ async def insult(ctx):
     await ctx.respond(random.choice(response))
 
 #Gimmick------------------------------------------------------------------------------------------------------------------------------------
-
 #howhorny
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
@@ -231,7 +247,7 @@ async def howhorny(ctx: lightbulb.Context) -> None:
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("user", "The user to tag", hikari.User)
-@lightbulb.command("howgay", "Find out how horny someone is.")
+@lightbulb.command("howgay", "Find out how gay someone is.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def howgay(ctx: lightbulb.Context) -> None:
     if any(word in str(ctx.author.id) for word in prem_users):
@@ -246,7 +262,6 @@ async def howgay(ctx: lightbulb.Context) -> None:
     await ctx.respond(f"{ctx.options.user.mention} is **{horny_level}%** gay.")
 
 #MISC----------------------------------------------------------------------------------------------------------------------------------------
-
 #help command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
