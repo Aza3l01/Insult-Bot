@@ -224,43 +224,6 @@ async def insult(ctx):
     
     await ctx.respond(random.choice(response))
 
-#Gimmick------------------------------------------------------------------------------------------------------------------------------------
-#howhorny
-@bot.command
-@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option("user", "The user to tag", hikari.User)
-@lightbulb.command("howhorny", "Find out how horny someone is.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def howhorny(ctx: lightbulb.Context) -> None:
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
-    
-    horny_level = random.randint(0, 100)
-    await ctx.respond(f"{ctx.options.user.mention} is **{horny_level}%** horny.")
-
-#howgay
-@bot.command
-@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option("user", "The user to tag", hikari.User)
-@lightbulb.command("howgay", "Find out how gay someone is.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def howgay(ctx: lightbulb.Context) -> None:
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
-    
-    horny_level = random.randint(0, 100)
-    await ctx.respond(f"{ctx.options.user.mention} is **{horny_level}%** gay.")
-
 #MISC----------------------------------------------------------------------------------------------------------------------------------------
 #help command
 @bot.command
@@ -287,9 +250,6 @@ async def help(ctx):
             '**/removeinsult:** Remove a custom insult you added.\n'
             '**/viewinsults:** View the custom insults you have added.\n'
             'Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership) for $3/M.\n\n'
-            '**Gimmicks:**\n'
-            '**/howhorny:** Find out how horny someone is.\n'
-            '**/howgay:** Find out how gay someone is.\n\n'
             '**Miscellaneous Commands:**\n'
             '**/invite:** Get the bot\'s invite link.\n'
             '**/vote:** Get the link to vote at top.gg.\n'
