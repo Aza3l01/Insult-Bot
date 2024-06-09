@@ -95,11 +95,12 @@ async def on_message(event: hikari.MessageCreateEvent):
         else:
             all_responses = response
         selected_response = random.choice(all_responses)
-        await event.message.respond(f"{selected_response}")
+        #custom = "New command (toggle clean insults) is being worked on, please expect disruption in responses. Join the `/support` server to learn more."
+        await event.message.respond(f"{selected_response}")#\n{custom}")
         guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
         guild_name = guild.name if guild else "DM"
         await bot.rest.create_message(channel, f"`keyword` was used in `{guild_name}`.")
-        await asyncio.sleep(5)
+        await asyncio.sleep(15)
 
 #add insult
 @bot.command
