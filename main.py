@@ -137,7 +137,6 @@ async def addinsult(ctx):
     except Exception as e:
         await ctx.respond("An error occurred while processing your request.")
 
-#remove insult
 @bot.command
 @lightbulb.command('removeinsult', 'Remove a custom insult from a server of your choice.')
 @lightbulb.implements(lightbulb.SlashCommand)
@@ -163,15 +162,18 @@ async def removeinsult(ctx):
         if insult_index < 0 or insult_index >= len(custom_insults[server_id]):
             await ctx.respond("Please select the number next to the insult.")
             return
-        await ctx.respond("The selected insult will be removed shortly. Please allow up to a few hours for the list to update.")
+        removed_insult = custom_insults[server_id].pop(insult_index)
+        await ctx.respond("The selected insult has been removed.")
         log_message = (
             f"`removeinsult` invoked by user {ctx.author.id}\n"
-            f"Received server ID: {server_id_event.content}\n"
-            f"Received insult index: {insult_index_event.content}\n\n"
+            f"Removed insult: {removed_insult}\n"
+            f"Updated custom_insults = {custom_insults}\n\n"
         )
         await bot.rest.create_message(1246889573141839934, content=log_message)
     except asyncio.TimeoutError:
         await ctx.respond("You took too long to respond.")
+    except Exception as e:
+        await ctx.respond("An error occurred while processing your request.")
 
 #viewinsults
 @bot.command
