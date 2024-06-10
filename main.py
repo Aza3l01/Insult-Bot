@@ -95,8 +95,7 @@ async def on_message(event: hikari.MessageCreateEvent):
         else:
             all_responses = response
         selected_response = random.choice(all_responses)
-        #custom = "New command (toggle clean insults) is being worked on, please expect disruption in responses. Join the `/support` server to learn more."
-        await event.message.respond(f"{selected_response}")#\n{custom}")
+        await event.message.respond(f"{selected_response}")
         guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
         guild_name = guild.name if guild else "DM"
         await bot.rest.create_message(channel, f"`keyword` was used in `{guild_name}`.")
@@ -184,28 +183,23 @@ async def viewinsults(ctx):
         await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership) for $3/M.")
         return
     await ctx.respond("Please enter the ID of the server you want to view insults for:")
-    
     def check_server_id(event):
         return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-    
     try:
         server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
         server_id = int(server_id_event.content)
-        
         if server_id in custom_insults:
             insults_list = custom_insults[server_id]
             insults_text = '\n'.join(insults_list)
             await ctx.respond(f"Custom insults in this server:\n{insults_text}")
         else:
             await ctx.respond(f"No custom insults found.")
-        
         log_message = (
             f"`viewinsults` invoked by user {ctx.author.id}\n"
             f"Received server ID: {server_id_event.content}\n"
             f"Displayed insults: {custom_insults.get(server_id, 'No insults found')}\n\n"
         )
         await bot.rest.create_message(1246889573141839934, content=log_message)
-    
     except asyncio.TimeoutError:
         await ctx.respond("You took too long to respond.")
     except Exception as e:
@@ -252,7 +246,7 @@ async def help(ctx):
             '**/addinsult:** Add a custom insult to a server of your choice.\n'
             '**/removeinsult:** Remove a custom insult you added.\n'
             '**/viewinsults:** View the custom insults you have added.\n'
-            'Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership) for $3/M.\n\n'
+            'Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership) for $3.\n\n'
             '**Miscellaneous Commands:**\n'
             '**/invite:** Get the bot\'s invite link.\n'
             '**/vote:** Get the link to vote at top.gg.\n'
@@ -315,7 +309,7 @@ async def vote(ctx):
     embed = hikari.Embed(
         description=(
             '**Vote:**\n'
-            'Click [here](https://top.gg/bot/801431445452750879/vote) to vote on top.gg (thank you!)'
+            'Click [here](https://top.gg/bot/801431445452750879/vote) to vote on top.gg, thank you!'
         ),
         color=0x2f3136
     )
@@ -361,7 +355,7 @@ async def donate(ctx):
     embed = hikari.Embed(
         description=(
             '**Donate:**\n'
-            '[Buy me a coffee](https://buymeacoffee.com/azael/membership) to keep Insult Bot online.\n'
+            'Become a [member](https://buymeacoffee.com/azael/membership) at $3 to keep Insult Bot online.\n'
             'Thank you! :)'
         ),
         color=0x2f3136
@@ -403,7 +397,7 @@ async def privacy(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     embed = hikari.Embed(
 		title="",
-		description="**Privacy Policy:** \n The personal information of any user, including the message content it replies to, is not tracked by Insult Bot.",
+		description="**Privacy Policy:** \n The personal information of any user, including the message content it replies to, is not tracked by Insult Bot. If you've subscribed to Premium, Your user_id, server_id and custom insults are tracked and stored. Join the {support server}(https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
 		color=0x2f3136
 	)
     await ctx.respond(embed=embed)
