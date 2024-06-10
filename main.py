@@ -355,7 +355,7 @@ async def donate(ctx):
     embed = hikari.Embed(
         description=(
             '**Donate:**\n'
-            'Become a [member](https://buymeacoffee.com/azael/membership) at $3 to keep Insult Bot online.\n'
+            'Become a [member](https://buymeacoffee.com/azael/membership) for $3 to keep Insult Bot online.\n'
             'Thank you! :)'
         ),
         color=0x2f3136
