@@ -397,7 +397,7 @@ async def privacy(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     embed = hikari.Embed(
 		title="",
-		description="**Privacy Policy:** \n The personal information of any user, including the message content it replies to, is not tracked by Insult Bot. If you've subscribed to Premium, Your user_id, server_id and custom insults are tracked and stored. Join the {support server}(https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
+		description="**Privacy Policy:** \n The personal information of any user, including the message content it replies to, is not tracked by Insult Bot. If you've subscribed to Premium, Your user_id, server_id and custom insults are tracked and stored. Join the [support server](https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
 		color=0x2f3136
 	)
     await ctx.respond(embed=embed)
