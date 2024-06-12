@@ -107,15 +107,15 @@ async def on_message(event: hikari.MessageCreateEvent):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership) for $3/M.")
+        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership).")
         return
-    await ctx.respond("Please enter the ID of the server where you want to add the insult:")
+    await ctx.respond("Enter the server ID where you want to add the insult:")
     def check_server_id(event):
         return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
     try:
         server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
         server_id = int(server_id_event.content)
-        await ctx.respond("Please provide the insult text:")
+        await ctx.respond("Enter your the insult string:")
         def check_insult_message(event):
             return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
         insult_message_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_message)
@@ -123,7 +123,7 @@ async def addinsult(ctx):
         if server_id not in custom_insults:
             custom_insults[server_id] = []
         custom_insults[server_id].append(insult)
-        await ctx.respond(f"Insult added to the server!")
+        await ctx.respond(f"New insult added.")
         log_message = (
             f"`addinsult` invoked by user {ctx.author.id}\n"
             f"Received server ID: {server_id_event.content}\n"
@@ -141,16 +141,16 @@ async def addinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership) for $3/M.")
+        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership).")
         return
-    await ctx.respond("Please enter the ID of the server where you want to remove the insult:")
+    await ctx.respond("Enter the server ID where you want to remove the insult:")
     def check_server_id(event):
         return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
     try:
         server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
         server_id = int(server_id_event.content)
         if server_id not in custom_insults or not custom_insults[server_id]:
-            await ctx.respond(f"No custom insults found.")
+            await ctx.respond(f"No insult found.")
             return
         insults_list = "\n".join(f"{i+1}. {insult}" for i, insult in enumerate(custom_insults[server_id]))
         await ctx.respond(f"Select the number to the left of the insult to remove from the server:\n{insults_list}")
@@ -180,9 +180,9 @@ async def removeinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership) for $3/M.")
+        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership).")
         return
-    await ctx.respond("Please enter the ID of the server you want to view insults for:")
+    await ctx.respond("Enter the server ID where you want to view the added insults:")
     def check_server_id(event):
         return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
     try:
@@ -246,7 +246,7 @@ async def help(ctx):
             '**/addinsult:** Add a custom insult to a server of your choice.\n'
             '**/removeinsult:** Remove a custom insult you added.\n'
             '**/viewinsults:** View the custom insults you have added.\n'
-            'Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership) for $3.\n\n'
+            'Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership).\n\n'
             '**Miscellaneous Commands:**\n'
             '**/invite:** Get the bot\'s invite link.\n'
             '**/vote:** Get the link to vote at top.gg.\n'
@@ -406,13 +406,13 @@ async def privacy(ctx):
 @bot.listen(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	if isinstance(event.exception, lightbulb.CommandInvocationError):
-		await event.context.respond(f"Something went wrong during invocation of command `{event.context.command.name}`, Please try again.")
+		await event.context.respond(f"Something went wrong, please try again.")
 		raise event.exception
 
 	exception = event.exception.__cause__ or event.exception
 
 	if isinstance(exception, lightbulb.CommandIsOnCooldown):
-		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️ \n To avoid cooldowns, become a member at https://www.buymeacoffee.com/azael. \n It helps keep the bot online. 👉👈")
+		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [member](<https://buymeacoffee.com/azael/membership>).")
 	else:
 		raise exception
 
