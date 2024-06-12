@@ -249,7 +249,7 @@ async def help(ctx):
             "Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership).\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
-            "**/vote:** Get the link to vote at top.gg.\n"
+            "**/vote:** Vote on top.gg.\n"
             "**/support:** Join the support server.\n"
             "**/donate:** Support Insult Bot.\n"
             "**/more:** Check out more bots from me."
@@ -292,7 +292,7 @@ async def invite(ctx):
 #vote command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("vote", "Vote at top.gg.")
+@lightbulb.command("vote", "Vote on top.gg.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def vote(ctx):
     guild = ctx.get_guild()
