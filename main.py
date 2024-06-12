@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
-channel = os.getenv('CHANNEL_ID')
+channel = os.getenv("CHANNEL_ID")
 
 hearing_string = os.getenv("HEARING_LIST")
 hearing = hearing_string.split(",")
@@ -18,11 +18,11 @@ response = response_string.split(",")
 prem_users_string = os.getenv("PREM_USERS_LIST")
 prem_users = prem_users_string.split(",")
 
-custom_insults = {857112618963566592: ['test insult', 'test insult 24'], 1006195077409951864: ['support insult']}
+custom_insults = {857112618963566592: ["test insult", "test insult 24"], 1006195077409951864: ["support insult"]}
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
-	token=os.getenv('BOT_TOKEN')
+	token=os.getenv("BOT_TOKEN")
 )
 
 class TopGGClient:
@@ -103,7 +103,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 
 #add insult
 @bot.command
-@lightbulb.command('addinsult', 'Add a custom insult to a server of your choice.')
+@lightbulb.command("addinsult", "Add a custom insult to a server of your choice.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
@@ -136,8 +136,9 @@ async def addinsult(ctx):
     except Exception as e:
         await ctx.respond("An error occurred while processing your request.")
 
+#remove insult
 @bot.command
-@lightbulb.command('removeinsult', 'Remove a custom insult from a server of your choice.')
+@lightbulb.command("removeinsult", "Remove a custom insult from a server of your choice.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
@@ -174,9 +175,9 @@ async def removeinsult(ctx):
     except Exception as e:
         await ctx.respond("An error occurred while processing your request.")
 
-#viewinsults
+#view insults
 @bot.command
-@lightbulb.command('viewinsults', 'View custom insults added to a server.')
+@lightbulb.command("viewinsults", "View custom insults added to a server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
@@ -190,7 +191,7 @@ async def viewinsults(ctx):
         server_id = int(server_id_event.content)
         if server_id in custom_insults:
             insults_list = custom_insults[server_id]
-            insults_text = '\n'.join(insults_list)
+            insults_text = "\n".join(insults_list)
             await ctx.respond(f"Custom insults in this server:\n{insults_text}")
         else:
             await ctx.respond(f"No custom insults found.")
@@ -208,7 +209,7 @@ async def viewinsults(ctx):
 #insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('insult', 'Generate a random insult.')
+@lightbulb.command("insult", "Generate a random insult.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def insult(ctx):
     guild = ctx.get_guild()
@@ -225,7 +226,7 @@ async def insult(ctx):
 #help command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('help', 'You know what this is ;)')
+@lightbulb.command("help", "You know what this is ;)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def help(ctx):
     guild = ctx.get_guild()
@@ -235,44 +236,43 @@ async def help(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
     embed = hikari.Embed(
-        title='__**Help**__',
+        title="__Help__",
         description=(
-            '**Core Commands:**\n'
-            '**/help:** You just used this command.\n'
-            '**/insult:** Generate a random insult.\n\n'
-            '**Premium Commands:**\n'
-            '**/addinsult:** Add a custom insult to a server of your choice.\n'
-            '**/removeinsult:** Remove a custom insult you added.\n'
-            '**/viewinsults:** View the custom insults you have added.\n'
-            'Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership).\n\n'
-            '**Miscellaneous Commands:**\n'
-            '**/invite:** Get the bot\'s invite link.\n'
-            '**/vote:** Get the link to vote at top.gg.\n'
-            '**/support:** Join the support server.\n'
-            '**/donate:** Support Insult Bot.\n'
-            '**/more:** Check out more bots from me.'
-            '**/privacy:** View our privacy policy.'
+            "**Core Commands:**\n"
+            "**/help:** You just used this command.\n"
+            "**/insult:** Generate a random insult.\n\n"
+            "**Premium Commands:**\n"
+            "**/addinsult:** Add a custom insult to a server of your choice.\n"
+            "**/removeinsult:** Remove a custom insult you added.\n"
+            "**/viewinsults:** View the custom insults you have added.\n"
+            "Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership).\n\n"
+            "**Miscellaneous Commands:**\n"
+            "**/invite:** Invite the bot to your server.\n"
+            "**/vote:** Get the link to vote at top.gg.\n"
+            "**/support:** Join the support server.\n"
+            "**/donate:** Support Insult Bot.\n"
+            "**/more:** Check out more bots from me."
+            "**/privacy:** View our privacy policy."
         ),
-        color=0x2f3136
+        color=0x2B2D31
     )
+    embed.set_footer("Join the support server if you need help.")
     await ctx.respond(embed=embed)
-
     thank_you_embed = hikari.Embed(
+        title="Thank you!",
         description=(
-            '**Thank you!**\n'
-            'If you like using Insult Bot, consider [voting](https://top.gg/bot/801431445452750879/vote) or leaving a [review](https://top.gg/bot/801431445452750879).\n'
-            'To help keep Insult Bot online, consider becoming a [member](https://buymeacoffee.com/azael/membership).'
+            "If you like using Insult Bot, consider [voting](https://top.gg/bot/801431445452750879/vote) or leaving a [review](https://top.gg/bot/801431445452750879).\n"
+            "To help keep Insult Bot online, consider becoming a [member](https://buymeacoffee.com/azael/membership)."
         ),
-        color=0x2f3136
+        color=0x2B2D31
     )
     await ctx.respond(embed=thank_you_embed)
 
 #invite command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('invite', "Get the bot's invite link.")
+@lightbulb.command("invite", "Invite the bot to your server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def invite(ctx):
     guild = ctx.get_guild()
@@ -282,12 +282,9 @@ async def invite(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    
     embed = hikari.Embed(
-        description=(
-            '**Invite:**\n'
-            'Get the bot\'s invite link [here](https://discord.com/oauth2/authorize?client_id=801431445452750879&permissions=414464727104&scope=applications.commands%20bot).'
-        ),
+        title="Invite:",
+        description=("[Invite the bot to your server.](https://discord.com/oauth2/authorize?client_id=801431445452750879&permissions=414464727104&scope=applications.commands%20bot)"),
         color=0x2f3136
     )
     await ctx.respond(embed=embed)
@@ -295,7 +292,7 @@ async def invite(ctx):
 #vote command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('vote', 'Get the link to vote at top.gg.')
+@lightbulb.command("vote", "Vote at top.gg.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def vote(ctx):
     guild = ctx.get_guild()
@@ -305,20 +302,17 @@ async def vote(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
     embed = hikari.Embed(
-        description=(
-            '**Vote:**\n'
-            'Click [here](https://top.gg/bot/801431445452750879/vote) to vote on top.gg, thank you!'
-        ),
-        color=0x2f3136
+        title="Vote:",
+        description=("[Vote on top.gg, thank you!](https://top.gg/bot/801431445452750879/vote)"),
+        color=0x2B2D31
     )
     await ctx.respond(embed=embed)
 
 #support command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('support', 'Invite to join the support server.')
+@lightbulb.command("support", "Join the support server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def support(ctx):
     guild = ctx.get_guild()
@@ -328,20 +322,17 @@ async def support(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
     embed = hikari.Embed(
-        description=(
-            '**Support:**\n'
-            'Click [here](https://discord.com/invite/x7MdgVFUwa) to join the support server.'
-        ),
-        color=0x2f3136
+        title="Support Server:",
+        description=("[Join the support server.](https://discord.com/invite/x7MdgVFUwa)"),
+        color=0x2B2D31
     )
     await ctx.respond(embed=embed)
 
 #donate command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command('donate', 'Donate to support Insult Bot.')
+@lightbulb.command("donate", "Donate to support Insult Bot.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def donate(ctx):
     guild = ctx.get_guild()
@@ -351,21 +342,17 @@ async def donate(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
     embed = hikari.Embed(
-        description=(
-            '**Donate:**\n'
-            'Become a [member](https://buymeacoffee.com/azael/membership) for $3 to keep Insult Bot online.\n'
-            'Thank you! :)'
-        ),
-        color=0x2f3136
+        title="Donate:",
+        description=("[Donate to keep Insult Bot online, thank you!](https://buymeacoffee.com/azael)"),
+        color=0x2B2D31
     )
     await ctx.respond(embed=embed)
 
 #more command
 @bot.command
 @lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("more", "Check out more bots from me.")
+@lightbulb.command("more", "More bots from me.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def more(ctx):
     guild = ctx.get_guild()
@@ -375,19 +362,17 @@ async def more(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
     embed = hikari.Embed(
-        description=(
-            '**More:**\n'
-            'Click [here](https://top.gg/user/67067136345571328) to check out more bots from me.'
-        ),
-        color=0x2f3136
+        title="More:",
+        description=("[Check out more bots from me.](https://top.gg/user/67067136345571328)"),
+        color=0x2B2D31
     )
     await ctx.respond(embed=embed)
 
 #privacy command
 @bot.command
-@lightbulb.command("privacy", "View the privacy policy statement.")
+@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.command("privacy", "Privacy policy statement.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def privacy(ctx):
     guild = ctx.get_guild()
@@ -395,10 +380,12 @@ async def privacy(ctx):
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+    if any(word in str(ctx.author.id) for word in prem_users):
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
-		title="",
-		description="**Privacy Policy:** \n The personal information of any user, including the message content it replies to, is not tracked by Insult Bot. If you've subscribed to Premium, Your user_id, server_id and custom insults are tracked and stored. Join the [support server](https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
-		color=0x2f3136
+		title="Privacy Policy:",
+		description="The personal information of any user, including the message content it replies to, is not tracked by Insult Bot.\n\nThe user_id, server_id and added insults of premium members are stored to provide the user the with perks and is deleted once a user is no longer a member.\n\nJoin the [support server](https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
+		color=0x2B2D31
 	)
     await ctx.respond(embed=embed)
 
