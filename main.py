@@ -115,7 +115,7 @@ async def addinsult(ctx):
     try:
         server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
         server_id = int(server_id_event.content)
-        await ctx.respond("Enter your the insult string:")
+        await ctx.respond("Please enter your insult string, ensuring it complies with Discord's TOS and does not contain discriminatory language:")
         def check_insult_message(event):
             return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
         insult_message_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_message)
