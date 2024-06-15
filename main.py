@@ -237,7 +237,7 @@ async def help(ctx):
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
-        title="__Help__",
+        title="📚 Help 📚",
         description=(
             "**Core Commands:**\n"
             "**/help:** You just used this command.\n"
@@ -252,7 +252,7 @@ async def help(ctx):
             "**/vote:** Vote on top.gg.\n"
             "**/support:** Join the support server.\n"
             "**/donate:** Support Insult Bot.\n"
-            "**/more:** Check out more bots from me."
+            "**/more:** Check out more bots from me.\n"
             "**/privacy:** View our privacy policy."
         ),
         color=0x2B2D31
