@@ -225,7 +225,7 @@ async def insult(ctx):
 #MISC----------------------------------------------------------------------------------------------------------------------------------------
 #help command
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("help", "You know what this is ;)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def help(ctx):
@@ -271,7 +271,7 @@ async def help(ctx):
 
 #invite command
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("invite", "Invite the bot to your server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def invite(ctx):
@@ -291,7 +291,7 @@ async def invite(ctx):
 
 #vote command
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("vote", "Vote on top.gg.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def vote(ctx):
@@ -311,7 +311,7 @@ async def vote(ctx):
 
 #support command
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("support", "Join the support server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def support(ctx):
@@ -331,7 +331,7 @@ async def support(ctx):
 
 #donate command
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("donate", "Donate to support Insult Bot.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def donate(ctx):
@@ -351,7 +351,7 @@ async def donate(ctx):
 
 #more command
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("more", "More bots from me.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def more(ctx):
@@ -371,7 +371,7 @@ async def more(ctx):
 
 #privacy command
 @bot.command
-@lightbulb.add_cooldown(length=30, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("privacy", "Privacy policy statement.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def privacy(ctx):
