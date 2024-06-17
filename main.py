@@ -107,19 +107,23 @@ async def on_message(event: hikari.MessageCreateEvent):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership).")
+        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
     await ctx.respond("Enter the server ID where you want to add the insult:")
+
     def check_server_id(event):
         return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
     try:
         server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
         server_id = int(server_id_event.content)
-        await ctx.respond("Please enter your insult string, ensuring it complies with Discord's TOS and does not contain discriminatory language:")
+        await ctx.respond("Enter your insult string, ensuring it complies with Discord's TOS and does not contain discriminatory language (maximum 200 characters):")
         def check_insult_message(event):
             return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
         insult_message_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_message)
         insult = insult_message_event.content
+        if len(insult) > 200:
+            await ctx.respond("Your insult is too long. Keep it under 200 characters.")
+            return
         if server_id not in custom_insults:
             custom_insults[server_id] = []
         custom_insults[server_id].append(insult)
@@ -142,7 +146,7 @@ async def addinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership).")
+        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
     await ctx.respond("Enter the server ID where you want to remove the insult:")
     def check_server_id(event):
@@ -181,7 +185,7 @@ async def removeinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://buymeacoffee.com/azael/membership).")
+        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
     await ctx.respond("Enter the server ID where you want to view the added insults:")
     def check_server_id(event):
@@ -246,7 +250,7 @@ async def help(ctx):
             "**/addinsult:** Add a custom insult to a server of your choice.\n"
             "**/removeinsult:** Remove a custom insult you added.\n"
             "**/viewinsults:** View the custom insults you have added.\n"
-            "Premium commands keep Insult Bot online, become a [member](https://buymeacoffee.com/azael/membership).\n\n"
+            "Premium commands keep Insult Bot online, become a [member](https://ko-fi.com/azaelbots).\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
@@ -263,7 +267,7 @@ async def help(ctx):
         title="Thank you!",
         description=(
             "If you like using Insult Bot, consider [voting](https://top.gg/bot/801431445452750879/vote) or leaving a [review](https://top.gg/bot/801431445452750879).\n"
-            "To help keep Insult Bot online, consider becoming a [member](https://buymeacoffee.com/azael/membership)."
+            "To help keep Insult Bot online, consider becoming a [member](https://ko-fi.com/azaelbots)."
         ),
         color=0x2B2D31
     )
@@ -329,12 +333,12 @@ async def support(ctx):
     )
     await ctx.respond(embed=embed)
 
-#donate command
+#premium command
 @bot.command
 @lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("donate", "Donate to support Insult Bot.")
+@lightbulb.command("premium", "What is premium.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def donate(ctx):
+async def premium(ctx):
     guild = ctx.get_guild()
     if guild is not None:
         await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
@@ -343,8 +347,8 @@ async def donate(ctx):
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
-        title="Donate:",
-        description=("[Donate to keep Insult Bot online, thank you!](https://buymeacoffee.com/azael)"),
+        title="What is premium:",
+        description=("With premium, you can use premium commands and skip cool-downs. Premium is important for supporting the bot's hosting costs. The main functions of the bot will never be paywalled, but a few extra commands serve as an incentive to subscribe. If you would like to keep the bot online and support me, [become a member](https://ko-fi.com/azaelbots). It helps massively."),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
@@ -399,7 +403,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	exception = event.exception.__cause__ or event.exception
 
 	if isinstance(exception, lightbulb.CommandIsOnCooldown):
-		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [member](<https://buymeacoffee.com/azael/membership>).")
+		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [member](<https://ko-fi.com/azaelbots>).")
 	else:
 		raise exception
 
