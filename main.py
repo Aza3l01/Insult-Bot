@@ -255,7 +255,7 @@ async def help(ctx):
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
             "**/support:** Join the support server.\n"
-            "**/premium:** What is premium.\n"
+            "**/premium:** Learn more about the premium version of the bot.\n"
             "**/more:** Check out more bots from me.\n"
             "**/privacy:** View our privacy policy."
         ),
