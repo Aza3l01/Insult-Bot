@@ -255,7 +255,7 @@ async def help(ctx):
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
             "**/support:** Join the support server.\n"
-            "**/donate:** Support Insult Bot.\n"
+            "**/premium:** What is premium.\n"
             "**/more:** Check out more bots from me.\n"
             "**/privacy:** View our privacy policy."
         ),
@@ -348,7 +348,7 @@ async def premium(ctx):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
         title="What is premium:",
-        description=("With premium, you can use premium commands and skip cool-downs. Premium is important for supporting the bot's hosting costs. The main functions of the bot will never be paywalled, but a few extra commands serve as an incentive to subscribe. If you would like to keep the bot online and support me, [become a member](https://ko-fi.com/azaelbots). It helps massively."),
+        description=("With premium, you can use premium commands and skip cool-downs. Premium is important for supporting the bot's hosting costs.\nThe main functions of the bot will never be paywalled, but a few extra commands serve as an incentive to subscribe.\nIf you would like to keep the bot online and support me, [become a member](https://ko-fi.com/azaelbots).\nIt helps massively. ❤️"),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
