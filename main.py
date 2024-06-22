@@ -50,19 +50,20 @@ class TopGGClient:
 topgg_token = os.getenv("TOPGG_TOKEN")
 topgg_client = TopGGClient(bot, topgg_token)
 
-# Server count update
+#count update
 @bot.listen(hikari.StartedEvent)
 async def on_starting(event: hikari.StartedEvent) -> None:
-    guilds = await bot.rest.fetch_my_guilds()
-    server_count = len(guilds)
-    
-    await bot.update_presence(
-        activity=hikari.Activity(
-            name=f"{server_count} servers! | /help",
-            type=hikari.ActivityType.WATCHING,
+    while True:
+        guilds = await bot.rest.fetch_my_guilds()
+        server_count = len(guilds)
+        await bot.update_presence(
+            activity=hikari.Activity(
+                name=f"{server_count} servers! | /help",
+                type=hikari.ActivityType.WATCHING,
+            )
         )
-    )
-    await topgg_client.post_guild_count(server_count)
+        await topgg_client.post_guild_count(server_count)
+        await asyncio.sleep(3600)
 
 #join
 @bot.listen(hikari.GuildJoinEvent)
