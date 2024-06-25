@@ -18,9 +18,9 @@ response = response_string.split(",")
 prem_users_string = os.getenv("PREM_USERS_LIST")
 prem_users = prem_users_string.split(",")
 
-custom_insults = {857112618963566592: ["test insult", "test insult 24"], 1006195077409951864: ["support insult"]}
+custom_insults = {}
 
-custom_triggers = {857112618963566592: ['trigger test'], 1006195077409951864: ['test trigger for bot support']}
+custom_triggers = {}
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -132,244 +132,183 @@ async def insult(ctx):
 
 #add insult
 @bot.command
+@lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
+@lightbulb.option("server", "The server ID where you want to add the insult.", type=str)
 @lightbulb.command("addinsult", "Add a custom insult to a server of your choice.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
         await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
-    await ctx.respond("Enter the server ID where you want to add the insult:")
 
-    def check_server_id(event):
-        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-    try:
-        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
-        server_id = int(server_id_event.content)
-        await ctx.respond("Enter your insult string, ensuring it complies with Discord's TOS and does not contain discriminatory language (maximum 200 characters):")
-        def check_insult_message(event):
-            return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-        insult_message_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_message)
-        insult = insult_message_event.content
-        if len(insult) > 200:
-            await ctx.respond("Your insult is too long. Keep it under 200 characters.")
-            return
-        if server_id not in custom_insults:
-            custom_insults[server_id] = []
-        custom_insults[server_id].append(insult)
-        await ctx.respond(f"New insult added.")
-        log_message = (
-            f"`addinsult` invoked by user {ctx.author.id}\n"
-            f"Received server ID: {server_id_event.content}\n"
-            f"Received insult: {insult_message_event.content}\n"
-            f"Updated custom_insults = {custom_insults}\n\n"
-        )
-        await bot.rest.create_message(1246889573141839934, content=log_message)
-    except asyncio.TimeoutError:
-        await ctx.respond("You took too long to respond.")
-    except Exception as e:
-        await ctx.respond("An error occurred while processing your request.")
+    server_id = ctx.options.server
+    insult = ctx.options.insult
+
+    if len(insult) > 200:
+        await ctx.respond("Your insult is too long. Keep it under 200 characters.")
+        return
+
+    if server_id not in custom_insults:
+        custom_insults[server_id] = []
+
+    custom_insults[server_id].append(insult)
+    await ctx.respond(f"New insult added.")
+
+    log_message = (
+        f"`addinsult` invoked by user {ctx.author.id}\n"
+        f"Received server ID: {server_id}\n"
+        f"Received insult: {insult}\n"
+        f"Updated custom_insults = {custom_insults}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 #remove insult
 @bot.command
+@lightbulb.option("index", "The index of the insult to remove.", type=int)
+@lightbulb.option("server", "The server ID where you want to remove the insult.", type=str)
 @lightbulb.command("removeinsult", "Remove a custom insult from a server of your choice.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
         await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
-    await ctx.respond("Enter the server ID where you want to remove the insult:")
-    def check_server_id(event):
-        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-    try:
-        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
-        server_id = int(server_id_event.content)
-        if server_id not in custom_insults or not custom_insults[server_id]:
-            await ctx.respond(f"No insult found.")
-            return
-        insults_list = "\n".join(f"{i+1}. {insult}" for i, insult in enumerate(custom_insults[server_id]))
-        await ctx.respond(f"Select the number to the left of the insult to remove from the server:\n{insults_list}")
-        def check_insult_index(event):
-            return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-        insult_index_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_insult_index)
-        insult_index = int(insult_index_event.content) - 1
-        if insult_index < 0 or insult_index >= len(custom_insults[server_id]):
-            await ctx.respond("Please select the number next to the insult.")
-            return
-        removed_insult = custom_insults[server_id].pop(insult_index)
-        await ctx.respond("The selected insult has been removed.")
-        log_message = (
-            f"`removeinsult` invoked by user {ctx.author.id}\n"
-            f"Removed insult: {removed_insult}\n"
-            f"Updated custom_insults = {custom_insults}\n\n"
-        )
-        await bot.rest.create_message(1246889573141839934, content=log_message)
-    except asyncio.TimeoutError:
-        await ctx.respond("You took too long to respond.")
-    except Exception as e:
-        await ctx.respond("An error occurred while processing your request.")
+
+    server_id = ctx.options.server
+    insult_index = ctx.options.index - 1
+
+    if server_id not in custom_insults or not custom_insults[server_id]:
+        await ctx.respond(f"No insults found.")
+        return
+
+    if insult_index < 0 or insult_index >= len(custom_insults[server_id]):
+        await ctx.respond("Please select a valid number next to the insult.")
+        return
+
+    removed_insult = custom_insults[server_id].pop(insult_index)
+    await ctx.respond("The selected insult has been removed.")
+
+    log_message = (
+        f"`removeinsult` invoked by user {ctx.author.id}\n"
+        f"Removed insult: {removed_insult}\n"
+        f"Updated custom_insults = {custom_insults}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 #view insults
 @bot.command
+@lightbulb.option("server", "The server ID where you want to view the insults.", type=str)
 @lightbulb.command("viewinsults", "View custom insults added to a server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
         await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
-    await ctx.respond("Enter the server ID where you want to view the added insults:")
-    def check_server_id(event):
-        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-    try:
-        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
-        server_id = int(server_id_event.content)
-        if server_id in custom_insults:
-            insults_list = custom_insults[server_id]
-            insults_text = "\n".join(insults_list)
-            await ctx.respond(f"Custom insults in this server:\n{insults_text}")
-        else:
-            await ctx.respond(f"No custom insults found.")
-        log_message = (
-            f"`viewinsults` invoked by user {ctx.author.id}\n"
-            f"Received server ID: {server_id_event.content}\n"
-            f"Displayed insults: {custom_insults.get(server_id, 'No insults found')}\n\n"
-        )
-        await bot.rest.create_message(1246889573141839934, content=log_message)
-    except asyncio.TimeoutError:
-        await ctx.respond("You took too long to respond.")
-    except Exception as e:
-        await ctx.respond("An error occurred while processing your request.")
+
+    server_id = ctx.options.server
+
+    if server_id in custom_insults:
+        insults_list = custom_insults[server_id]
+        insults_text = "\n".join(insults_list)
+        await ctx.respond(f"Custom insults in this server:\n{insults_text}")
+    else:
+        await ctx.respond(f"No custom insults found.")
+
+    log_message = (
+        f"`viewinsults` invoked by user {ctx.author.id}\n"
+        f"Received server ID: {server_id}\n"
+        f"Displayed insults: {custom_insults.get(server_id, 'No insults found')}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 # Add trigger command
 @bot.command
+@lightbulb.option("trigger", "Add your trigger, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
+@lightbulb.option("server", "The server ID where you want to add the trigger.", type=str)
 @lightbulb.command("addtrigger", "Add a custom trigger to a server of your choice.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addtrigger(ctx):
     if str(ctx.author.id) not in prem_users:
         await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
-    await ctx.respond("Enter the server ID where you want to add the trigger:")
 
-    def check_server_id(event):
-        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-    
-    try:
-        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
-        server_id = int(server_id_event.content)
-        await ctx.respond("Enter your trigger string, ensuring it complies with Discord's TOS and does not contain discriminatory language (maximum 200 characters):")
+    server_id = ctx.options.server
+    trigger = ctx.options.trigger
 
-        def check_trigger_message(event):
-            return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-        
-        trigger_message_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_trigger_message)
-        trigger = trigger_message_event.content
-        
-        if len(trigger) > 200:
-            await ctx.respond("Your trigger is too long. Keep it under 200 characters.")
-            return
-        
-        if server_id not in custom_triggers:
-            custom_triggers[server_id] = []
-        
-        custom_triggers[server_id].append(trigger)
-        await ctx.respond(f"New trigger added.")
-        
-        log_message = (
-            f"`addtrigger` invoked by user {ctx.author.id}\n"
-            f"Received server ID: {server_id_event.content}\n"
-            f"Received trigger: {trigger_message_event.content}\n"
-            f"Updated custom_triggers = {custom_triggers}\n\n"
-        )
-        await bot.rest.create_message(1246889573141839934, content=log_message)
-    
-    except asyncio.TimeoutError:
-        await ctx.respond("You took too long to respond.")
-    except Exception as e:
-        await ctx.respond("An error occurred while processing your request.")
+    if len(trigger) > 200:
+        await ctx.respond("Your trigger is too long. Keep it under 200 characters.")
+        return
+
+    if server_id not in custom_triggers:
+        custom_triggers[server_id] = []
+
+    custom_triggers[server_id].append(trigger)
+    await ctx.respond(f"New trigger added.")
+
+    log_message = (
+        f"`addtrigger` invoked by user {ctx.author.id}\n"
+        f"Received server ID: {server_id}\n"
+        f"Received trigger: {trigger}\n"
+        f"Updated custom_triggers = {custom_triggers}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 # Remove trigger command
 @bot.command
+@lightbulb.option("index", "The index of the trigger to remove.", type=int)
+@lightbulb.option("server", "The server ID where you want to remove the trigger.", type=str)
 @lightbulb.command("removetrigger", "Remove a custom trigger from a server of your choice.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removetrigger(ctx):
     if str(ctx.author.id) not in prem_users:
         await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
-    await ctx.respond("Enter the server ID where you want to remove the trigger:")
 
-    def check_server_id(event):
-        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-    
-    try:
-        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
-        server_id = int(server_id_event.content)
-        
-        if server_id not in custom_triggers or not custom_triggers[server_id]:
-            await ctx.respond(f"No triggers found.")
-            return
-        
-        triggers_list = "\n".join(f"{i+1}. {trigger}" for i, trigger in enumerate(custom_triggers[server_id]))
-        await ctx.respond(f"Select the number to the left of the trigger to remove from the server:\n{triggers_list}")
+    server_id = ctx.options.server
+    trigger_index = ctx.options.index - 1
 
-        def check_trigger_index(event):
-            return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-        
-        trigger_index_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_trigger_index)
-        trigger_index = int(trigger_index_event.content) - 1
-        
-        if trigger_index < 0 or trigger_index >= len(custom_triggers[server_id]):
-            await ctx.respond("Please select the number next to the trigger.")
-            return
-        
-        removed_trigger = custom_triggers[server_id].pop(trigger_index)
-        await ctx.respond("The selected trigger has been removed.")
-        
-        log_message = (
-            f"`removetrigger` invoked by user {ctx.author.id}\n"
-            f"Removed trigger: {removed_trigger}\n"
-            f"Updated custom_triggers = {custom_triggers}\n\n"
-        )
-        await bot.rest.create_message(1246889573141839934, content=log_message)
-    
-    except asyncio.TimeoutError:
-        await ctx.respond("You took too long to respond.")
-    except Exception as e:
-        await ctx.respond("An error occurred while processing your request.")
+    if server_id not in custom_triggers or not custom_triggers[server_id]:
+        await ctx.respond(f"No triggers found.")
+        return
+
+    if trigger_index < 0 or trigger_index >= len(custom_triggers[server_id]):
+        await ctx.respond("Please select a valid number next to the trigger.")
+        return
+
+    removed_trigger = custom_triggers[server_id].pop(trigger_index)
+    await ctx.respond("The selected trigger has been removed.")
+
+    log_message = (
+        f"`removetrigger` invoked by user {ctx.author.id}\n"
+        f"Removed trigger: {removed_trigger}\n"
+        f"Updated custom_triggers = {custom_triggers}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 # View triggers command
 @bot.command
+@lightbulb.option("server", "The server ID where you want to view the triggers.", type=str)
 @lightbulb.command("viewtriggers", "View custom triggers added to a server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewtriggers(ctx):
     if str(ctx.author.id) not in prem_users:
         await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
-    await ctx.respond("Enter the server ID where you want to view the added triggers:")
 
-    def check_server_id(event):
-        return event.author_id == ctx.author.id and event.channel_id == ctx.channel_id
-    
-    try:
-        server_id_event = await bot.wait_for(hikari.MessageCreateEvent, timeout=60, predicate=check_server_id)
-        server_id = int(server_id_event.content)
-        
-        if server_id in custom_triggers:
-            triggers_list = custom_triggers[server_id]
-            triggers_text = "\n".join(triggers_list)
-            await ctx.respond(f"Custom triggers in this server:\n{triggers_text}")
-        else:
-            await ctx.respond(f"No custom triggers found.")
-        
-        log_message = (
-            f"`viewtriggers` invoked by user {ctx.author.id}\n"
-            f"Received server ID: {server_id_event.content}\n"
-            f"Displayed triggers: {custom_triggers.get(server_id, 'No triggers found')}\n\n"
-        )
-        await bot.rest.create_message(1246889573141839934, content=log_message)
-    
-    except asyncio.TimeoutError:
-        await ctx.respond("You took too long to respond.")
-    except Exception as e:
-        await ctx.respond("An error occurred while processing your request.")
+    server_id = ctx.options.server
+
+    if server_id in custom_triggers:
+        triggers_list = custom_triggers[server_id]
+        triggers_text = "\n".join(triggers_list)
+        await ctx.respond(f"Custom triggers in this server:\n{triggers_text}")
+    else:
+        await ctx.respond(f"No custom triggers found.")
+
+    log_message = (
+        f"`viewtriggers` invoked by user {ctx.author.id}\n"
+        f"Received server ID: {server_id}\n"
+        f"Displayed triggers: {custom_triggers.get(server_id, 'No triggers found')}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 #MISC----------------------------------------------------------------------------------------------------------------------------------------
 #help command
@@ -395,7 +334,10 @@ async def help(ctx):
             "**/addinsult:** Add a custom insult to a server of your choice.\n"
             "**/removeinsult:** Remove a custom insult you added.\n"
             "**/viewinsults:** View the custom insults you have added.\n"
-            "Premium commands keep Insult Bot online, become a [member](https://ko-fi.com/azaelbots).\n\n"
+            "**/addtrigger:** Add a custom trigger to a server of your choice.\n"
+            "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
+            "**/viewtriggers:** View custom triggers added to a server.\n\n"
+            "**Premium commands keep Insult Bot online, consider becoming a [member](https://ko-fi.com/azaelbots).**\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
