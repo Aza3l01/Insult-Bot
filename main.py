@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
 channel = os.getenv("CHANNEL_ID")
 
 hearing_string = os.getenv("HEARING_LIST")
@@ -15,12 +16,14 @@ hearing = hearing_string.split(",")
 response_string = os.getenv("RESPONSE_LIST")
 response = response_string.split(",")
 
-prem_users_string = os.getenv("PREM_USERS_LIST")
-prem_users = prem_users_string.split(",")
+prohibited_keywords = os.getenv("PROHIBITED_WORDS")
+prohibited_words = prohibited_keywords.split(",")
 
-custom_insults = {}
+prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 
-custom_triggers = {}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure']}
+
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report']}
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -146,6 +149,10 @@ async def addinsult(ctx):
 
     if len(insult) > 200:
         await ctx.respond("Your insult is too long. Keep it under 200 characters.")
+        return
+
+    if any(prohibited_word in insult.lower() for prohibited_word in prohibited_words):
+        await ctx.respond("Your insult does not comply with Discord's TOS.")
         return
 
     if server_id not in custom_insults:
