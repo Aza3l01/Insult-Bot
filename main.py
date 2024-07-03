@@ -133,18 +133,17 @@ async def insult(ctx):
     
     await ctx.respond(random.choice(response))
 
-#add insult
+# Add insult command
 @bot.command
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
-@lightbulb.option("server", "The server ID where you want to add the insult.", type=str)
-@lightbulb.command("addinsult", "Add a custom insult to a server of your choice.")
+@lightbulb.command("addinsult", "Add a custom insult to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, become a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
 
-    server_id = ctx.options.server
+    server_id = str(ctx.guild_id)
     insult = ctx.options.insult
 
     if len(insult) > 200:
@@ -169,18 +168,17 @@ async def addinsult(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-#remove insult
+# Remove insult command
 @bot.command
 @lightbulb.option("index", "The index of the insult to remove.", type=int)
-@lightbulb.option("server", "The server ID where you want to remove the insult.", type=str)
-@lightbulb.command("removeinsult", "Remove a custom insult from a server of your choice.")
+@lightbulb.command("removeinsult", "Remove a custom insult from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, become a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
 
-    server_id = ctx.options.server
+    server_id = str(ctx.guild_id)
     insult_index = ctx.options.index - 1
 
     if server_id not in custom_insults or not custom_insults[server_id]:
@@ -201,17 +199,16 @@ async def removeinsult(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-#view insults
+# View insults command
 @bot.command
-@lightbulb.option("server", "The server ID where you want to view the insults.", type=str)
-@lightbulb.command("viewinsults", "View custom insults added to a server.")
+@lightbulb.command("viewinsults", "View custom insults added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, become a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
 
-    server_id = ctx.options.server
+    server_id = str(ctx.guild_id)
 
     if server_id in custom_insults:
         insults_list = custom_insults[server_id]
@@ -230,15 +227,14 @@ async def viewinsults(ctx):
 # Add trigger command
 @bot.command
 @lightbulb.option("trigger", "Add your trigger, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
-@lightbulb.option("server", "The server ID where you want to add the trigger.", type=str)
-@lightbulb.command("addtrigger", "Add a custom trigger to a server of your choice.")
+@lightbulb.command("addtrigger", "Add a custom trigger to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addtrigger(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, become a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
 
-    server_id = ctx.options.server
+    server_id = str(ctx.guild_id)
     trigger = ctx.options.trigger
 
     if len(trigger) > 200:
@@ -262,15 +258,14 @@ async def addtrigger(ctx):
 # Remove trigger command
 @bot.command
 @lightbulb.option("index", "The index of the trigger to remove.", type=int)
-@lightbulb.option("server", "The server ID where you want to remove the trigger.", type=str)
-@lightbulb.command("removetrigger", "Remove a custom trigger from a server of your choice.")
+@lightbulb.command("removetrigger", "Remove a custom trigger from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removetrigger(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, become a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
 
-    server_id = ctx.options.server
+    server_id = str(ctx.guild_id)
     trigger_index = ctx.options.index - 1
 
     if server_id not in custom_triggers or not custom_triggers[server_id]:
@@ -293,15 +288,14 @@ async def removetrigger(ctx):
 
 # View triggers command
 @bot.command
-@lightbulb.option("server", "The server ID where you want to view the triggers.", type=str)
-@lightbulb.command("viewtriggers", "View custom triggers added to a server.")
+@lightbulb.command("viewtriggers", "View custom triggers added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewtriggers(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, sign up as a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, become a [member](https://ko-fi.com/azaelbots). Premium commands exist to cover the bot's hosting costs.")
         return
 
-    server_id = ctx.options.server
+    server_id = str(ctx.guild_id)
 
     if server_id in custom_triggers:
         triggers_list = custom_triggers[server_id]
