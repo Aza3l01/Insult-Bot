@@ -21,9 +21,9 @@ prohibited_words = prohibited_keywords.split(",")
 
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure']}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass']}
 
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report']}
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', '🤓'], '1193319104917024849': ['stream', 'loading', 'work', 'question']}
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -164,7 +164,7 @@ async def addinsult(ctx):
         f"`addinsult` invoked by user {ctx.author.id}\n"
         f"Received server ID: {server_id}\n"
         f"Received insult: {insult}\n"
-        f"Updated custom_insults = {custom_insults}\n\n"
+        f"custom_insults = {custom_insults}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
@@ -195,7 +195,7 @@ async def removeinsult(ctx):
     log_message = (
         f"`removeinsult` invoked by user {ctx.author.id}\n"
         f"Removed insult: {removed_insult}\n"
-        f"Updated custom_insults = {custom_insults}\n\n"
+        f"custom_insults = {custom_insults}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
@@ -251,7 +251,7 @@ async def addtrigger(ctx):
         f"`addtrigger` invoked by user {ctx.author.id}\n"
         f"Received server ID: {server_id}\n"
         f"Received trigger: {trigger}\n"
-        f"Updated custom_triggers = {custom_triggers}\n\n"
+        f"custom_triggers = {custom_triggers}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
@@ -282,7 +282,7 @@ async def removetrigger(ctx):
     log_message = (
         f"`removetrigger` invoked by user {ctx.author.id}\n"
         f"Removed trigger: {removed_trigger}\n"
-        f"Updated custom_triggers = {custom_triggers}\n\n"
+        f"custom_triggers = {custom_triggers}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
