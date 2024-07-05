@@ -68,6 +68,7 @@ async def on_starting(event: hikari.StartedEvent) -> None:
             )
         )
         await topgg_client.post_guild_count(server_count)
+        await bot.rest.create_message(1258818078335176724, f"{server_count}")
         await asyncio.sleep(3600)
 
 #join
@@ -124,12 +125,12 @@ async def on_message(event: hikari.MessageCreateEvent):
 # Insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option("channel_id", "The ID of the channel to send the insult in. (Optional)", type=str, required=False)
+@lightbulb.option("channel","The channel to send the insult in. (Optional)",type=hikari.OptionType.CHANNEL,channel_types=[hikari.ChannelType.GUILD_TEXT],required=False)
 @lightbulb.command("insult", "Generate a random insult.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def insult(ctx):
-    channel_id = ctx.options.channel_id
-    target_channel = ctx.channel_id if channel_id is None else int(channel_id)
+    channel = ctx.options.channel
+    target_channel = ctx.channel_id if channel is None else channel.id
     try:
         guild = ctx.get_guild()
         if guild is not None:
@@ -148,14 +149,14 @@ async def insult(ctx):
 
         selected_response = random.choice(all_responses)
         
-        if channel_id is None:
+        if channel is None:
             await ctx.respond(selected_response)
         else:
             await bot.rest.create_message(target_channel, selected_response)
             await ctx.respond("Message was sent.")
 
     except hikari.errors.NotFoundError:
-        await ctx.respond("The channel ID you provided does not exist.")
+        await ctx.respond("I don't have access to this channel.")
     except hikari.errors.ForbiddenError:
         await ctx.respond("I don't have permission to send messages in that channel.")
     except Exception as e:
