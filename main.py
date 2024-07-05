@@ -21,7 +21,7 @@ prohibited_words = prohibited_keywords.split(",")
 
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass'], '857112618963566592': ['test']}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks'], '857112618963566592': ['test']}
 
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report'], '1193319104917024849': ['stream', 'loading', 'work', 'question'], '857112618963566592': ['testing']}
 
@@ -95,32 +95,36 @@ async def on_guild_leave(event):
 async def on_message(event: hikari.MessageCreateEvent):
     if not event.is_human:
         return
+
     message_content = event.content.lower() if isinstance(event.content, str) else ""
+
+    guild_id = str(event.guild_id)
+
     if any(word in message_content for word in hearing):
-        guild_id = event.guild_id
         if guild_id in custom_insults:
             all_responses = response + custom_insults[guild_id]
         else:
             all_responses = response
         selected_response = random.choice(all_responses)
         await event.message.respond(f"{selected_response}")
-        guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
-        guild_name = guild.name if guild else "DM"
-        await bot.rest.create_message(channel, f"`keyword` was used in {guild_name}.")
+        guild_name = event.get_guild().name if event.get_guild() else "DM"
+        await bot.rest.create_message(channel, f"`Keyword` was used in {guild_name}.")
         await asyncio.sleep(15)
-
-    guild_id = str(event.guild_id)
 
     if guild_id in custom_triggers:
         for trigger in custom_triggers[guild_id]:
             if trigger in message_content:
-                selected_response = random.choice(response)
+                if guild_id in custom_insults:
+                    all_responses = response + custom_insults[guild_id]
+                else:
+                    all_responses = response
+                selected_response = random.choice(all_responses)
                 await event.message.respond(f"{selected_response}")
-                guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
-                guild_name = guild.name if guild else "DM"
+                guild_name = event.get_guild().name if event.get_guild() else "DM"
                 await bot.rest.create_message(channel, f"`Trigger` was used in {guild_name}.")
                 await asyncio.sleep(15)
                 break
+
 
 # Insult command
 @bot.command
