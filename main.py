@@ -21,9 +21,9 @@ prohibited_words = prohibited_keywords.split(",")
 
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass']}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass'], '857112618963566592': ['test']}
 
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', '🤓'], '1193319104917024849': ['stream', 'loading', 'work', 'question']}
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report'], '1193319104917024849': ['stream', 'loading', 'work', 'question'], '857112618963566592': ['testing']}
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -89,7 +89,7 @@ async def on_guild_leave(event):
         await bot.rest.create_message(channel, f"Left unknown server.")
 
 #Core----------------------------------------------------------------------------------------------------------------------------------------
-#message event
+# Message event
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event: hikari.MessageCreateEvent):
     if not event.is_human:
@@ -107,31 +107,59 @@ async def on_message(event: hikari.MessageCreateEvent):
         guild_name = guild.name if guild else "DM"
         await bot.rest.create_message(channel, f"`keyword` was used in {guild_name}.")
         await asyncio.sleep(15)
-    if event.guild_id in custom_triggers:
-        for trigger in custom_triggers[event.guild_id]:
+
+    guild_id = str(event.guild_id)
+
+    if guild_id in custom_triggers:
+        for trigger in custom_triggers[guild_id]:
             if trigger in message_content:
                 selected_response = random.choice(response)
                 await event.message.respond(f"{selected_response}")
                 guild = bot.cache.get_guild(event.guild_id) if event.guild_id else None
                 guild_name = guild.name if guild else "DM"
+                await bot.rest.create_message(channel, f"`Trigger` was used in {guild_name}.")
                 await asyncio.sleep(15)
                 break
 
-#insult command
+# Insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("channel_id", "The ID of the channel to send the insult in. (Optional)", type=str, required=False)
 @lightbulb.command("insult", "Generate a random insult.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def insult(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    
-    await ctx.respond(random.choice(response))
+    channel_id = ctx.options.channel_id
+    target_channel = ctx.channel_id if channel_id is None else int(channel_id)
+    try:
+        guild = ctx.get_guild()
+        if guild is not None:
+            await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        else:
+            await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        
+        if any(word in str(ctx.author.id) for word in prem_users):
+            await ctx.command.cooldown_manager.reset_cooldown(ctx)
+        
+        guild_id = str(ctx.guild_id)
+        if guild_id in custom_insults:
+            all_responses = response + custom_insults[guild_id]
+        else:
+            all_responses = response
+
+        selected_response = random.choice(all_responses)
+        
+        if channel_id is None:
+            await ctx.respond(selected_response)
+        else:
+            await bot.rest.create_message(target_channel, selected_response)
+            await ctx.respond("Message was sent.")
+
+    except hikari.errors.NotFoundError:
+        await ctx.respond("The channel ID you provided does not exist.")
+    except hikari.errors.ForbiddenError:
+        await ctx.respond("I don't have permission to send messages in that channel.")
+    except Exception as e:
+        await ctx.respond(f"An error occurred: {e}")
 
 # Add insult command
 @bot.command
