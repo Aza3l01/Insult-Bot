@@ -21,9 +21,9 @@ prohibited_words = prohibited_keywords.split(",")
 
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks'], '857112618963566592': ['test']}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks']}
 
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report'], '1193319104917024849': ['stream', 'loading', 'work', 'question'], '857112618963566592': ['testing']}
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '1193319104917024849': ['stream', 'loading', 'work', 'question']}
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -68,7 +68,6 @@ async def on_starting(event: hikari.StartedEvent) -> None:
             )
         )
         await topgg_client.post_guild_count(server_count)
-        await bot.rest.create_message(1258818078335176724, f"{server_count}")
         await asyncio.sleep(3600)
 
 #join
@@ -106,9 +105,12 @@ async def on_message(event: hikari.MessageCreateEvent):
         else:
             all_responses = response
         selected_response = random.choice(all_responses)
-        await event.message.respond(f"{selected_response}")
-        guild_name = event.get_guild().name if event.get_guild() else "DM"
-        await bot.rest.create_message(channel, f"`Keyword` was used in {guild_name}.")
+        try:
+            await event.message.respond(f"{selected_response}")
+            guild_name = event.get_guild().name if event.get_guild() else "DM"
+            await bot.rest.create_message(channel, f"`Keyword` was used in {guild_name}.")
+        except hikari.errors.ForbiddenError:
+            pass
         await asyncio.sleep(15)
 
     if guild_id in custom_triggers:
@@ -119,28 +121,33 @@ async def on_message(event: hikari.MessageCreateEvent):
                 else:
                     all_responses = response
                 selected_response = random.choice(all_responses)
-                await event.message.respond(f"{selected_response}")
-                guild_name = event.get_guild().name if event.get_guild() else "DM"
-                await bot.rest.create_message(channel, f"`Trigger` was used in {guild_name}.")
+                try:
+                    await event.message.respond(f"{selected_response}")
+                    guild_name = event.get_guild().name if event.get_guild() else "DM"
+                    await bot.rest.create_message(channel, f"`Trigger` was used in {guild_name}.")
+                except hikari.errors.ForbiddenError:
+                    pass
                 await asyncio.sleep(15)
                 break
-
 
 # Insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option("channel","The channel to send the insult in. (Optional)",type=hikari.OptionType.CHANNEL,channel_types=[hikari.ChannelType.GUILD_TEXT],required=False)
+@lightbulb.option("user", "Ping a user to insult. (Optional)", type=hikari.OptionType.USER, required=False)
+@lightbulb.option("channel", "The channel to send the insult in. (Optional)", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT], required=False)
 @lightbulb.command("insult", "Generate a random insult.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def insult(ctx):
     channel = ctx.options.channel
+    user = ctx.options.user
     target_channel = ctx.channel_id if channel is None else channel.id
+
     try:
         guild = ctx.get_guild()
         if guild is not None:
-            await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
         else:
-            await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
         
         if any(word in str(ctx.author.id) for word in prem_users):
             await ctx.command.cooldown_manager.reset_cooldown(ctx)
@@ -152,11 +159,12 @@ async def insult(ctx):
             all_responses = response
 
         selected_response = random.choice(all_responses)
-        
+        message = f"{user.mention}, {selected_response}" if user else selected_response
+
         if channel is None:
-            await ctx.respond(selected_response)
+            await ctx.respond(message)
         else:
-            await bot.rest.create_message(target_channel, selected_response)
+            await bot.rest.create_message(target_channel, message)
             await ctx.respond("Message was sent.")
 
     except hikari.errors.NotFoundError:
@@ -203,7 +211,7 @@ async def addinsult(ctx):
 
 # Remove insult command
 @bot.command
-@lightbulb.option("index", "The index of the insult to remove.", type=int)
+@lightbulb.option("insult", "The insult to remove.", type=str)
 @lightbulb.command("removeinsult", "Remove a custom insult from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
@@ -212,22 +220,22 @@ async def removeinsult(ctx):
         return
 
     server_id = str(ctx.guild_id)
-    insult_index = ctx.options.index - 1
+    insult_to_remove = ctx.options.insult
 
     if server_id not in custom_insults or not custom_insults[server_id]:
         await ctx.respond(f"No insults found.")
         return
 
-    if insult_index < 0 or insult_index >= len(custom_insults[server_id]):
-        await ctx.respond("Please select a valid number next to the insult.")
+    if insult_to_remove not in custom_insults[server_id]:
+        await ctx.respond("Insult not found in the list.")
         return
 
-    removed_insult = custom_insults[server_id].pop(insult_index)
+    custom_insults[server_id].remove(insult_to_remove)
     await ctx.respond("The selected insult has been removed.")
 
     log_message = (
         f"`removeinsult` invoked by user {ctx.author.id}\n"
-        f"Removed insult: {removed_insult}\n"
+        f"Removed insult: {insult_to_remove}\n"
         f"custom_insults = {custom_insults}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
@@ -290,7 +298,7 @@ async def addtrigger(ctx):
 
 # Remove trigger command
 @bot.command
-@lightbulb.option("index", "The index of the trigger to remove.", type=int)
+@lightbulb.option("trigger", "The trigger to remove.", type=str)
 @lightbulb.command("removetrigger", "Remove a custom trigger from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removetrigger(ctx):
@@ -299,22 +307,22 @@ async def removetrigger(ctx):
         return
 
     server_id = str(ctx.guild_id)
-    trigger_index = ctx.options.index - 1
+    trigger_to_remove = ctx.options.trigger
 
     if server_id not in custom_triggers or not custom_triggers[server_id]:
         await ctx.respond(f"No triggers found.")
         return
 
-    if trigger_index < 0 or trigger_index >= len(custom_triggers[server_id]):
-        await ctx.respond("Please select a valid number next to the trigger.")
+    if trigger_to_remove not in custom_triggers[server_id]:
+        await ctx.respond("Trigger not found in the list.")
         return
 
-    removed_trigger = custom_triggers[server_id].pop(trigger_index)
+    custom_triggers[server_id].remove(trigger_to_remove)
     await ctx.respond("The selected trigger has been removed.")
 
     log_message = (
         f"`removetrigger` invoked by user {ctx.author.id}\n"
-        f"Removed trigger: {removed_trigger}\n"
+        f"Removed trigger: {trigger_to_remove}\n"
         f"custom_triggers = {custom_triggers}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
