@@ -25,6 +25,8 @@ custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhave
 
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '1193319104917024849': ['stream', 'loading', 'work', 'question']}
 
+allowed_channels = []
+
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
 	token=os.getenv("BOT_TOKEN")
@@ -90,9 +92,15 @@ async def on_guild_leave(event):
 
 #Core----------------------------------------------------------------------------------------------------------------------------------------
 # Message event
+def should_process_event(event: hikari.MessageCreateEvent) -> bool:
+    if not allowed_channels:
+        return True
+    return str(event.channel_id) in allowed_channels
+
+# Message event listener
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event: hikari.MessageCreateEvent):
-    if not event.is_human:
+    if not event.is_human or not should_process_event(event):
         return
 
     message_content = event.content.lower() if isinstance(event.content, str) else ""
@@ -174,6 +182,43 @@ async def insult(ctx):
     except Exception as e:
         await ctx.respond(f"An error occurred: {e}")
 
+# Setchannel command
+@bot.command
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("toggle", "Toggle Insult Bot on/off in the selected channel.", choices=["on", "off"], type=hikari.OptionType.STRING)
+@lightbulb.option("channel", "Select a channel to proceed.", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT])
+@lightbulb.command("setchannel", "Restrict Insult Bot to particular channel(s).")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def setchannel(ctx):
+    global allowed_channels
+
+    toggle = ctx.options.toggle
+    channel_id = str(ctx.options.channel.id) if ctx.options.channel else None
+
+    if toggle == "on":
+        if channel_id:
+            allowed_channels.append(channel_id)
+            await ctx.respond(f"Insult Bot will only respond in <#{channel_id}>.")
+        else:
+            await ctx.respond("Please specify a valid channel.")
+    elif toggle == "off":
+        if channel_id in allowed_channels:
+            allowed_channels.remove(channel_id)
+            await ctx.respond(f"Insult Bot's restriction for <#{channel_id}> has been removed.")
+        else:
+            await ctx.respond("Channel is not currently restricted.")
+    else:
+        await ctx.respond("Invalid toggle. Use `/setchannel on <#channel>` or `/setchannel off <#channel>`.")
+    
+    server_id = str(ctx.guild_id)
+    log_message = (
+        f"`setchannel` invoked by user {ctx.author.id}\n"
+        f"Received server_id: {server_id}\n"
+        f"Received channel_id: {channel_id}\n"
+        f"allowed_channels = {allowed_channels}"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
+
 # Add insult command
 @bot.command
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
@@ -203,7 +248,7 @@ async def addinsult(ctx):
 
     log_message = (
         f"`addinsult` invoked by user {ctx.author.id}\n"
-        f"Received server ID: {server_id}\n"
+        f"Received server_id: {server_id}\n"
         f"Received insult: {insult}\n"
         f"custom_insults = {custom_insults}\n\n"
     )
@@ -290,7 +335,7 @@ async def addtrigger(ctx):
 
     log_message = (
         f"`addtrigger` invoked by user {ctx.author.id}\n"
-        f"Received server ID: {server_id}\n"
+        f"Received server_id: {server_id}\n"
         f"Received trigger: {trigger}\n"
         f"custom_triggers = {custom_triggers}\n\n"
     )
@@ -371,7 +416,8 @@ async def help(ctx):
         description=(
             "**Core Commands:**\n"
             "**/help:** You just used this command.\n"
-            "**/insult:** Generate a random insult.\n\n"
+            "**/insult:** Generate a random insult.\n"
+            "**/setchannel:** Restrict Insult Bot to particular channel(s).\n\n"
             "**Premium Commands:**\n"
             "**/addinsult:** Add a custom insult to a server of your choice.\n"
             "**/removeinsult:** Remove a custom insult you added.\n"
