@@ -90,7 +90,7 @@ async def on_guild_leave(event):
     else:
         await bot.rest.create_message(channel, f"Left unknown server.")
 
-#Core----------------------------------------------------------------------------------------------------------------------------------------
+# Core----------------------------------------------------------------------------------------------------------------------------------------
 # Message event
 def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     if not allowed_channels:
@@ -219,6 +219,7 @@ async def setchannel(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
+# Premium----------------------------------------------------------------------------------------------------------------------------------------
 # Add insult command
 @bot.command
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
@@ -397,7 +398,7 @@ async def viewtriggers(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-#MISC----------------------------------------------------------------------------------------------------------------------------------------
+# MISC----------------------------------------------------------------------------------------------------------------------------------------
 #help command
 @bot.command
 @lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
@@ -563,7 +564,7 @@ async def privacy(ctx):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
 		title="Privacy Policy:",
-		description="The personal information of any user, including the message content it replies to, is not tracked by Insult Bot.\n\nThe user_id, server_id and added insults of premium members are stored to provide the user the with perks and is deleted once a user is no longer a member.\n\nJoin the [support server](https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
+		description="The personal information of any user, including the message content it replies to, is not tracked by Insult Bot. The channel_id alone is stored when added by using the /setchannel command, and it is stored only while this command is active in your server.\n\nThe user_id, server_id and added insults of premium members are stored to provide the user the with perks and is deleted once a user is no longer a member.\n\nJoin the [support server](https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
 		color=0x2B2D31
 	)
     await ctx.respond(embed=embed)
