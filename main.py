@@ -27,7 +27,7 @@ custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker',
 
 allowed_channels = ['1139231743682019408', '1187829517994172488']
 
-custom_only_servers = []
+# custom_only_servers = []
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -104,20 +104,13 @@ def should_process_event(event: hikari.MessageCreateEvent) -> bool:
 async def on_message(event: hikari.MessageCreateEvent):
     if not event.is_human or not should_process_event(event):
         return
-
     message_content = event.content.lower() if isinstance(event.content, str) else ""
     guild_id = str(event.guild_id)
-
-    # Check if the server is in custom-only mode
-    if guild_id in custom_only_servers:
-        if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
-            all_responses = custom_insults[guild_id]
-        else:
-            return  # Ignore non-custom triggers and insults in custom-only mode
-    else:
-        all_responses = response + custom_insults.get(guild_id, [])
-
     if any(word in message_content for word in hearing):
+        if guild_id in custom_insults:
+            all_responses = response + custom_insults[guild_id]
+        else:
+            all_responses = response
         selected_response = random.choice(all_responses)
         try:
             await event.message.respond(f"{selected_response}")
@@ -126,10 +119,13 @@ async def on_message(event: hikari.MessageCreateEvent):
         except hikari.errors.ForbiddenError:
             pass
         await asyncio.sleep(15)
-
     if guild_id in custom_triggers:
         for trigger in custom_triggers[guild_id]:
             if trigger in message_content:
+                if guild_id in custom_insults:
+                    all_responses = response + custom_insults[guild_id]
+                else:
+                    all_responses = response
                 selected_response = random.choice(all_responses)
                 try:
                     await event.message.respond(f"{selected_response}")
@@ -402,36 +398,36 @@ async def viewtriggers(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-# Custom only toggle command
-@bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.GuildBucket)
-@lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
-@lightbulb.command("customonly", "Set custom insults and triggers only.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def customonly(ctx):
-    global custom_only_servers
+# # Custom only toggle command
+# @bot.command
+# @lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.GuildBucket)
+# @lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
+# @lightbulb.command("customonly", "Set custom insults and triggers only.")
+# @lightbulb.implements(lightbulb.SlashCommand)
+# async def customonly(ctx):
+#     global custom_only_servers
 
-    server_id = str(ctx.guild_id)
+#     server_id = str(ctx.guild_id)
 
-    if ctx.options.toggle == "on":
-        if server_id not in custom_only_servers:
-            custom_only_servers.append(server_id)
-            await ctx.respond(f"Custom insults and triggers only mode enabled for this server.")
-        else:
-            await ctx.respond(f"Custom insults and triggers only mode is already enabled for this server.")
-    elif ctx.options.toggle == "off":
-        if server_id in custom_only_servers:
-            custom_only_servers.remove(server_id)
-            await ctx.respond(f"Custom insults and triggers only mode disabled for this server.")
-        else:
-            await ctx.respond(f"Custom insults and triggers only mode is not enabled for this server.")
+#     if ctx.options.toggle == "on":
+#         if server_id not in custom_only_servers:
+#             custom_only_servers.append(server_id)
+#             await ctx.respond(f"Custom insults and triggers only mode enabled for this server.")
+#         else:
+#             await ctx.respond(f"Custom insults and triggers only mode is already enabled for this server.")
+#     elif ctx.options.toggle == "off":
+#         if server_id in custom_only_servers:
+#             custom_only_servers.remove(server_id)
+#             await ctx.respond(f"Custom insults and triggers only mode disabled for this server.")
+#         else:
+#             await ctx.respond(f"Custom insults and triggers only mode is not enabled for this server.")
     
-    log_message = (
-        f"`customonly` invoked by user {ctx.author.id}\n"
-        f"Received server ID: {server_id}\n"
-        f"custom_only_servers = {custom_only_servers}\n\n"
-    )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+#     log_message = (
+#         f"`customonly` invoked by user {ctx.author.id}\n"
+#         f"Received server ID: {server_id}\n"
+#         f"custom_only_servers = {custom_only_servers}\n\n"
+#     )
+#     await bot.rest.create_message(1246889573141839934, content=log_message)
 
 # MISC----------------------------------------------------------------------------------------------------------------------------------------
 #help command
