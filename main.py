@@ -427,7 +427,7 @@ async def customonly(ctx):
             await ctx.respond(f"Custom insults and triggers only mode is not enabled for this server.")
     
     log_message = (
-        f"`viewtriggers` invoked by user {ctx.author.id}\n"
+        f"`customonly` invoked by user {ctx.author.id}\n"
         f"Received server ID: {server_id}\n"
         f"custom_only_servers = {custom_only_servers}\n\n"
     )
