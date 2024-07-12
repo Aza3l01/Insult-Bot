@@ -25,7 +25,7 @@ custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhave
 
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '1193319104917024849': ['stream', 'loading', 'work', 'question']}
 
-allowed_channels = ['1139231743682019408', '1187829517994172488']
+allowed_channels_per_guild = {}
 
 custom_only_servers = []
 
@@ -95,11 +95,13 @@ async def on_guild_leave(event):
 # Core----------------------------------------------------------------------------------------------------------------------------------------
 # Message event
 def should_process_event(event: hikari.MessageCreateEvent) -> bool:
-    if not allowed_channels:
-        return True
-    return str(event.channel_id) in allowed_channels
+    # Check if the guild is in allowed channels
+    if str(event.guild_id) in allowed_channels_per_guild:
+        # Only process if the channel is in the allowed list for this guild
+        return str(event.channel_id) in allowed_channels_per_guild[str(event.guild_id)]
+    # If not in the allowed list, process in all channels for this guild
+    return True
 
-# Message event listener
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event: hikari.MessageCreateEvent):
     if not event.is_human or not should_process_event(event):
@@ -117,22 +119,24 @@ async def on_message(event: hikari.MessageCreateEvent):
     else:
         all_responses = response + custom_insults.get(guild_id, [])
 
+    # Check for hearing keywords
     if any(word in message_content for word in hearing):
         selected_response = random.choice(all_responses)
         try:
-            await event.message.respond(f"{selected_response}")
+            await event.message.respond(selected_response)
             guild_name = event.get_guild().name if event.get_guild() else "DM"
             await bot.rest.create_message(channel, f"`Keyword` was used in {guild_name}.")
         except hikari.errors.ForbiddenError:
             pass
         await asyncio.sleep(15)
 
+    # Check for custom triggers
     if guild_id in custom_triggers:
         for trigger in custom_triggers[guild_id]:
             if trigger in message_content:
                 selected_response = random.choice(all_responses)
                 try:
-                    await event.message.respond(f"{selected_response}")
+                    await event.message.respond(selected_response)
                     guild_name = event.get_guild().name if event.get_guild() else "DM"
                     await bot.rest.create_message(channel, f"`Trigger` was used in {guild_name}.")
                 except hikari.errors.ForbiddenError:
@@ -143,6 +147,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 # Insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("custom_insult", "Type out an insult you want the bot to send. (Optional)", type=hikari.OptionType.STRING, required=False)
 @lightbulb.option("user", "Ping a user to insult. (Optional)", type=hikari.OptionType.USER, required=False)
 @lightbulb.option("channel", "The channel to send the insult in. (Optional)", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT], required=False)
 @lightbulb.command("insult", "Generate a random insult.")
@@ -150,6 +155,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 async def insult(ctx):
     channel = ctx.options.channel
     user = ctx.options.user
+    custom_insult = ctx.options.custom_insult
     target_channel = ctx.channel_id if channel is None else channel.id
     try:
         guild = ctx.get_guild()
@@ -166,7 +172,7 @@ async def insult(ctx):
             all_responses = response + custom_insults[guild_id]
         else:
             all_responses = response
-        selected_response = random.choice(all_responses)
+        selected_response = custom_insult if custom_insult else random.choice(all_responses)
         message = f"{user.mention}, {selected_response}" if user else selected_response
         if channel is None:
             await ctx.respond(message)
@@ -188,32 +194,37 @@ async def insult(ctx):
 @lightbulb.command("setchannel", "Restrict Insult Bot to particular channel(s).")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setchannel(ctx):
-    global allowed_channels
+    guild_id = str(ctx.guild_id)
+    
+    # Initialize the allowed channels for the guild if not already set
+    if guild_id not in allowed_channels_per_guild:
+        allowed_channels_per_guild[guild_id] = []
 
     toggle = ctx.options.toggle
     channel_id = str(ctx.options.channel.id) if ctx.options.channel else None
 
     if toggle == "on":
-        if channel_id:
-            allowed_channels.append(channel_id)
+        if channel_id and channel_id not in allowed_channels_per_guild[guild_id]:
+            allowed_channels_per_guild[guild_id].append(channel_id)
             await ctx.respond(f"Insult Bot will only respond in <#{channel_id}>.")
+        elif channel_id in allowed_channels_per_guild[guild_id]:
+            await ctx.respond(f"Insult Bot is already restricted to <#{channel_id}>.")
         else:
             await ctx.respond("Please specify a valid channel.")
     elif toggle == "off":
-        if channel_id in allowed_channels:
-            allowed_channels.remove(channel_id)
+        if channel_id in allowed_channels_per_guild[guild_id]:
+            allowed_channels_per_guild[guild_id].remove(channel_id)
             await ctx.respond(f"Insult Bot's restriction for <#{channel_id}> has been removed.")
         else:
             await ctx.respond("Channel is not currently restricted.")
     else:
         await ctx.respond("Invalid toggle. Use `/setchannel on <#channel>` or `/setchannel off <#channel>`.")
-    
-    server_id = str(ctx.guild_id)
+
     log_message = (
         f"`setchannel` invoked by user {ctx.author.id}\n"
-        f"Received server_id: {server_id}\n"
+        f"Received server_id: {guild_id}\n"
         f"Received channel_id: {channel_id}\n"
-        f"allowed_channels = {allowed_channels}\n\n"
+        f"allowed_channels = {allowed_channels_per_guild[guild_id]}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
