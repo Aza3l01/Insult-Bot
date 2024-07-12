@@ -21,11 +21,13 @@ prohibited_words = prohibited_keywords.split(",")
 
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks']}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '1193319104917024849': ['stream', 'loading', 'work', 'question']}
 
-allowed_channels = []
+allowed_channels = ['1139231743682019408', '1187829517994172488']
+
+custom_only_servers = []
 
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
@@ -104,14 +106,18 @@ async def on_message(event: hikari.MessageCreateEvent):
         return
 
     message_content = event.content.lower() if isinstance(event.content, str) else ""
-
     guild_id = str(event.guild_id)
 
-    if any(word in message_content for word in hearing):
-        if guild_id in custom_insults:
-            all_responses = response + custom_insults[guild_id]
+    # Check if the server is in custom-only mode
+    if guild_id in custom_only_servers:
+        if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
+            all_responses = custom_insults[guild_id]
         else:
-            all_responses = response
+            return  # Ignore non-custom triggers and insults in custom-only mode
+    else:
+        all_responses = response + custom_insults.get(guild_id, [])
+
+    if any(word in message_content for word in hearing):
         selected_response = random.choice(all_responses)
         try:
             await event.message.respond(f"{selected_response}")
@@ -124,10 +130,6 @@ async def on_message(event: hikari.MessageCreateEvent):
     if guild_id in custom_triggers:
         for trigger in custom_triggers[guild_id]:
             if trigger in message_content:
-                if guild_id in custom_insults:
-                    all_responses = response + custom_insults[guild_id]
-                else:
-                    all_responses = response
                 selected_response = random.choice(all_responses)
                 try:
                     await event.message.respond(f"{selected_response}")
@@ -141,6 +143,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 # Insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("insult", "Type out an insult you want the bot to send. (Optional)", type=hikari.OptionType.STRING, required=False)
 @lightbulb.option("user", "Ping a user to insult. (Optional)", type=hikari.OptionType.USER, required=False)
 @lightbulb.option("channel", "The channel to send the insult in. (Optional)", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT], required=False)
 @lightbulb.command("insult", "Generate a random insult.")
@@ -148,6 +151,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 async def insult(ctx):
     channel = ctx.options.channel
     user = ctx.options.user
+    custom_insult = ctx.options.custom_insult
     target_channel = ctx.channel_id if channel is None else channel.id
 
     try:
@@ -166,7 +170,7 @@ async def insult(ctx):
         else:
             all_responses = response
 
-        selected_response = random.choice(all_responses)
+        selected_response = custom_insult if custom_insult else random.choice(all_responses)
         message = f"{user.mention}, {selected_response}" if user else selected_response
 
         if channel is None:
@@ -215,7 +219,7 @@ async def setchannel(ctx):
         f"`setchannel` invoked by user {ctx.author.id}\n"
         f"Received server_id: {server_id}\n"
         f"Received channel_id: {channel_id}\n"
-        f"allowed_channels = {allowed_channels}"
+        f"allowed_channels = {allowed_channels}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
@@ -398,6 +402,37 @@ async def viewtriggers(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
+# Custom only toggle command
+@bot.command
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.GuildBucket)
+@lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
+@lightbulb.command("customonly", "Set custom insults and triggers only.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def customonly(ctx):
+    global custom_only_servers
+
+    server_id = str(ctx.guild_id)
+
+    if ctx.options.toggle == "on":
+        if server_id not in custom_only_servers:
+            custom_only_servers.append(server_id)
+            await ctx.respond(f"Custom insults and triggers only mode enabled for this server.")
+        else:
+            await ctx.respond(f"Custom insults and triggers only mode is already enabled for this server.")
+    elif ctx.options.toggle == "off":
+        if server_id in custom_only_servers:
+            custom_only_servers.remove(server_id)
+            await ctx.respond(f"Custom insults and triggers only mode disabled for this server.")
+        else:
+            await ctx.respond(f"Custom insults and triggers only mode is not enabled for this server.")
+    
+    log_message = (
+        f"`viewtriggers` invoked by user {ctx.author.id}\n"
+        f"Received server ID: {server_id}\n"
+        f"custom_only_servers = {custom_only_servers}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
+
 # MISC----------------------------------------------------------------------------------------------------------------------------------------
 #help command
 @bot.command
@@ -425,7 +460,8 @@ async def help(ctx):
             "**/viewinsults:** View the custom insults you have added.\n"
             "**/addtrigger:** Add a custom trigger to a server of your choice.\n"
             "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
-            "**/viewtriggers:** View custom triggers added to a server.\n\n"
+            "**/viewtriggers:** View custom triggers added to a server.\n"
+            "**/customonly:** Set custom insults and triggers only.\n\n"
             "**Premium commands keep Insult Bot online, consider becoming a [member](https://ko-fi.com/azaelbots).**\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
