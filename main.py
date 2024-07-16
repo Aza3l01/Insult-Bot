@@ -192,7 +192,7 @@ async def setchannel(ctx):
 
     member = await ctx.bot.rest.fetch_member(ctx.guild_id, ctx.author.id)
     if not any(role.permissions & hikari.Permissions.ADMINISTRATOR for role in member.get_roles()):
-        await ctx.respond("Sorry, you need to be an admin to use this command.")
+        await ctx.respond("You need to be an admin to use this command.")
         return
 
     # Initialize the allowed channels for the guild if not already set
