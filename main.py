@@ -235,7 +235,7 @@ async def setchannel(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, become a [member](<https://ko-fi.com/azaelbots>). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
         await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
@@ -271,7 +271,7 @@ async def addinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, become a [member](<https://ko-fi.com/azaelbots>). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
         await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
@@ -302,7 +302,7 @@ async def removeinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, become a [member](<https://ko-fi.com/azaelbots>). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
         await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
@@ -329,7 +329,7 @@ async def viewinsults(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addtrigger(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, become a [member](<https://ko-fi.com/azaelbots>). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
         await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
@@ -361,7 +361,7 @@ async def addtrigger(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removetrigger(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, become a [member](<https://ko-fi.com/azaelbots>). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
         await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
@@ -392,7 +392,7 @@ async def removetrigger(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewtriggers(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, become a [member](<https://ko-fi.com/azaelbots>). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
         await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
@@ -420,7 +420,7 @@ async def viewtriggers(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def customonly(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, become a [member](<https://ko-fi.com/azaelbots>). Premium commands exist to cover the bot's hosting costs.")
+        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
         await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
@@ -477,7 +477,7 @@ async def help(ctx):
             "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
             "**/viewtriggers:** View custom triggers added to a server.\n"
             "**/customonly:** Set custom insults and triggers only.\n\n"
-            "**Premium commands keep Insult Bot online, consider becoming a [member](https://ko-fi.com/azaelbots).**\n\n"
+            "**Premium commands exit to help keep Insult Bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for $3/M.**\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
@@ -566,7 +566,7 @@ async def premium(ctx):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
         title="What is premium:",
-        description=("With premium, you can use premium commands and skip cool-downs. Premium is important for supporting the bot's hosting costs.\nThe main functions of the bot will never be paywalled, but a few extra commands serve as an incentive to subscribe.\nIf you would like to keep the bot online and support me, [become a member](https://ko-fi.com/azaelbots).\nIt helps massively. ❤️"),
+        description=("With premium, you can use premium commands and skip cool-downs. Premium is important for supporting the bot's hosting costs.\nThe main functions of the bot will never be paywalled, but a few extra commands serve as an incentive to subscribe.\nIf you would like to keep the bot online and support me, become a [member](https://ko-fi.com/azaelbots).\nIt helps massively. ❤️"),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
