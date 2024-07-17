@@ -477,7 +477,7 @@ async def help(ctx):
             "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
             "**/viewtriggers:** View custom triggers added to a server.\n"
             "**/customonly:** Set custom insults and triggers only.\n\n"
-            "**Premium commands exit to help keep Insult Bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for $3/M.**\n\n"
+            "**Premium commands exist to help keep Insult Bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for $3/M.**\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
