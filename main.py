@@ -8,8 +8,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-channel = os.getenv("CHANNEL_ID")
-
 hearing_string = os.getenv("HEARING_LIST")
 hearing = hearing_string.split(",")
 
@@ -20,13 +18,9 @@ prohibited_keywords = os.getenv("PROHIBITED_WORDS")
 prohibited_words = prohibited_keywords.split(",")
 
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
-
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
-
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-
-allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408']}
-
+allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501']}
 custom_only_servers = []
 
 bot = lightbulb.BotApp(
@@ -79,18 +73,18 @@ async def on_starting(event: hikari.StartedEvent) -> None:
 async def on_guild_join(event):
     guild = event.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"Joined `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"Joined `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"Joined unknown server.")
+        await bot.rest.create_message(1246886903077408838, f"Joined unknown server.")
 
 #leave
 @bot.listen(hikari.GuildLeaveEvent)
 async def on_guild_leave(event):
     guild = event.old_guild
     if guild is not None:
-        await bot.rest.create_message(channel, f"Left `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"Left `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"Left unknown server.")
+        await bot.rest.create_message(1246886903077408838, f"Left unknown server.")
 
 # Core----------------------------------------------------------------------------------------------------------------------------------------
 # Message event
@@ -120,7 +114,6 @@ async def on_message(event: hikari.MessageCreateEvent):
         try:
             await event.message.respond(selected_response)
             guild_name = event.get_guild().name if event.get_guild() else "DM"
-            await bot.rest.create_message(channel, f"`Keyword` was used in {guild_name}.")
         except hikari.errors.ForbiddenError:
             pass
         await asyncio.sleep(15)
@@ -132,7 +125,6 @@ async def on_message(event: hikari.MessageCreateEvent):
                 try:
                     await event.message.respond(selected_response)
                     guild_name = event.get_guild().name if event.get_guild() else "DM"
-                    await bot.rest.create_message(channel, f"`Trigger` was used in {guild_name}.")
                 except hikari.errors.ForbiddenError:
                     pass
                 await asyncio.sleep(15)
@@ -141,7 +133,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 # Insult command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option("custom_insult", "Type out an insult you want the bot to send. (Optional)", type=hikari.OptionType.STRING, required=False)
+@lightbulb.option("insult", "Type out an insult you want the bot to send. (Optional)", type=hikari.OptionType.STRING, required=False)
 @lightbulb.option("user", "Ping a user to insult. (Optional)", type=hikari.OptionType.USER, required=False)
 @lightbulb.option("channel", "The channel to send the insult in. (Optional)", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT], required=False)
 @lightbulb.command("insult", "Send an insult to someone.")
@@ -149,7 +141,7 @@ async def on_message(event: hikari.MessageCreateEvent):
 async def insult(ctx):
     channel = ctx.options.channel
     user = ctx.options.user
-    custom_insult = ctx.options.custom_insult
+    insult = ctx.options.insult
     target_channel = ctx.channel_id if channel is None else channel.id
     try:
         guild = ctx.get_guild()
@@ -166,7 +158,7 @@ async def insult(ctx):
             all_responses = response + custom_insults[guild_id]
         else:
             all_responses = response
-        selected_response = custom_insult if custom_insult else random.choice(all_responses)
+        selected_response = insult if insult else random.choice(all_responses)
         message = f"{user.mention}, {selected_response}" if user else selected_response
         if channel is None:
             await ctx.respond(message)
@@ -195,7 +187,6 @@ async def setchannel(ctx):
         await ctx.respond("You need to be an admin to use this command.")
         return
 
-    # Initialize the allowed channels for the guild if not already set
     if guild_id not in allowed_channels_per_guild:
         allowed_channels_per_guild[guild_id] = []
 
@@ -235,8 +226,17 @@ async def setchannel(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
-        await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        embed = hikari.Embed(
+            title="You found a premium command :)",
+            description=(
+                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -271,8 +271,17 @@ async def addinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
-        await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        embed = hikari.Embed(
+            title="You found a premium command :)",
+            description=(
+                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -302,8 +311,17 @@ async def removeinsult(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
-        await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        embed = hikari.Embed(
+            title="You found a premium command :)",
+            description=(
+                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -311,9 +329,14 @@ async def viewinsults(ctx):
     if server_id in custom_insults:
         insults_list = custom_insults[server_id]
         insults_text = "\n".join(insults_list)
-        await ctx.respond(f"Custom insults in this server:\n{insults_text}")
+        embed = hikari.Embed(
+            title="🔹 Custom Insults 🔹",
+            description=insults_text,
+            color=0x2f3136
+        )
+        await ctx.respond(embed=embed)
     else:
-        await ctx.respond(f"No custom insults found.")
+        await ctx.respond("No custom insults found.")
 
     log_message = (
         f"`viewinsults` invoked by user {ctx.author.id}\n"
@@ -329,8 +352,17 @@ async def viewinsults(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addtrigger(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
-        await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        embed = hikari.Embed(
+            title="You found a premium command :)",
+            description=(
+                "To add custom triggers to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -361,8 +393,17 @@ async def addtrigger(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removetrigger(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
-        await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        embed = hikari.Embed(
+            title="You found a premium command :)",
+            description=(
+                "To remove custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -392,8 +433,17 @@ async def removetrigger(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewtriggers(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
-        await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        embed = hikari.Embed(
+            title="You found a premium command :)",
+            description=(
+                "To view custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -401,9 +451,14 @@ async def viewtriggers(ctx):
     if server_id in custom_triggers:
         triggers_list = custom_triggers[server_id]
         triggers_text = "\n".join(triggers_list)
-        await ctx.respond(f"Custom triggers in this server:\n{triggers_text}")
+        embed = hikari.Embed(
+            title="🔹 Custom Triggers 🔹",
+            description=triggers_text,
+            color=0x2f3136
+        )
+        await ctx.respond(embed=embed)
     else:
-        await ctx.respond(f"No custom triggers found.")
+        await ctx.respond("No custom triggers found.")
 
     log_message = (
         f"`viewtriggers` invoked by user {ctx.author.id}\n"
@@ -420,8 +475,17 @@ async def viewtriggers(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def customonly(ctx):
     if str(ctx.author.id) not in prem_users:
-        await ctx.respond("To use this premium command, please consider becoming a [member](<https://ko-fi.com/azaelbots>) for $3/M. Premium commands exist to help keep the bot running.")
-        await bot.rest.create_message(1246889573141839934, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        embed = hikari.Embed(
+            title="You found a premium command :)",
+            description=(
+                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     global custom_only_servers
@@ -457,9 +521,9 @@ async def customonly(ctx):
 async def help(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
@@ -499,9 +563,9 @@ async def help(ctx):
 async def invite(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
@@ -519,9 +583,9 @@ async def invite(ctx):
 async def vote(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
@@ -539,9 +603,9 @@ async def vote(ctx):
 async def support(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
@@ -559,9 +623,9 @@ async def support(ctx):
 async def premium(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
@@ -579,9 +643,9 @@ async def premium(ctx):
 async def more(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
@@ -599,9 +663,9 @@ async def more(ctx):
 async def privacy(ctx):
     guild = ctx.get_guild()
     if guild is not None:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used in `{guild.name}`.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
     else:
-        await bot.rest.create_message(channel, f"`{ctx.command.name}` was used.")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
