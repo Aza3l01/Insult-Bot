@@ -334,7 +334,6 @@ async def viewinsults(ctx):
             description=insults_text,
             color=0x2B2D31
         )
-        embed.set_footer("Join the support server if you need help :)")
         await ctx.respond(embed=embed)
     else:
         await ctx.respond("No custom insults found.")
