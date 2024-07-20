@@ -234,7 +234,7 @@ async def addinsult(ctx):
                 ),
             color=0x2B2D31
         )
-        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
@@ -279,7 +279,7 @@ async def removeinsult(ctx):
                 ),
             color=0x2B2D31
         )
-        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
@@ -319,7 +319,7 @@ async def viewinsults(ctx):
                 ),
             color=0x2B2D31
         )
-        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
@@ -332,8 +332,9 @@ async def viewinsults(ctx):
         embed = hikari.Embed(
             title="🔹 Custom Insults 🔹",
             description=insults_text,
-            color=0x2f3136
+            color=0x2B2D31
         )
+        embed.set_footer("Join the support server if you need help :)")
         await ctx.respond(embed=embed)
     else:
         await ctx.respond("No custom insults found.")
@@ -360,7 +361,7 @@ async def addtrigger(ctx):
                 ),
             color=0x2B2D31
         )
-        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
@@ -401,7 +402,7 @@ async def removetrigger(ctx):
                 ),
             color=0x2B2D31
         )
-        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
@@ -441,7 +442,7 @@ async def viewtriggers(ctx):
                 ),
             color=0x2B2D31
         )
-        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
@@ -454,7 +455,7 @@ async def viewtriggers(ctx):
         embed = hikari.Embed(
             title="🔹 Custom Triggers 🔹",
             description=triggers_text,
-            color=0x2f3136
+            color=0x2B2D31
         )
         await ctx.respond(embed=embed)
     else:
@@ -483,7 +484,7 @@ async def customonly(ctx):
                 ),
             color=0x2B2D31
         )
-        embed.set_image("https://i.imgur.com/OQFZc2w.gif")
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
@@ -541,7 +542,7 @@ async def help(ctx):
             "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
             "**/viewtriggers:** View custom triggers added to a server.\n"
             "**/customonly:** Set custom insults and triggers only.\n\n"
-            "**Premium commands exist to help keep Insult Bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for $3/M.**\n\n"
+            "**To use the commands above and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. ❤️**\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
