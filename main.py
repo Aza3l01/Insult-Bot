@@ -229,7 +229,7 @@ async def addinsult(ctx):
         embed = hikari.Embed(
             title="You found a premium command :)",
             description=(
-                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -274,7 +274,7 @@ async def removeinsult(ctx):
         embed = hikari.Embed(
             title="You found a premium command :)",
             description=(
-                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -314,7 +314,7 @@ async def viewinsults(ctx):
         embed = hikari.Embed(
             title="You found a premium command :)",
             description=(
-                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -355,7 +355,7 @@ async def addtrigger(ctx):
         embed = hikari.Embed(
             title="You found a premium command :)",
             description=(
-                "To add custom triggers to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "To add custom triggers to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -396,7 +396,7 @@ async def removetrigger(ctx):
         embed = hikari.Embed(
             title="You found a premium command :)",
             description=(
-                "To remove custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "To remove custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -436,7 +436,7 @@ async def viewtriggers(ctx):
         embed = hikari.Embed(
             title="You found a premium command :)",
             description=(
-                "To view custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "To view custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -478,7 +478,7 @@ async def customonly(ctx):
         embed = hikari.Embed(
             title="You found a premium command :)",
             description=(
-                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. Memberships help keep the bot running. ❤️\n\n"
+                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
