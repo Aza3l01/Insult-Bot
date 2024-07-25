@@ -21,7 +21,7 @@ prohibited_words = prohibited_keywords.split(",")
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501']}
+allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862']}
 custom_only_servers = []
 user_response_count = {}
 
