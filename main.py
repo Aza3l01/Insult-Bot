@@ -5,6 +5,7 @@ import asyncio
 import aiohttp
 import os
 from dotenv import load_dotenv
+from openai import AsyncOpenAI
 
 load_dotenv()
 
@@ -22,7 +23,9 @@ custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhave
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
 allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501']}
 custom_only_servers = []
+user_response_count = {}
 
+openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
 	token=os.getenv("BOT_TOKEN")
@@ -47,11 +50,48 @@ class TopGGClient:
                 print(f"Failed to post guild count to Top.gg: {response.status}")
             else:
                 print("Posted server count to Top.gg")
+
+    async def get_user_vote(self, user_id):
+        url = f"https://top.gg/api/bots/{self.bot.get_me().id}/check?userId={user_id}"
+        headers = {
+            "Authorization": self.token
+        }
+        try:
+            async with self.session.get(url, headers=headers) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return data.get('voted') == 1
+                else:
+                    print(f"Failed to check user vote: {response.status}")
+                    return False
+        except Exception as e:
+            print(f"An error occurred while checking user vote: {e}")
+            return False
+
     async def close(self):
         await self.session.close()
 
 topgg_token = os.getenv("TOPGG_TOKEN")
 topgg_client = TopGGClient(bot, topgg_token)
+
+async def generate_text(prompt):
+    try:
+        response = await openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Answer questions with a mean attitude but still be helpful and keep responses very brief"},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=1,
+            max_tokens=256,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+        # Accessing the content correctly
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
 
 #count update
 @bot.listen(hikari.StartedEvent)
@@ -87,14 +127,14 @@ async def on_guild_leave(event):
         await bot.rest.create_message(1246886903077408838, f"Left unknown server.")
 
 # Core----------------------------------------------------------------------------------------------------------------------------------------
-# Message event
+# General message event listener
 def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     if str(event.guild_id) in allowed_channels_per_guild:
         return str(event.channel_id) in allowed_channels_per_guild[str(event.guild_id)]
     return True
 
 @bot.listen(hikari.MessageCreateEvent)
-async def on_message(event: hikari.MessageCreateEvent):
+async def on_general_message(event: hikari.MessageCreateEvent):
     if not event.is_human or not should_process_event(event):
         return
 
@@ -129,6 +169,87 @@ async def on_message(event: hikari.MessageCreateEvent):
                     pass
                 await asyncio.sleep(15)
                 break
+
+# AI response message event listener
+@bot.listen(hikari.MessageCreateEvent)
+async def on_ai_message(event: hikari.MessageCreateEvent):
+    if not event.message.author.is_bot:
+        content = event.message.content or ""
+
+        bot_id = bot.get_me().id
+        bot_mention = f"<@{bot_id}>"
+
+        mentions_bot = bot_mention in content
+        references_message = event.message.message_reference is not None
+
+        # Check if the referenced message is from the bot
+        if references_message:
+            referenced_message_id = event.message.message_reference.id  # Updated to 'id'
+            try:
+                referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
+                is_reference_to_bot = referenced_message.author.id == bot_id
+            except hikari.NotFoundError:
+                is_reference_to_bot = False
+        else:
+            is_reference_to_bot = False
+
+        if mentions_bot or is_reference_to_bot:
+            guild_id = str(event.guild_id)
+            channel_id = str(event.channel_id)
+
+            if guild_id in allowed_channels_per_guild and channel_id in allowed_channels_per_guild[guild_id]:
+                user_id = str(event.message.author.id)
+
+                # Check if the user is a premium user
+                if user_id not in prem_users:
+                    if user_id not in user_response_count:
+                        user_response_count[user_id] = 0
+
+                    if user_response_count[user_id] >= 10:
+                        has_voted = await topgg_client.get_user_vote(user_id)
+                        if not has_voted:
+                            embed = hikari.Embed(
+                                title="Limit Reached :(",
+                                description=(
+                                    f"{event.message.author.mention}, You’ve reached the maximum number of times you can ping me (limit resets in 12 hours).\n"
+                                    "If you want to continue using this feature for free, [vote](https://top.gg/bot/801431445452750879/vote) on top.gg to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
+                                    "I will never completely paywall this function, but limits are in place due to the resource-intensive nature of this feature. Your support helps keep the bot running. ❤️\n\n"
+                                    "*Any memberships bought can be refunded within 3 days of purchase.*"
+                                ),
+                                color=0x2B2D31
+                            )
+                            embed.set_image("https://imgur.com/jADuxNu.gif")
+                            await event.message.respond(embed=embed)
+                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent" + (f" in `{guild_id}`." if guild_id else "."))
+                        else:
+                            embed = hikari.Embed(
+                                title="Limit Reached :(",
+                                description=(
+                                    f"{event.message.author.mention}, You’ve reached the maximum number of times you can ping me (limit resets in 12 hours).\n"
+                                    "If you want to continue using this feature for free, [vote](https://top.gg/bot/801431445452750879/vote) on top.gg to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
+                                    "I will never completely paywall this function, but limits are in place due to the resource-intensive nature of this feature. Your support helps keep the bot running. ❤️\n\n"
+                                    "*Any memberships bought can be refunded within 3 days of purchase.*"
+                                ),
+                                color=0x2B2D31
+                            )
+                            embed.set_image("https://imgur.com/jADuxNu.gif")
+                            await event.message.respond(embed=embed)
+                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent" + (f" in `{guild_id}`." if guild_id else "."))
+                        return
+
+                message_content = content.strip()
+
+                async with bot.rest.trigger_typing(channel_id):
+                    ai_response = await generate_text(message_content)
+
+                if user_id not in prem_users:
+                    user_response_count[user_id] += 1
+
+                user_mention = event.message.author.mention
+                response_message = f"{user_mention} {ai_response}"
+                await event.message.respond(response_message)
+            else:
+                await event.message.respond("Please set a specific channel for AI responses using the `/setchannel` command or ask a trusted admin to do so.")
 
 # Insult command
 @bot.command
@@ -177,7 +298,7 @@ async def insult(ctx):
 @lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("toggle", "Toggle Insult Bot on/off in the selected channel.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.option("channel", "Select a channel to proceed.", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT])
-@lightbulb.command("setchannel", "Restrict Insult Bot to particular channel(s).")
+@lightbulb.command("setchannel", "Restrict Insult Bot and AI Bot to particular channel(s).")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setchannel(ctx):
     guild_id = str(ctx.guild_id)
@@ -196,15 +317,15 @@ async def setchannel(ctx):
     if toggle == "on":
         if channel_id and channel_id not in allowed_channels_per_guild[guild_id]:
             allowed_channels_per_guild[guild_id].append(channel_id)
-            await ctx.respond(f"Insult Bot will only respond in <#{channel_id}>.")
+            await ctx.respond(f"Bot will only respond in <#{channel_id}>.")
         elif channel_id in allowed_channels_per_guild[guild_id]:
-            await ctx.respond(f"Insult Bot is already restricted to <#{channel_id}>.")
+            await ctx.respond(f"Bot is already restricted to <#{channel_id}>.")
         else:
             await ctx.respond("Please specify a valid channel.")
     elif toggle == "off":
         if channel_id in allowed_channels_per_guild[guild_id]:
             allowed_channels_per_guild[guild_id].remove(channel_id)
-            await ctx.respond(f"Insult Bot's restriction for <#{channel_id}> has been removed.")
+            await ctx.respond(f"Bot's restriction for <#{channel_id}> has been removed.")
         else:
             await ctx.respond("Channel is not currently restricted.")
     else:
@@ -533,6 +654,7 @@ async def help(ctx):
             "**/help:** You just used this command.\n"
             "**/insult:** Send an insult to someone.\n"
             "**/setchannel:** Restrict Insult Bot to particular channel(s).\n\n"
+            "**Ping Insult Bot to talk.**\n\n"
             "**Premium Commands:**\n"
             "**/addinsult:** Add a custom insult to a server of your choice.\n"
             "**/removeinsult:** Remove a custom insult you added.\n"
@@ -541,7 +663,7 @@ async def help(ctx):
             "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
             "**/viewtriggers:** View custom triggers added to a server.\n"
             "**/customonly:** Set custom insults and triggers only.\n\n"
-            "**To use the commands above and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $3 a month. ❤️**\n\n"
+            "**To use the commands above and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
             "**Miscellaneous Commands:**\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/vote:** Vote on top.gg.\n"
@@ -689,6 +811,11 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	else:
 		raise exception
 
+@bot.listen(hikari.StoppedEvent)
+async def on_stopping(event: hikari.StoppedEvent) -> None:
+    await topgg_client.close()
+
+#top.gg stop
 @bot.listen(hikari.StoppedEvent)
 async def on_stopping(event: hikari.StoppedEvent) -> None:
     await topgg_client.close()
