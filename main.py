@@ -154,7 +154,8 @@ async def on_general_message(event: hikari.MessageCreateEvent):
         selected_response = random.choice(all_responses)
         try:
             await event.message.respond(selected_response)
-            guild_name = event.get_guild().name if event.get_guild() else "DM"
+        except hikari.errors.BadRequestError:
+            pass
         except hikari.errors.ForbiddenError:
             pass
         await asyncio.sleep(15)
