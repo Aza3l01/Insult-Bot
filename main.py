@@ -21,7 +21,8 @@ prohibited_words = prohibited_keywords.split(",")
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862']}
+allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862'], '1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '1019632213278588928': ['1071145558263218326']}
+allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '665647946213228592': ['665647946213228595'], '1123033635587620874': ['1124345771622408202'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1006195077409951864': ['1264483050968846357'], '857112618963566592': ['924728966739279882', '857112618963566595']}
 custom_only_servers = []
 user_response_count = {}
 
@@ -182,13 +183,15 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
         mentions_bot = bot_mention in content
         references_message = event.message.message_reference is not None
 
-        # Check if the referenced message is from the bot
         if references_message:
-            referenced_message_id = event.message.message_reference.id  # Updated to 'id'
+            referenced_message_id = event.message.message_reference.id
             try:
                 referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
                 is_reference_to_bot = referenced_message.author.id == bot_id
-            except hikari.NotFoundError:
+            except hikari.errors.ForbiddenError as e:
+                pass
+                is_reference_to_bot = False
+            except hikari.errors.NotFoundError:
                 is_reference_to_bot = False
         else:
             is_reference_to_bot = False
@@ -197,10 +200,9 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
             guild_id = str(event.guild_id)
             channel_id = str(event.channel_id)
 
-            if guild_id in allowed_channels_per_guild and channel_id in allowed_channels_per_guild[guild_id]:
+            if guild_id in allowed_ai_channel_per_guild and channel_id in allowed_ai_channel_per_guild[guild_id]:
                 user_id = str(event.message.author.id)
 
-                # Check if the user is a premium user
                 if user_id not in prem_users:
                     if user_id not in user_response_count:
                         user_response_count[user_id] = 0
@@ -211,30 +213,30 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                             embed = hikari.Embed(
                                 title="Limit Reached :(",
                                 description=(
-                                    f"{event.message.author.mention}, You’ve reached the maximum number of times you can ping me (limit resets in 12 hours).\n"
-                                    "If you want to continue using this feature for free, [vote](https://top.gg/bot/801431445452750879/vote) on top.gg to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
-                                    "I will never completely paywall this function, but limits are in place due to the resource-intensive nature of this feature. Your support helps keep the bot running. ❤️\n\n"
+                                    f"{event.message.author.mention}, Limit resets in `6 hours`).\n"
+                                    "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) on to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
+                                    "I will never completely paywall my bot, but limits like this help lower running costs and keeps the bot running. ❤️\n\n"
                                     "*Any memberships bought can be refunded within 3 days of purchase.*"
                                 ),
                                 color=0x2B2D31
                             )
                             embed.set_image("https://imgur.com/jADuxNu.gif")
                             await event.message.respond(embed=embed)
-                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent" + (f" in `{guild_id}`." if guild_id else "."))
+                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
                         else:
                             embed = hikari.Embed(
                                 title="Limit Reached :(",
                                 description=(
-                                    f"{event.message.author.mention}, You’ve reached the maximum number of times you can ping me (limit resets in 12 hours).\n"
-                                    "If you want to continue using this feature for free, [vote](https://top.gg/bot/801431445452750879/vote) on top.gg to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
-                                    "I will never completely paywall this function, but limits are in place due to the resource-intensive nature of this feature. Your support helps keep the bot running. ❤️\n\n"
+                                    f"{event.message.author.mention}, Limit resets in `6 hours`).\n"
+                                    "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) on to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
+                                    "I will never completely paywall my bot, but limits like this help lower running costs and keeps the bot running. ❤️\n\n"
                                     "*Any memberships bought can be refunded within 3 days of purchase.*"
                                 ),
                                 color=0x2B2D31
                             )
                             embed.set_image("https://imgur.com/jADuxNu.gif")
                             await event.message.respond(embed=embed)
-                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent" + (f" in `{guild_id}`." if guild_id else "."))
+                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
                         return
 
                 message_content = content.strip()
@@ -247,8 +249,10 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 
                 user_mention = event.message.author.mention
                 response_message = f"{user_mention} {ai_response}"
+                await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
                 await event.message.respond(response_message)
             else:
+                await bot.rest.create_message(1246886903077408838, f"`/setchannel` command was sent in `{event.get_guild().name}`")
                 await event.message.respond("Please set a specific channel for AI responses using the `/setchannel` command or ask a trusted admin to do so.")
 
 # Insult command
@@ -298,6 +302,7 @@ async def insult(ctx):
 @lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("toggle", "Toggle Insult Bot on/off in the selected channel.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.option("channel", "Select a channel to proceed.", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT])
+@lightbulb.option("type", "Select whether to enable 'chatbot' or 'keywords' responses in the channel.", choices=["chatbot", "keywords"], type=hikari.OptionType.STRING, required=True)
 @lightbulb.command("setchannel", "Restrict Insult Bot and AI Bot to particular channel(s).")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setchannel(ctx):
@@ -305,27 +310,42 @@ async def setchannel(ctx):
 
     member = await ctx.bot.rest.fetch_member(ctx.guild_id, ctx.author.id)
     if not any(role.permissions & hikari.Permissions.ADMINISTRATOR for role in member.get_roles()):
-        await ctx.respond("You need to be an admin to use this command.")
+        await ctx.respond("Ask your admins to set this up for you. 🤦")
         return
 
     if guild_id not in allowed_channels_per_guild:
         allowed_channels_per_guild[guild_id] = []
+    if guild_id not in allowed_ai_channel_per_guild:
+        allowed_ai_channel_per_guild[guild_id] = []
 
     toggle = ctx.options.toggle
     channel_id = str(ctx.options.channel.id) if ctx.options.channel else None
+    channel_type = ctx.options.type
 
     if toggle == "on":
-        if channel_id and channel_id not in allowed_channels_per_guild[guild_id]:
-            allowed_channels_per_guild[guild_id].append(channel_id)
-            await ctx.respond(f"Bot will only respond in <#{channel_id}>.")
-        elif channel_id in allowed_channels_per_guild[guild_id]:
-            await ctx.respond(f"Bot is already restricted to <#{channel_id}>.")
-        else:
-            await ctx.respond("Please specify a valid channel.")
+        if channel_type == "keywords":
+            if channel_id and channel_id not in allowed_channels_per_guild[guild_id]:
+                allowed_channels_per_guild[guild_id].append(channel_id)
+                await ctx.respond(f"Insult Bot will only respond with keywords in <#{channel_id}>.")
+            elif channel_id in allowed_channels_per_guild[guild_id]:
+                await ctx.respond(f"Insult Bot is already restricted to keywords in <#{channel_id}>.")
+            else:
+                await ctx.respond("Please specify a valid channel.")
+        elif channel_type == "chatbot":
+            if channel_id and channel_id not in allowed_ai_channel_per_guild[guild_id]:
+                allowed_ai_channel_per_guild[guild_id].append(channel_id)
+                await ctx.respond(f"Insult Bot will only respond as a chatbot in <#{channel_id}>.")
+            elif channel_id in allowed_ai_channel_per_guild[guild_id]:
+                await ctx.respond(f"Insult Bot is already a chatbot in <#{channel_id}>.")
+            else:
+                await ctx.respond("Please specify a valid channel.")
     elif toggle == "off":
-        if channel_id in allowed_channels_per_guild[guild_id]:
+        if channel_type == "keywords" and channel_id in allowed_channels_per_guild[guild_id]:
             allowed_channels_per_guild[guild_id].remove(channel_id)
-            await ctx.respond(f"Bot's restriction for <#{channel_id}> has been removed.")
+            await ctx.respond(f"Bot's restriction to send keywords in <#{channel_id}> has been removed.")
+        elif channel_type == "chatbot" and channel_id in allowed_ai_channel_per_guild[guild_id]:
+            allowed_ai_channel_per_guild[guild_id].remove(channel_id)
+            await ctx.respond(f"Bot's restriction as a chatbot in <#{channel_id}> has been removed.")
         else:
             await ctx.respond("Channel is not currently restricted.")
     else:
@@ -335,7 +355,9 @@ async def setchannel(ctx):
         f"`setchannel` invoked by user {ctx.author.id}\n"
         f"Received server_id: {guild_id}\n"
         f"Received channel_id: {channel_id}\n"
-        f"allowed_channels_per_guild = {allowed_channels_per_guild}\n\n"
+        f"Type: {channel_type.capitalize()}\n"
+        f"allowed_channels_per_guild = {allowed_channels_per_guild}\n"
+        f"allowed_ai_channel_per_guild = {allowed_ai_channel_per_guild}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
@@ -650,11 +672,11 @@ async def help(ctx):
     embed = hikari.Embed(
         title="📚 Help 📚",
         description=(
+            "**Reply or ping Insult Bot to talk.\n\n**"
             "**Core Commands:**\n"
             "**/help:** You just used this command.\n"
             "**/insult:** Send an insult to someone.\n"
             "**/setchannel:** Restrict Insult Bot to particular channel(s).\n\n"
-            "**Ping Insult Bot to talk.**\n\n"
             "**Premium Commands:**\n"
             "**/addinsult:** Add a custom insult to a server of your choice.\n"
             "**/removeinsult:** Remove a custom insult you added.\n"
@@ -732,7 +754,7 @@ async def support(ctx):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
         title="Support Server:",
-        description=("[Join the support server.](https://discord.com/invite/x7MdgVFUwa)"),
+        description=("[Join the support server.](<https://discord.com/invite/x7MdgVFUwa>)"),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
