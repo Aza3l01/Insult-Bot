@@ -6,6 +6,7 @@ import aiohttp
 import os
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
+import re
 
 load_dotenv()
 
@@ -21,6 +22,7 @@ prohibited_words = prohibited_keywords.split(",")
 custom_only_servers = []
 user_response_count = {}
 user_reset_time = {}
+prem_email = []
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
@@ -33,6 +35,7 @@ bot = lightbulb.BotApp(
 	token=os.getenv("BOT_TOKEN")
 )
 
+#top.gg
 class TopGGClient:
     def __init__(self, bot, token):
         self.bot = bot
@@ -76,6 +79,7 @@ class TopGGClient:
 topgg_token = os.getenv("TOPGG_TOKEN")
 topgg_client = TopGGClient(bot, topgg_token)
 
+#ai
 async def generate_text(prompt):
     try:
         response = await openai_client.chat.completions.create(
@@ -94,6 +98,23 @@ async def generate_text(prompt):
         return response.choices[0].message.content.strip()
     except Exception as e:
         return f"An error occurred: {str(e)}"
+
+#email
+@bot.listen(hikari.MessageCreateEvent)
+async def on_message(event: hikari.MessageCreateEvent) -> None:
+    if event.channel_id == 1266481246121234554:
+        email = event.message.content.strip()
+        if validate_email(email):
+            if email not in prem_email:
+                prem_email.append(email)
+                await bot.rest.create_message(1246889573141839934, f"prem_email = {prem_email}")
+            else:
+                await bot.rest.create_message(1246889573141839934, f"prem_email list = {prem_email}")
+        else:
+            await bot.rest.create_message(1246889573141839934, "The provided email is invalid.")
+
+def validate_email(email: str) -> bool:
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email) is not None
 
 #count update
 @bot.listen(hikari.StartedEvent)
@@ -709,17 +730,40 @@ async def help(ctx):
             "**/customonly:** Set custom insults and triggers only.\n\n"
             "**To use the commands above and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
             "**Miscellaneous Commands:**\n"
+            "**/claim_premium:** Claim premium by providing your Ko-fi email.\n"
             "**/invite:** Invite the bot to your server.\n"
-            "**/vote:** Vote on top.gg.\n"
             "**/support:** Join the support server.\n"
-            "**/premium:** Learn more about the premium version of the bot.\n"
-            "**/more:** Check out more bots from me.\n"
             "**/privacy:** View our privacy policy."
         ),
         color=0x2B2D31
     )
-    embed.set_footer("Join the support server if you need help.")
     await ctx.respond(embed=embed)
+
+#claim premium command
+@bot.command
+@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("email", "Enter your Ko-fi email", type=str)
+@lightbulb.command("claim_premium", "Claim premium by providing your Ko-fi email.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def claim_premium(ctx: lightbulb.Context) -> None:    
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+        await ctx.respond("You already have premium. 🤦")
+        return
+    
+    email = ctx.options.email
+    
+    if email in prem_email:
+        prem_users.append(str(ctx.author.id))
+        await ctx.respond("You have premium now! Thank you so much ❤️")
+    else:
+        await ctx.respond("This email is not recognized. If you think this is an error, feel free to join the [support server](<https://discord.com/invite/x7MdgVFUwa>) to receive your perks.")
+
+    log_message = (
+        f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
+        f"prem_users = {prem_users}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 #invite command
 @bot.command
@@ -741,26 +785,6 @@ async def invite(ctx):
     )
     await ctx.respond(embed=embed)
 
-#vote command
-@bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("vote", "Vote on top.gg.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def vote(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    embed = hikari.Embed(
-        title="Vote:",
-        description=("[Vote on top.gg, thank you!](https://top.gg/bot/801431445452750879/vote)"),
-        color=0x2B2D31
-    )
-    await ctx.respond(embed=embed)
-
 #support command
 @bot.command
 @lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
@@ -777,46 +801,6 @@ async def support(ctx):
     embed = hikari.Embed(
         title="Support Server:",
         description=("[Join the support server.](<https://discord.com/invite/x7MdgVFUwa>)"),
-        color=0x2B2D31
-    )
-    await ctx.respond(embed=embed)
-
-#premium command
-@bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("premium", "What is premium.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def premium(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    embed = hikari.Embed(
-        title="What is premium:",
-        description=("With premium, you can use premium commands and skip cool-downs. Premium is important for supporting the bot's hosting costs.\nThe main functions of the bot will never be paywalled, but a few extra commands serve as an incentive to subscribe.\nIf you would like to keep the bot online and support me, become a [member](https://ko-fi.com/azaelbots).\nIt helps massively. ❤️"),
-        color=0x2B2D31
-    )
-    await ctx.respond(embed=embed)
-
-#more command
-@bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("more", "More bots from me.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def more(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    embed = hikari.Embed(
-        title="More:",
-        description=("[Check out more bots from me.](https://top.gg/user/67067136345571328)"),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
