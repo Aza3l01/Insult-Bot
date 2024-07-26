@@ -25,6 +25,7 @@ allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '11
 allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '665647946213228592': ['665647946213228595'], '1123033635587620874': ['1124345771622408202'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1006195077409951864': ['1264483050968846357', '1243873717260386325'], '857112618963566592': ['924728966739279882', '857112618963566595']}
 custom_only_servers = []
 user_response_count = {}
+user_reset_time = {}
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -189,8 +190,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
             try:
                 referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
                 is_reference_to_bot = referenced_message.author.id == bot_id
-            except hikari.errors.ForbiddenError as e:
-                pass
+            except hikari.errors.ForbiddenError:
                 is_reference_to_bot = False
             except hikari.errors.NotFoundError:
                 is_reference_to_bot = False
@@ -204,54 +204,69 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
             if guild_id in allowed_ai_channel_per_guild and channel_id in allowed_ai_channel_per_guild[guild_id]:
                 user_id = str(event.message.author.id)
 
+                current_time = asyncio.get_event_loop().time()
+                reset_time = user_reset_time.get(user_id, 0)
+
+                if current_time - reset_time > 21600:  # 6 hours in seconds
+                    user_response_count[user_id] = 0
+                    user_reset_time[user_id] = current_time
+
                 if user_id not in prem_users:
                     if user_id not in user_response_count:
                         user_response_count[user_id] = 0
+                        user_reset_time[user_id] = current_time
 
-                    if user_response_count[user_id] >= 10:
+                    if user_response_count[user_id] >= 8:
                         has_voted = await topgg_client.get_user_vote(user_id)
                         if not has_voted:
                             embed = hikari.Embed(
                                 title="Limit Reached :(",
                                 description=(
-                                    f"{event.message.author.mention}, Limit resets in `6 hours`).\n"
-                                    "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) on to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
-                                    "I will never completely paywall my bot, but limits like this help lower running costs and keeps the bot running. ❤️\n\n"
+                                    f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
+                                    "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
+                                    "I will never completely paywall my bot, but limits like this help lower running costs and keep the bot running. ❤️\n\n"
                                     "*Any memberships bought can be refunded within 3 days of purchase.*"
                                 ),
                                 color=0x2B2D31
                             )
-                            embed.set_image("https://imgur.com/jADuxNu.gif")
+                            embed.set_image("https://i.imgur.com/hxZb7Sq.gif")
                             await event.message.respond(embed=embed)
                             await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
                         else:
-                            embed = hikari.Embed(
-                                title="Limit Reached :(",
-                                description=(
-                                    f"{event.message.author.mention}, Limit resets in `6 hours`).\n"
-                                    "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) on to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n"
-                                    "I will never completely paywall my bot, but limits like this help lower running costs and keeps the bot running. ❤️\n\n"
-                                    "*Any memberships bought can be refunded within 3 days of purchase.*"
-                                ),
-                                color=0x2B2D31
-                            )
-                            embed.set_image("https://imgur.com/jADuxNu.gif")
-                            await event.message.respond(embed=embed)
-                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
-                        return
+                            message_content = content.strip()
+                            async with bot.rest.trigger_typing(channel_id):
+                                ai_response = await generate_text(message_content)
 
-                message_content = content.strip()
+                            if user_id not in prem_users:
+                                user_response_count[user_id] += 1
 
-                async with bot.rest.trigger_typing(channel_id):
-                    ai_response = await generate_text(message_content)
+                            user_mention = event.message.author.mention
+                            response_message = f"{user_mention} {ai_response}"
+                            await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
+                            await event.message.respond(response_message)
 
-                if user_id not in prem_users:
-                    user_response_count[user_id] += 1
+                    else:
+                        message_content = content.strip()
+                        async with bot.rest.trigger_typing(channel_id):
+                            ai_response = await generate_text(message_content)
 
-                user_mention = event.message.author.mention
-                response_message = f"{user_mention} {ai_response}"
-                await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
-                await event.message.respond(response_message)
+                        if user_id not in prem_users:
+                            user_response_count[user_id] += 1
+
+                        user_mention = event.message.author.mention
+                        response_message = f"{user_mention} {ai_response}"
+                        await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
+                        await event.message.respond(response_message)
+                else:
+                    message_content = content.strip()
+                    async with bot.rest.trigger_typing(channel_id):
+                        ai_response = await generate_text(message_content)
+
+                    user_mention = event.message.author.mention
+                    response_message = f"{user_mention} {ai_response}"
+                    await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
+                    await event.message.respond(response_message)
+
             else:
                 await bot.rest.create_message(1246886903077408838, f"`/setchannel` command was sent in `{event.get_guild().name}`")
                 try:
