@@ -35,7 +35,7 @@ bot = lightbulb.BotApp(
 	token=os.getenv("BOT_TOKEN")
 )
 
-#top.gg
+# Top.gg
 class TopGGClient:
     def __init__(self, bot, token):
         self.bot = bot
@@ -79,7 +79,7 @@ class TopGGClient:
 topgg_token = os.getenv("TOPGG_TOKEN")
 topgg_client = TopGGClient(bot, topgg_token)
 
-#ai
+# AI
 async def generate_text(prompt):
     try:
         response = await openai_client.chat.completions.create(
@@ -98,7 +98,7 @@ async def generate_text(prompt):
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
-#email
+# Email
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event: hikari.MessageCreateEvent) -> None:
     if event.channel_id == 1266481246121234554:
@@ -732,7 +732,7 @@ async def customonly(ctx):
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
 # MISC----------------------------------------------------------------------------------------------------------------------------------------
-#help command
+# Help command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("help", "You know what this is ;)")
@@ -766,13 +766,13 @@ async def help(ctx):
             "**/invite:** Invite the bot to your server.\n"
             "**/support:** Join the support server.\n"
             "**/privacy:** View our privacy policy.\n\n"
-            "**To use the commands above and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**"
+            "**To use premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**"
         ),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
 
-#claim premium command
+# Claim premium command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("email", "Enter your Ko-fi email", type=str)
@@ -798,7 +798,7 @@ async def claim_premium(ctx: lightbulb.Context) -> None:
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-#invite command
+# Invite command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("invite", "Invite the bot to your server.")
@@ -818,7 +818,7 @@ async def invite(ctx):
     )
     await ctx.respond(embed=embed)
 
-#support command
+# Support command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("support", "Join the support server.")
@@ -838,7 +838,7 @@ async def support(ctx):
     )
     await ctx.respond(embed=embed)
 
-#privacy command
+# Privacy command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("privacy", "Privacy policy statement.")
@@ -858,7 +858,7 @@ async def privacy(ctx):
 	)
     await ctx.respond(embed=embed)
 
-#error handling
+# Error handling
 @bot.listen(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	if isinstance(event.exception, lightbulb.CommandInvocationError):
@@ -872,11 +872,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	else:
 		raise exception
 
-@bot.listen(hikari.StoppedEvent)
-async def on_stopping(event: hikari.StoppedEvent) -> None:
-    await topgg_client.close()
-
-#top.gg stop
+# Top.gg stop
 @bot.listen(hikari.StoppedEvent)
 async def on_stopping(event: hikari.StoppedEvent) -> None:
     await topgg_client.close()
