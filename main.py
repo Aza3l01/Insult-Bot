@@ -748,7 +748,7 @@ async def help(ctx):
     embed = hikari.Embed(
         title="📚 Help 📚",
         description=(
-            "**Reply or ping Insult Bot to talk.**\n\n"
+            "**Ping Insult Bot to talk after setting up channels with the `/setchannel` command**\n\n"
             "**Core Commands:**\n"
             "**/help:** You just used this command.\n"
             "**/insult:** Send an insult to someone.\n"
