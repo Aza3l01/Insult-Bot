@@ -26,8 +26,8 @@ prem_email = []
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862'], '1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '1019632213278588928': ['1071145558263218326'], '1006195077409951864': []}
-allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '665647946213228592': ['665647946213228595'], '1123033635587620874': ['1124345771622408202'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1006195077409951864': ['1264483050968846357', '1243873717260386325'], '857112618963566592': ['924728966739279882', '857112618963566595']}
+allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862'], '1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '1019632213278588928': ['1071145558263218326']}
+allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '665647946213228592': ['665647946213228595'], '1123033635587620874': ['1124345771622408202'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1006195077409951864': ['1264483050968846357', '1243873717260386325'], '857112618963566592': ['924728966739279882', '857112618963566595'], '1174927290694635522': ['1263132859808485447'], '1199220264236490834': ['1199220264832073749']}
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -94,7 +94,6 @@ async def generate_text(prompt):
             frequency_penalty=0,
             presence_penalty=0
         )
-        # Accessing the content correctly
         return response.choices[0].message.content.strip()
     except Exception as e:
         return f"An error occurred: {str(e)}"
@@ -116,7 +115,7 @@ async def on_message(event: hikari.MessageCreateEvent) -> None:
 def validate_email(email: str) -> bool:
     return re.match(r"[^@]+@[^@]+\.[^@]+", email) is not None
 
-#count update
+# Server count
 @bot.listen(hikari.StartedEvent)
 async def on_starting(event: hikari.StartedEvent) -> None:
     while True:
@@ -131,7 +130,7 @@ async def on_starting(event: hikari.StartedEvent) -> None:
         await topgg_client.post_guild_count(server_count)
         await asyncio.sleep(3600)
 
-#join
+# Join event
 @bot.listen(hikari.GuildJoinEvent)
 async def on_guild_join(event):
     guild = event.get_guild()
@@ -155,7 +154,7 @@ async def on_guild_join(event):
     else:
         await bot.rest.create_message(1246886903077408838, "Joined unknown server.")
 
-#leave
+# Leave event
 @bot.listen(hikari.GuildLeaveEvent)
 async def on_guild_leave(event):
     guild = event.old_guild
@@ -167,8 +166,28 @@ async def on_guild_leave(event):
 # Core----------------------------------------------------------------------------------------------------------------------------------------
 # General message event listener
 def should_process_event(event: hikari.MessageCreateEvent) -> bool:
+    # Fetch bot ID inside the function
+    bot_id = bot.get_me().id
+    
     if str(event.guild_id) in allowed_channels_per_guild:
-        return str(event.channel_id) in allowed_channels_per_guild[str(event.guild_id)]
+        if str(event.channel_id) in allowed_channels_per_guild[str(event.guild_id)]:
+            message_content = event.message.content.lower() if isinstance(event.message.content, str) else ""
+            mentions_bot = f"<@{bot_id}>" in message_content
+            
+            references_message = False
+            if event.message.message_reference:
+                referenced_message_id = event.message.message_reference.id
+                try:
+                    referenced_message = bot.rest.fetch_message(event.channel_id, referenced_message_id)
+                    if referenced_message.author.id == bot_id:
+                        references_message = True
+                except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
+                    pass
+
+            if mentions_bot or references_message:
+                return False
+
+            return True
     return True
 
 @bot.listen(hikari.MessageCreateEvent)
@@ -243,7 +262,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                 current_time = asyncio.get_event_loop().time()
                 reset_time = user_reset_time.get(user_id, 0)
 
-                if current_time - reset_time > 21600:  # 6 hours in seconds
+                if current_time - reset_time > 21600:
                     user_response_count[user_id] = 0
                     user_reset_time[user_id] = current_time
 
@@ -260,7 +279,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                                 description=(
                                     f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
                                     "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
-                                    "I will never completely paywall my bot, but limits like this help lower running costs and keep the bot running. ❤️\n\n"
+                                    "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
                                     "*Any memberships bought can be refunded within 3 days of purchase.*"
                                 ),
                                 color=0x2B2D31
@@ -344,7 +363,7 @@ async def insult(ctx):
             await ctx.respond(message)
         else:
             await bot.rest.create_message(target_channel, message)
-            await ctx.respond("Message was sent.")
+            await ctx.respond("Message sent.")
     except hikari.errors.NotFoundError:
         await ctx.respond("I don't have access to this channel.")
     except hikari.errors.ForbiddenError:
@@ -354,7 +373,7 @@ async def insult(ctx):
 
 # Setchannel command
 @bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("toggle", "Toggle Insult Bot on/off in the selected channel.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.option("channel", "Select a channel to proceed.", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT])
 @lightbulb.option("type", "Select whether to enable 'chatbot' or 'keywords' responses in the channel.", choices=["chatbot", "keywords"], type=hikari.OptionType.STRING, required=True)
@@ -670,7 +689,6 @@ async def viewtriggers(ctx):
 
 # Custom only toggle command
 @bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.GuildBucket)
 @lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.command("customonly", "Set custom insults and triggers only.")
 @lightbulb.implements(lightbulb.SlashCommand)
@@ -716,7 +734,7 @@ async def customonly(ctx):
 # MISC----------------------------------------------------------------------------------------------------------------------------------------
 #help command
 @bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("help", "You know what this is ;)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def help(ctx):
@@ -743,12 +761,12 @@ async def help(ctx):
             "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
             "**/viewtriggers:** View custom triggers added to a server.\n"
             "**/customonly:** Set custom insults and triggers only.\n\n"
-            "**To use the commands above and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
             "**Miscellaneous Commands:**\n"
             "**/claim_premium:** Claim premium by providing your Ko-fi email.\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/support:** Join the support server.\n"
-            "**/privacy:** View our privacy policy."
+            "**/privacy:** View our privacy policy.\n\n"
+            "**To use the commands above and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**"
         ),
         color=0x2B2D31
     )
@@ -756,7 +774,7 @@ async def help(ctx):
 
 #claim premium command
 @bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("email", "Enter your Ko-fi email", type=str)
 @lightbulb.command("claim_premium", "Claim premium by providing your Ko-fi email.")
 @lightbulb.implements(lightbulb.SlashCommand)
@@ -772,7 +790,7 @@ async def claim_premium(ctx: lightbulb.Context) -> None:
         prem_users.append(str(ctx.author.id))
         await ctx.respond("You have premium now! Thank you so much ❤️")
     else:
-        await ctx.respond("This email is not recognized. If you think this is an error, feel free to join the [support server](<https://discord.com/invite/x7MdgVFUwa>) to receive your perks.")
+        await ctx.respond("Your email was not recognized. If you think this is an error, join the [support server](https://discord.com/invite/x7MdgVFUwa) to receive your perks.")
 
     log_message = (
         f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
@@ -782,7 +800,7 @@ async def claim_premium(ctx: lightbulb.Context) -> None:
 
 #invite command
 @bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("invite", "Invite the bot to your server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def invite(ctx):
@@ -802,7 +820,7 @@ async def invite(ctx):
 
 #support command
 @bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("support", "Join the support server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def support(ctx):
@@ -815,14 +833,14 @@ async def support(ctx):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     embed = hikari.Embed(
         title="Support Server:",
-        description=("[Join the support server.](<https://discord.com/invite/x7MdgVFUwa>)"),
+        description=("[Join the support server.](https://discord.com/invite/x7MdgVFUwa)"),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
 
 #privacy command
 @bot.command
-@lightbulb.add_cooldown(length=10, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("privacy", "Privacy policy statement.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def privacy(ctx):
@@ -850,7 +868,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	exception = event.exception.__cause__ or event.exception
 
 	if isinstance(exception, lightbulb.CommandIsOnCooldown):
-		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [member](<https://ko-fi.com/azaelbots>).")
+		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [member](https://ko-fi.com/azaelbots).")
 	else:
 		raise exception
 
