@@ -26,8 +26,8 @@ prem_email = []
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862'], '1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '1019632213278588928': ['1071145558263218326']}
-allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '665647946213228592': ['665647946213228595'], '1123033635587620874': ['1124345771622408202'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1006195077409951864': ['1264483050968846357', '1243873717260386325'], '857112618963566592': ['924728966739279882', '857112618963566595'], '1174927290694635522': ['1263132859808485447'], '1199220264236490834': ['1199220264832073749']}
+allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862'], '1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '1019632213278588928': ['1071145558263218326'], '1231160628215812106': ['1231226511500251136'], '1199546781009186958': ['1199604054507130890']}
+allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '665647946213228592': ['665647946213228595'], '1123033635587620874': ['1124345771622408202'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1006195077409951864': ['1264483050968846357', '1243873717260386325'], '857112618963566592': ['924728966739279882', '857112618963566595'], '1174927290694635522': ['1263132859808485447'], '1199220264236490834': ['1199220264832073749'], '1231160628215812106': ['1231226511500251136'], '1199546781009186958': ['1199604054507130890']}
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -165,10 +165,8 @@ async def on_guild_leave(event):
 
 # Core----------------------------------------------------------------------------------------------------------------------------------------
 # General message event listener
-def should_process_event(event: hikari.MessageCreateEvent) -> bool:
-    # Fetch bot ID inside the function
+async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     bot_id = bot.get_me().id
-    
     if str(event.guild_id) in allowed_channels_per_guild:
         if str(event.channel_id) in allowed_channels_per_guild[str(event.guild_id)]:
             message_content = event.message.content.lower() if isinstance(event.message.content, str) else ""
@@ -178,7 +176,7 @@ def should_process_event(event: hikari.MessageCreateEvent) -> bool:
             if event.message.message_reference:
                 referenced_message_id = event.message.message_reference.id
                 try:
-                    referenced_message = bot.rest.fetch_message(event.channel_id, referenced_message_id)
+                    referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
                     if referenced_message.author.id == bot_id:
                         references_message = True
                 except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
@@ -192,7 +190,7 @@ def should_process_event(event: hikari.MessageCreateEvent) -> bool:
 
 @bot.listen(hikari.MessageCreateEvent)
 async def on_general_message(event: hikari.MessageCreateEvent):
-    if not event.is_human or not should_process_event(event):
+    if not event.is_human or not await should_process_event(event):
         return
 
     message_content = event.content.lower() if isinstance(event.content, str) else ""
@@ -456,7 +454,7 @@ async def addinsult(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
         return
 
     server_id = str(ctx.guild_id)
@@ -501,7 +499,7 @@ async def removeinsult(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
         return
 
     server_id = str(ctx.guild_id)
@@ -541,7 +539,7 @@ async def viewinsults(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
         return
 
     server_id = str(ctx.guild_id)
@@ -582,7 +580,7 @@ async def addtrigger(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
         return
 
     server_id = str(ctx.guild_id)
@@ -623,7 +621,7 @@ async def removetrigger(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
         return
 
     server_id = str(ctx.guild_id)
@@ -663,7 +661,7 @@ async def viewtriggers(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
         return
 
     server_id = str(ctx.guild_id)
@@ -704,7 +702,7 @@ async def customonly(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
         return
 
     global custom_only_servers
