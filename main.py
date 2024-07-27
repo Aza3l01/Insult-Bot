@@ -136,9 +136,24 @@ async def on_starting(event: hikari.StartedEvent) -> None:
 async def on_guild_join(event):
     guild = event.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"Joined `{guild.name}`.")
+        for channel in guild.get_channels().values():
+            if isinstance(channel, hikari.TextableChannel):
+                embed = hikari.Embed(
+                    title="Thanks for inviting me ❤️",
+                    description=(
+                        "Ping me to talk to me after setting up channels with the `/setchannel` command.\n\n"
+                        "Use the `/help` command to get an overview of all available commands.\n\n"
+                        "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
+                    ),
+                    color=0x2B2D31
+                )
+                await channel.send(embed=embed)
+                await bot.rest.create_message(1246886903077408838, f"Joined and sent thank you message in `{guild.name}`.")
+                break
+        else:
+            await bot.rest.create_message(1246886903077408838, f"Joined and found no channels in `{guild.name}` to send a thank you message.")
     else:
-        await bot.rest.create_message(1246886903077408838, f"Joined unknown server.")
+        await bot.rest.create_message(1246886903077408838, "Joined unknown server.")
 
 #leave
 @bot.listen(hikari.GuildLeaveEvent)
