@@ -448,7 +448,7 @@ async def setchannel(ctx):
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
-            title="You found a premium command :)",
+            title="You found a premium command",
             description=(
                 "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
@@ -457,7 +457,7 @@ async def addinsult(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -493,7 +493,7 @@ async def addinsult(ctx):
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
-            title="You found a premium command :)",
+            title="You found a premium command",
             description=(
                 "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
@@ -502,7 +502,7 @@ async def removeinsult(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -533,7 +533,7 @@ async def removeinsult(ctx):
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
-            title="You found a premium command :)",
+            title="You found a premium command",
             description=(
                 "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
@@ -542,7 +542,7 @@ async def viewinsults(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -574,7 +574,7 @@ async def viewinsults(ctx):
 async def addtrigger(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
-            title="You found a premium command :)",
+            title="You found a premium command",
             description=(
                 "To add custom triggers to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
@@ -583,7 +583,7 @@ async def addtrigger(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -615,7 +615,7 @@ async def addtrigger(ctx):
 async def removetrigger(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
-            title="You found a premium command :)",
+            title="You found a premium command",
             description=(
                 "To remove custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
@@ -624,7 +624,7 @@ async def removetrigger(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -655,7 +655,7 @@ async def removetrigger(ctx):
 async def viewtriggers(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
-            title="You found a premium command :)",
+            title="You found a premium command",
             description=(
                 "To view custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
@@ -664,7 +664,7 @@ async def viewtriggers(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     server_id = str(ctx.guild_id)
@@ -696,7 +696,7 @@ async def viewtriggers(ctx):
 async def customonly(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
-            title="You found a premium command :)",
+            title="You found a premium command",
             description=(
                 "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
@@ -705,7 +705,7 @@ async def customonly(ctx):
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in {ctx.guild.name}")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
 
     global custom_only_servers
