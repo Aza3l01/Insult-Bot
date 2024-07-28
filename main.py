@@ -146,14 +146,15 @@ async def on_guild_join(event):
                     ),
                     color=0x2B2D31
                 )
+                embed.set_footer("Insult Bot is under extensive development, expect to see updates regularly!")
                 try:
                     await channel.send(embed=embed)
-                    await bot.rest.create_message(1246886903077408838, f"Joined and sent thank you message in `{guild.name}`.")
+                    await bot.rest.create_message(1246886903077408838, f"Joined and sent join message in `{guild.name}`.")
                 except hikari.errors.ForbiddenError:
-                    await bot.rest.create_message(1246886903077408838, f"Failed to send message in `{guild.name}`: Missing Access")
+                    await bot.rest.create_message(1246886903077408838, f"Failed to send join message in `{guild.name}`: Missing Access")
                 break
         else:
-            await bot.rest.create_message(1246886903077408838, f"Joined and found no channels in `{guild.name}` to send a thank you message.")
+            await bot.rest.create_message(1246886903077408838, f"Joined and found no channels in `{guild.name}` to send join message.")
     else:
         await bot.rest.create_message(1246886903077408838, "Joined unknown server.")
 
