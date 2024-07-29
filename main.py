@@ -85,7 +85,7 @@ async def generate_text(prompt):
         response = await openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "Answer questions with a mean attitude but still be helpful and keep responses very brief"},
+                {"role": "system", "content": "Be extremely but still be helpful and keep responses brief"},
                 {"role": "user", "content": prompt}
             ],
             temperature=1,
