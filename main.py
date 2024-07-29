@@ -26,8 +26,8 @@ prem_email = []
 prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '857112618963566592': ['924728966739279882'], '365235912512372738': ['985163775856504862'], '1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '1019632213278588928': ['1071145558263218326'], '1231160628215812106': ['1231226511500251136'], '1199546781009186958': ['1199604054507130890'], '1231377310217666602': ['1231377310712729601']}
-allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '665647946213228592': ['665647946213228595'], '1123033635587620874': ['1124345771622408202'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1006195077409951864': ['1264483050968846357', '1243873717260386325'], '857112618963566592': ['924728966739279882', '857112618963566595'], '1174927290694635522': ['1263132859808485447'], '1199220264236490834': ['1199220264832073749'], '1231160628215812106': ['1231226511500251136'], '1199546781009186958': ['1199604054507130890'], '1256968169050865724': ['1266049664948637770'], '1231377310217666602': ['1231377310712729601'], '365235912512372738': ['985163775856504862'], '1254080667931770970': ['1267071804342538240']}
+allowed_channels_per_guild = {'934644448187539517': ['1139231743682019408'], '1174927290694635522': ['1263132859808485447'], '1263396901898948630': ['1263396901898948632'], '1163488034117918801': ['1163689143818260501'], '365235912512372738': ['985163775856504862'], '1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '1019632213278588928': ['1071145558263218326'], '1231160628215812106': ['1231226511500251136'], '1199546781009186958': ['1199604054507130890'], '1231377310217666602': ['1231377310712729601']}
+allowed_ai_channel_per_guild = {'1266054751577968722': ['1266117205175697418'], '1196598381057953904': ['1209033029377589328'], '934644448187539517': ['1266099301529161799'], '1174927290694635522': ['1263132859808485447'], '1199220264236490834': ['1199220264832073749'], '1231160628215812106': ['1231226511500251136'], '1199546781009186958': ['1199604054507130890'], '1256968169050865724': ['1266049664948637770'], '1231377310217666602': ['1231377310712729601'], '365235912512372738': ['985163775856504862'], '1254080667931770970': ['1267071804342538240']}
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -254,54 +254,55 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
         else:
             is_reference_to_bot = False
 
+        guild_id = str(event.guild_id)
+        channel_id = str(event.channel_id)
+
         if mentions_bot or is_reference_to_bot:
-            guild_id = str(event.guild_id)
-            channel_id = str(event.channel_id)
+            if guild_id in allowed_ai_channel_per_guild:
+                if channel_id not in allowed_ai_channel_per_guild[guild_id]:
+                    # If the channel is not in the allowed channels, inform the user
+                    ai_channel = allowed_ai_channel_per_guild[guild_id][0]  # Assume the first one is the primary AI channel
+                    ai_channel_mention = f"<#{ai_channel}>"
+                    message = (
+                        f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. "
+                        "Please use that channel for AI interactions."
+                    )
+                    try:
+                        await event.message.respond(message)
+                    except hikari.errors.ForbiddenError:
+                        pass
+                    return
 
-            if guild_id in allowed_ai_channel_per_guild and channel_id in allowed_ai_channel_per_guild[guild_id]:
-                user_id = str(event.message.author.id)
+            user_id = str(event.message.author.id)
 
-                current_time = asyncio.get_event_loop().time()
-                reset_time = user_reset_time.get(user_id, 0)
+            current_time = asyncio.get_event_loop().time()
+            reset_time = user_reset_time.get(user_id, 0)
 
-                if current_time - reset_time > 21600:
+            if current_time - reset_time > 21600:
+                user_response_count[user_id] = 0
+                user_reset_time[user_id] = current_time
+
+            if user_id not in prem_users:
+                if user_id not in user_response_count:
                     user_response_count[user_id] = 0
                     user_reset_time[user_id] = current_time
 
-                if user_id not in prem_users:
-                    if user_id not in user_response_count:
-                        user_response_count[user_id] = 0
-                        user_reset_time[user_id] = current_time
-
-                    if user_response_count[user_id] >= 10:
-                        has_voted = await topgg_client.get_user_vote(user_id)
-                        if not has_voted:
-                            embed = hikari.Embed(
-                                title="Limit Reached :(",
-                                description=(
-                                    f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
-                                    "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
-                                    "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                                    "*Any memberships bought can be refunded within 3 days of purchase.*"
-                                ),
-                                color=0x2B2D31
-                            )
-                            embed.set_image("https://i.imgur.com/hxZb7Sq.gif")
-                            await event.message.respond(embed=embed)
-                            await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
-                        else:
-                            message_content = content.strip()
-                            async with bot.rest.trigger_typing(channel_id):
-                                ai_response = await generate_text(message_content)
-
-                            if user_id not in prem_users:
-                                user_response_count[user_id] += 1
-
-                            user_mention = event.message.author.mention
-                            response_message = f"{user_mention} {ai_response}"
-                            await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
-                            await event.message.respond(response_message)
-
+                if user_response_count[user_id] >= 10:
+                    has_voted = await topgg_client.get_user_vote(user_id)
+                    if not has_voted:
+                        embed = hikari.Embed(
+                            title="Limit Reached :(",
+                            description=(
+                                f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
+                                "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
+                                "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
+                                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                            ),
+                            color=0x2B2D31
+                        )
+                        embed.set_image("https://i.imgur.com/hxZb7Sq.gif")
+                        await event.message.respond(embed=embed)
+                        await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
                     else:
                         message_content = content.strip()
                         async with bot.rest.trigger_typing(channel_id):
@@ -314,22 +315,28 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                         response_message = f"{user_mention} {ai_response}"
                         await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
                         await event.message.respond(response_message)
+
                 else:
                     message_content = content.strip()
                     async with bot.rest.trigger_typing(channel_id):
                         ai_response = await generate_text(message_content)
 
+                    if user_id not in prem_users:
+                        user_response_count[user_id] += 1
+
                     user_mention = event.message.author.mention
                     response_message = f"{user_mention} {ai_response}"
                     await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
                     await event.message.respond(response_message)
-
             else:
-                await bot.rest.create_message(1246886903077408838, f"`/setchannel` command was sent in `{event.get_guild().name}`")
-                try:
-                    await event.message.respond("Set a specific channel for AI responses using the /setchannel command or ask a trusted admin to do so.")
-                except hikari.errors.ForbiddenError:
-                    pass
+                message_content = content.strip()
+                async with bot.rest.trigger_typing(channel_id):
+                    ai_response = await generate_text(message_content)
+
+                user_mention = event.message.author.mention
+                response_message = f"{user_mention} {ai_response}"
+                await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
+                await event.message.respond(response_message)
 
 # Insult command
 @bot.command
@@ -750,7 +757,7 @@ async def help(ctx):
     embed = hikari.Embed(
         title="📚 Help 📚",
         description=(
-            "**Ping Insult Bot to talk after setting up channels with the `/setchannel` command**\n\n"
+            "**Ping Insult Bot to talk after optionally setting up channels with the `/setchannel` command.**\n\n"
             "**Core Commands:**\n"
             "**/help:** You just used this command.\n"
             "**/insult:** Send an insult to someone.\n"
@@ -778,9 +785,9 @@ async def help(ctx):
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("email", "Enter your Ko-fi email", type=str)
-@lightbulb.command("claim_premium", "Claim premium by providing your Ko-fi email.")
+@lightbulb.command("premium", "Claim premium by providing your Ko-fi email.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def claim_premium(ctx: lightbulb.Context) -> None:    
+async def premium(ctx: lightbulb.Context) -> None:    
     if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
         await ctx.respond("You already have premium. 🤦")
