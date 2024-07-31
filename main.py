@@ -268,12 +268,8 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                 if channel_id not in allowed_ai_channel_per_guild[guild_id]:
                     ai_channel = allowed_ai_channel_per_guild[guild_id][0]
                     ai_channel_mention = f"<#{ai_channel}>"
-                    message = (
-                        f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. "
-                        "Please use that channel for AI interactions."
-                    )
                     try:
-                        await event.message.respond(message)
+                        await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
                     except hikari.errors.ForbiddenError:
                         pass
                     return
@@ -318,7 +314,6 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 
                         user_mention = event.message.author.mention
                         response_message = f"{user_mention} {ai_response}"
-                        await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
                         await event.message.respond(response_message)
 
                 else:
@@ -331,7 +326,6 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 
                     user_mention = event.message.author.mention
                     response_message = f"{user_mention} {ai_response}"
-                    await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
                     await event.message.respond(response_message)
             else:
                 message_content = content.strip()
@@ -340,7 +334,6 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 
                 user_mention = event.message.author.mention
                 response_message = f"{user_mention} {ai_response}"
-                await bot.rest.create_message(1246886903077408838, f"`ai response` was sent in `{event.get_guild().name}`")
                 await event.message.respond(response_message)
 
 # Insult command
