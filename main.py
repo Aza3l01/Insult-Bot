@@ -142,6 +142,7 @@ async def on_guild_join(event):
                     description=(
                         "Ping me to talk to me after setting up channels with the `/setchannel` command.\n\n"
                         "Use the `/help` command to get an overview of all available commands.\n\n"
+                        "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                         "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
                     ),
                     color=0x2B2D31
@@ -174,13 +175,10 @@ async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     guild_id = str(event.guild_id)
     
     if guild_id in allowed_channels_per_guild:
-        # Check if specific channels are set for this guild
         if allowed_channels_per_guild[guild_id]:
-            # If specific channels are set, only process events from those channels
             if str(event.channel_id) not in allowed_channels_per_guild[guild_id]:
                 return False
 
-    # Check if the bot is mentioned or referenced
     message_content = event.message.content.lower() if isinstance(event.message.content, str) else ""
     mentions_bot = f"<@{bot_id}>" in message_content
     
@@ -297,6 +295,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                                 f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
                                 "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
                                 "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
+                                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                             ),
                             color=0x2B2D31
@@ -457,6 +456,7 @@ async def addinsult(ctx):
             title="You found a premium command",
             description=(
                 "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -502,6 +502,7 @@ async def removeinsult(ctx):
             title="You found a premium command",
             description=(
                 "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -542,6 +543,7 @@ async def viewinsults(ctx):
             title="You found a premium command",
             description=(
                 "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -583,6 +585,7 @@ async def addtrigger(ctx):
             title="You found a premium command",
             description=(
                 "To add custom triggers to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -624,6 +627,7 @@ async def removetrigger(ctx):
             title="You found a premium command",
             description=(
                 "To remove custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -664,6 +668,7 @@ async def viewtriggers(ctx):
             title="You found a premium command",
             description=(
                 "To view custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -705,6 +710,7 @@ async def customonly(ctx):
             title="You found a premium command",
             description=(
                 "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -769,11 +775,12 @@ async def help(ctx):
             "**/viewtriggers:** View custom triggers added to a server.\n"
             "**/customonly:** Set custom insults and triggers only.\n\n"
             "**Miscellaneous Commands:**\n"
-            "**/claim_premium:** Claim premium by providing your Ko-fi email.\n"
+            "**/claim:** Claim premium by providing your Ko-fi email.\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/support:** Join the support server.\n"
             "**/privacy:** View our privacy policy.\n\n"
-            "**To use premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**"
+            "**To use premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
+            "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!"
         ),
         color=0x2B2D31
     )
@@ -783,7 +790,7 @@ async def help(ctx):
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("email", "Enter your Ko-fi email", type=str)
-@lightbulb.command("premium", "Claim premium by providing your Ko-fi email.")
+@lightbulb.command("claim", "Claim premium after subscribing.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def premium(ctx: lightbulb.Context) -> None:    
     if str(ctx.author.id) in prem_users:
@@ -864,6 +871,26 @@ async def privacy(ctx):
 		color=0x2B2D31
 	)
     await ctx.respond(embed=embed)
+
+# Free premium command
+@bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.command("free", "Get premium for free for a month!")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def premium(ctx: lightbulb.Context) -> None:    
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+        await ctx.respond("You already have premium. 🤦")
+        return
+    
+    prem_users.append(str(ctx.author.id))
+    await ctx.respond("You have premium now! ❤️")
+
+    log_message = (
+        f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
+        f"prem_users = {prem_users}\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 # Error handling
 @bot.listen(lightbulb.CommandErrorEvent)
