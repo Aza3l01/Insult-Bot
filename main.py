@@ -142,7 +142,7 @@ async def on_guild_join(event):
                     description=(
                         "Ping me to talk to me after setting up channels with the `/setchannel` command.\n\n"
                         "Use the `/help` command to get an overview of all available commands.\n\n"
-                        "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                        "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                         "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
                     ),
                     color=0x2B2D31
@@ -295,7 +295,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                                 f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
                                 "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
                                 "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                             ),
                             color=0x2B2D31
@@ -456,7 +456,7 @@ async def addinsult(ctx):
             title="You found a premium command",
             description=(
                 "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -502,7 +502,7 @@ async def removeinsult(ctx):
             title="You found a premium command",
             description=(
                 "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -543,7 +543,7 @@ async def viewinsults(ctx):
             title="You found a premium command",
             description=(
                 "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -585,7 +585,7 @@ async def addtrigger(ctx):
             title="You found a premium command",
             description=(
                 "To add custom triggers to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -627,7 +627,7 @@ async def removetrigger(ctx):
             title="You found a premium command",
             description=(
                 "To remove custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -668,7 +668,7 @@ async def viewtriggers(ctx):
             title="You found a premium command",
             description=(
                 "To view custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -710,7 +710,7 @@ async def customonly(ctx):
             title="You found a premium command",
             description=(
                 "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -780,7 +780,7 @@ async def help(ctx):
             "**/support:** Join the support server.\n"
             "**/privacy:** View our privacy policy.\n\n"
             "**To use premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
-            "**To celebrate being added to 3000 server, I'm giving away free premium for a month! Use the /free command to receive your perks!"
+            "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!"
         ),
         color=0x2B2D31
     )
