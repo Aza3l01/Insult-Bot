@@ -34,7 +34,7 @@ prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217',
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic."], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont talk to negros', 'i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Dick', 'Fuck you', 'Cunt', 'Asshole'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad']}
 allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408'], '1175923285314252870': ['1175923286312484977']}
-allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116']}
+allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116'], '857112618963566592': ['924728966739279882']}
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -513,7 +513,7 @@ async def memory(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle Insult Bot remember your conversations, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "To toggle Insult Bot remember your conversations, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a month by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -529,6 +529,7 @@ async def memory(ctx: lightbulb.Context) -> None:
             color=0x2B2D31
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+        await ctx.respond(embed=embed)
         await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
         return
     
@@ -560,8 +561,8 @@ async def memory(ctx: lightbulb.Context) -> None:
 # Set Style command
 @bot.command()
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option('set', 'Enter a chatbot style.', type=str)
-@lightbulb.command('style', 'Set a custom style for Insult Bot.')
+@lightbulb.option('style', 'Enter a chatbot style.', type=str)
+@lightbulb.command('setstyle', 'Set a custom style for Insult Bot.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setstyle(ctx: lightbulb.Context) -> None:
     if any(word in str(ctx.author.id) for word in prem_users):
@@ -569,7 +570,6 @@ async def setstyle(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     style = ctx.options.style
 
-    # Save the custom style for the user
     user_custom_styles[user_id] = style
     await ctx.respond(f'Custom response style has been set to: "{style}"')
 
@@ -592,7 +592,7 @@ async def addinsult(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a month by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -647,7 +647,7 @@ async def removeinsult(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a month by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -697,7 +697,7 @@ async def viewinsults(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a month by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -825,7 +825,7 @@ async def customonly(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a month by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
