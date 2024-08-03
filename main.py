@@ -560,7 +560,7 @@ async def memory(ctx: lightbulb.Context) -> None:
 # Set Style command
 @bot.command()
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option('set', 'Enter the style.', type=str)
+@lightbulb.option('set', 'Enter a chatbot style.', type=str)
 @lightbulb.command('style', 'Set a custom style for Insult Bot.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setstyle(ctx: lightbulb.Context) -> None:
