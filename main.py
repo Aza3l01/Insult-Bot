@@ -477,7 +477,7 @@ async def setchannel(ctx):
 
 # View set channels command
 @bot.command
-@lightbulb.command("setchannel_view", "View channel(s) Insult Bot is retricted to.")
+@lightbulb.command("setchannel_view", "View channel(s) Insult Bot is restricted to.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewsetchannels(ctx):
     guild = ctx.get_guild()
@@ -890,7 +890,7 @@ async def help(ctx):
             "**Core Commands:**\n"
             "**/insult:** Send an insult to someone.\n"
             "**/setchannel_toggle:** Restrict Insult Bot to particular channel(s).\n"
-            "**/setchannel_view:** View channel(s) Insult Bot is retricted to.\n\n"
+            "**/setchannel_view:** View channel(s) Insult Bot is restricted to.\n\n"
             "**Chatbot Commands:**\n"
             "**/memory:** Make Insult Bot remember your conversations. (P)\n"
             "**/style:** Set a custom style for Insult Bot.\n\n"
