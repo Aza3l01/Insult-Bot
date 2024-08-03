@@ -19,6 +19,8 @@ response = response_string.split(",")
 prohibited_keywords = os.getenv("PROHIBITED_WORDS")
 prohibited_words = prohibited_keywords.split(",")
 
+used_free_trial = []
+user_custom_styles = {}
 user_memory_preferences = {}
 user_conversation_memory = {}
 custom_only_servers = ['1227739786341650482']
@@ -28,7 +30,7 @@ prem_email = []
 # prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
 # custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 # custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036']
+prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic."], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont talk to negros', 'i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Dick', 'Fuck you', 'Cunt', 'Asshole'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad']}
 allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408'], '1175923285314252870': ['1175923286312484977']}
@@ -87,7 +89,14 @@ topgg_client = TopGGClient(bot, topgg_token)
 # AI
 async def generate_text(prompt, user_id=None):
     try:
-        messages = [{"role": "system", "content": "Answer questions with a mean attitude but still be helpful and keep responses very brief"}]
+        # Default system message
+        system_message = "Answer questions with a mean attitude but still be helpful and keep responses very brief"
+
+        # Check if the user has a custom style
+        if user_id and user_id in user_custom_styles:
+            system_message = user_custom_styles[user_id]
+
+        messages = [{"role": "system", "content": system_message}]
         if user_id and user_id in user_conversation_memory:
             messages.extend(user_conversation_memory[user_id])
         messages.append({"role": "user", "content": prompt})
@@ -156,9 +165,9 @@ async def on_guild_join(event):
                 embed = hikari.Embed(
                     title="Thanks for inviting me ❤️",
                     description=(
-                        "Ping me to talk to me after setting up channels with the `/setchannel` command.\n\n"
+                        "Reply or Ping me to talk to me.\n\n"
                         "Use the `/help` command to get an overview of all available commands.\n\n"
-                        "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                        "Get a premium free trial for a month by using the `/free` command.\n\n"
                         "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
                     ),
                     color=0x2B2D31
@@ -181,8 +190,6 @@ async def on_guild_leave(event):
     guild = event.old_guild
     if guild is not None:
         await bot.rest.create_message(1246886903077408838, f"Left `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"Left unknown server.")
 
 # Core----------------------------------------------------------------------------------------------------------------------------------------
 # General message event listener
@@ -302,7 +309,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     user_response_count[user_id] = 0
                     user_reset_time[user_id] = current_time
 
-                if user_response_count[user_id] >= 15:
+                if user_response_count[user_id] >= 20:
                     has_voted = await topgg_client.get_user_vote(user_id)
                     if not has_voted:
                         embed = hikari.Embed(
@@ -311,7 +318,15 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                                 f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
                                 "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
                                 "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                                "Get a premium free trial for a month by using the `/free` command.\n\n"
+                                "**Access Premium Commands Like:**\n"
+                                "• Add custom insults.\n"
+                                "• Insult Bot will remember your conversations.\n"
+                                "• Remove cool-downs.\n"
+                                "**Support Server Related Perks Like:**\n"
+                                "• Access to behind the scenes discord channels.\n"
+                                "• Have a say in the development of Insult Bot.\n"
+                                "• Supporter exclusive channels.\n\n"
                                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                             ),
                             color=0x2B2D31
@@ -399,7 +414,7 @@ async def insult(ctx):
 @lightbulb.option("toggle", "Toggle Insult Bot on/off in the selected channel.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.option("channel", "Select a channel to proceed.", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT])
 @lightbulb.option("type", "Select whether to enable 'chatbot' or 'keywords' responses in the channel.", choices=["chatbot", "keywords"], type=hikari.OptionType.STRING, required=True)
-@lightbulb.command("setchannel", "Restrict Insult Bot and AI Bot to particular channel(s).")
+@lightbulb.command("setchannel_toggle", "Restrict Insult Bot and AI Bot to particular channel(s).")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setchannel(ctx):
     guild_id = str(ctx.guild_id)
@@ -460,12 +475,63 @@ async def setchannel(ctx):
     except Exception as e:
         print(f"Failed to send log message: {e}")
 
-# Memory command
+# View set channels command
+@bot.command
+@lightbulb.command("setchannel_view", "View channel(s) Insult Bot is retricted to.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def viewsetchannels(ctx):
+    guild = ctx.get_guild()
+    if guild is not None:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
+    else:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
+    guild_id = str(ctx.guild_id)
+    keyword_channels = allowed_channels_per_guild.get(guild_id, [])
+    chatbot_channels = allowed_ai_channel_per_guild.get(guild_id, [])
+
+    keyword_channel_list = "\n".join([f"<#{channel_id}>" for channel_id in keyword_channels]) if keyword_channels else "No channels set."
+    chatbot_channel_list = "\n".join([f"<#{channel_id}>" for channel_id in chatbot_channels]) if chatbot_channels else "No channels set."
+
+    embed = hikari.Embed(
+        title="🔹 Channel Settings 🔹",
+        description=(
+            f"**Keyword Response Channels:**\n{keyword_channel_list}\n\n"
+            f"**Chatbot Response Channels:**\n{chatbot_channel_list}"
+        ),
+        color=0x2B2D31
+    )
+    await ctx.respond(embed=embed)
+
+# Chatbot----------------------------------------------------------------------------------------------------------------------------------------
+# Memory command (P)
 @bot.command()
-@lightbulb.option('toggle', 'Choose to turn memory on, off, or clear', choices=['on', 'off', 'clear'])
-@lightbulb.command('memory', 'Manage AI memory for personalized interactions')
+@lightbulb.option('toggle', 'Choose to toggle or clear memory.', choices=['on', 'off', 'clear'])
+@lightbulb.command('memory', 'Make Insult Bot remember your conversations.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def memory(ctx: lightbulb.Context) -> None:
+    if str(ctx.author.id) not in prem_users:
+        embed = hikari.Embed(
+            title="You found a premium command",
+            description=(
+                "To toggle Insult Bot remember your conversations, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a month by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+                ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        return
+    
     user_id = str(ctx.author.id)
     toggle = ctx.options.toggle
     
@@ -491,19 +557,52 @@ async def memory(ctx: lightbulb.Context) -> None:
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-# Premium----------------------------------------------------------------------------------------------------------------------------------------
-# Add insult command
+# Set Style command
+@bot.command()
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option('set', 'Enter the style.', type=str)
+@lightbulb.command('style', 'Set a custom style for Insult Bot.')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def setstyle(ctx: lightbulb.Context) -> None:
+    if any(word in str(ctx.author.id) for word in prem_users):
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    user_id = str(ctx.author.id)
+    style = ctx.options.style
+
+    # Save the custom style for the user
+    user_custom_styles[user_id] = style
+    await ctx.respond(f'Custom response style has been set to: "{style}"')
+
+    # Log the style change
+    log_message = (
+        f"`setstyle` invoked by user {ctx.author.id}\n"
+        f"Style: {style}\n"
+        f"Updated user_custom_styles = {user_custom_styles}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
+
+# Keyword----------------------------------------------------------------------------------------------------------------------------------------
+# Add insult command (P)
 @bot.command
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
-@lightbulb.command("addinsult", "Add a custom insult to this server.")
+@lightbulb.command("insult_add", "Add a custom insult to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a month by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -538,18 +637,27 @@ async def addinsult(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-# Remove insult command
+# Remove insult command (P)
 @bot.command
 @lightbulb.option("insult", "The insult to remove.", type=str)
-@lightbulb.command("removeinsult", "Remove a custom insult from this server.")
+@lightbulb.command("insult_remove", "Remove a custom insult from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a month by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -580,17 +688,26 @@ async def removeinsult(ctx):
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
-# View insults command
+# View insults command (P)
 @bot.command
-@lightbulb.command("viewinsults", "View custom insults added to this server.")
+@lightbulb.command("insult_view", "View custom insults added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx):
     if str(ctx.author.id) not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a month by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -613,35 +730,17 @@ async def viewinsults(ctx):
         await ctx.respond(embed=embed)
     else:
         await ctx.respond("No custom insults found.")
-
-    log_message = (
-        f"`viewinsults` invoked by user {ctx.author.id}\n"
-        f"Received server ID: {server_id}\n"
-        f"Displayed insults: {custom_insults.get(server_id, 'No insults found')}\n\n"
-    )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{ctx.get_guild().name}`.")
 
 # Add trigger command
 @bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("trigger", "Add your trigger, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
-@lightbulb.command("addtrigger", "Add a custom trigger to this server.")
+@lightbulb.command("trigger_add", "Add a custom trigger to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addtrigger(ctx):
-    if str(ctx.author.id) not in prem_users:
-        embed = hikari.Embed(
-            title="You found a premium command",
-            description=(
-                "To add custom triggers to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
-                "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
-            color=0x2B2D31
-        )
-        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
-        await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
-        return
-
+    if any(word in str(ctx.author.id) for word in prem_users):
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
     server_id = str(ctx.guild_id)
     trigger = ctx.options.trigger
 
@@ -665,25 +764,13 @@ async def addtrigger(ctx):
 
 # Remove trigger command
 @bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("trigger", "The trigger to remove.", type=str)
-@lightbulb.command("removetrigger", "Remove a custom trigger from this server.")
+@lightbulb.command("trigger_remove", "Remove a custom trigger from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removetrigger(ctx):
-    if str(ctx.author.id) not in prem_users:
-        embed = hikari.Embed(
-            title="You found a premium command",
-            description=(
-                "To remove custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
-                "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
-            color=0x2B2D31
-        )
-        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
-        await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
-        return
-
+    if any(word in str(ctx.author.id) for word in prem_users):
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
     server_id = str(ctx.guild_id)
     trigger_to_remove = ctx.options.trigger
 
@@ -707,24 +794,12 @@ async def removetrigger(ctx):
 
 # View triggers command
 @bot.command
-@lightbulb.command("viewtriggers", "View custom triggers added to this server.")
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.command("trigger_view", "View custom triggers added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewtriggers(ctx):
-    if str(ctx.author.id) not in prem_users:
-        embed = hikari.Embed(
-            title="You found a premium command",
-            description=(
-                "To view custom triggers added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
-                "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
-            color=0x2B2D31
-        )
-        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
-        await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
-        return
-
+    if any(word in str(ctx.author.id) for word in prem_users):
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
     server_id = str(ctx.guild_id)
 
     if server_id in custom_triggers:
@@ -738,15 +813,9 @@ async def viewtriggers(ctx):
         await ctx.respond(embed=embed)
     else:
         await ctx.respond("No custom triggers found.")
+    await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{ctx.get_guild().name}`.")
 
-    log_message = (
-        f"`viewtriggers` invoked by user {ctx.author.id}\n"
-        f"Received server ID: {server_id}\n"
-        f"Displayed triggers: {custom_triggers.get(server_id, 'No triggers found')}\n\n"
-    )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
-
-# Custom only toggle command
+# Custom only toggle command (P)
 @bot.command
 @lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.command("customonly", "Set custom insults and triggers only.")
@@ -756,8 +825,17 @@ async def customonly(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month. I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!\n\n"
+                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a month by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
                 ),
             color=0x2B2D31
@@ -808,26 +886,25 @@ async def help(ctx):
     embed = hikari.Embed(
         title="📚 Help 📚",
         description=(
-            "**Ping Insult Bot to talk after optionally setting up channels with the `/setchannel` command.**\n\n"
+            "**Reply or ping Insult Bot to talk.**\n\n"
             "**Core Commands:**\n"
-            "**/help:** You just used this command.\n"
             "**/insult:** Send an insult to someone.\n"
-            "**/setchannel:** Restrict Insult Bot to particular channel(s).\n\n"
-            "**Premium Commands:**\n"
-            "**/addinsult:** Add a custom insult to a server of your choice.\n"
-            "**/removeinsult:** Remove a custom insult you added.\n"
-            "**/viewinsults:** View the custom insults you have added.\n"
-            "**/addtrigger:** Add a custom trigger to a server of your choice.\n"
-            "**/removetrigger:** Remove a custom trigger from a server of your choice.\n"
-            "**/viewtriggers:** View custom triggers added to a server.\n"
-            "**/customonly:** Set custom insults and triggers only.\n\n"
+            "**/setchannel_toggle:** Restrict Insult Bot to particular channel(s).\n"
+            "**/setchannel_view:** View channel(s) Insult Bot is retricted to.\n\n"
+            "**Chatbot Commands:**\n"
+            "**/memory:** Make Insult Bot remember your conversations. (P)\n"
+            "**/style:** Set a custom style for Insult Bot.\n\n"
+            "**Keyword Commands:**\n"
+            "**/insult_[add/remove/view]:** Add/view/remove custom insults in your server. (P)\n"
+            "**/trigger_[add/remove/view]:** Add/view/remove custom triggers in your server.\n"
+            "**/customonly:** Set custom insults and triggers only. (P)\n\n"
             "**Miscellaneous Commands:**\n"
             "**/claim:** Claim premium by providing your Ko-fi email.\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/support:** Join the support server.\n"
-            "**/privacy:** View our privacy policy.\n\n"
-            "**To use premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
-            "**To celebrate being added to 3000 servers, I'm giving away free premium for a month! Use the /free command to receive your perks!"
+            "**/privacy:** View our privacy policy.\n"
+            "**/free:** Get a premium free trial for a month.\n\n"
+            "**To use (P) premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
         ),
         color=0x2B2D31
     )
@@ -839,7 +916,7 @@ async def help(ctx):
 @lightbulb.option("email", "Enter your Ko-fi email", type=str)
 @lightbulb.command("claim", "Claim premium after subscribing.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def premium(ctx: lightbulb.Context) -> None:    
+async def premium(ctx: lightbulb.Context) -> None:
     if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
         await ctx.respond("You already have premium. 🤦")
@@ -924,18 +1001,26 @@ async def privacy(ctx):
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("free", "Get premium for free for a month!")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def premium(ctx: lightbulb.Context) -> None:    
-    if str(ctx.author.id) in prem_users:
+async def premium(ctx: lightbulb.Context) -> None:
+    user_id = str(ctx.author.id)
+
+    if user_id in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
         await ctx.respond("You already have premium. 🤦")
         return
     
-    prem_users.append(str(ctx.author.id))
+    if user_id in used_free_trial:
+        await ctx.respond("You have already claimed the free trial. 😔")
+        return
+
+    prem_users.append(user_id)
+    used_free_trial.append(user_id)
     await ctx.respond("You have premium now! ❤️")
 
     log_message = (
         f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
         f"prem_users = {prem_users}\n"
+        f"used_free_trial = {used_free_trial}\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
