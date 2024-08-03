@@ -19,15 +19,20 @@ response = response_string.split(",")
 prohibited_keywords = os.getenv("PROHIBITED_WORDS")
 prohibited_words = prohibited_keywords.split(",")
 
-custom_only_servers = []
+user_memory_preferences = {}
+user_conversation_memory = {}
+custom_only_servers = ['1227739786341650482']
 user_response_count = {}
 user_reset_time = {}
 prem_email = []
-prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408'], '1259111810213085185': [], '1116186669788446760': [], '1175923285314252870': ['1175923286312484977']}
-allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480']}
+# prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
+# custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
+# custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
+prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036']
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic."], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont talk to negros', 'i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Dick', 'Fuck you', 'Cunt', 'Asshole'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad']}
+allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408'], '1175923285314252870': ['1175923286312484977']}
+allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116']}
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -80,21 +85,32 @@ topgg_token = os.getenv("TOPGG_TOKEN")
 topgg_client = TopGGClient(bot, topgg_token)
 
 # AI
-async def generate_text(prompt):
+async def generate_text(prompt, user_id=None):
     try:
+        messages = [{"role": "system", "content": "Answer questions with a mean attitude but still be helpful and keep responses very brief"}]
+        if user_id and user_id in user_conversation_memory:
+            messages.extend(user_conversation_memory[user_id])
+        messages.append({"role": "user", "content": prompt})
+        
         response = await openai_client.chat.completions.create(
             model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Answer questions with a mean attitude but still be helpful and keep responses very brief"},
-                {"role": "user", "content": prompt}
-            ],
+            messages=messages,
             temperature=1,
             max_tokens=256,
             top_p=1,
             frequency_penalty=0,
             presence_penalty=0
         )
-        return response.choices[0].message.content.strip()
+        
+        ai_response = response.choices[0].message.content.strip()
+
+        if user_id and user_memory_preferences.get(user_id, False):
+            if user_id not in user_conversation_memory:
+                user_conversation_memory[user_id] = []
+            user_conversation_memory[user_id].append({"role": "user", "content": prompt})
+            user_conversation_memory[user_id].append({"role": "assistant", "content": ai_response})
+        
+        return ai_response
     except Exception as e:
         return f"An error occurred: {str(e)}"
 
@@ -152,7 +168,7 @@ async def on_guild_join(event):
                     await channel.send(embed=embed)
                     await bot.rest.create_message(1246886903077408838, f"Joined and sent join message in `{guild.name}`.")
                 except hikari.errors.ForbiddenError:
-                    await bot.rest.create_message(1246886903077408838, f"Failed to send join message in `{guild.name}`: Missing Access")
+                    await bot.rest.create_message(1246886903077408838, f"Joined and failed to send message in `{guild.name}`")
                 break
         else:
             await bot.rest.create_message(1246886903077408838, f"Joined and found no channels in `{guild.name}` to send join message.")
@@ -306,7 +322,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     else:
                         message_content = content.strip()
                         async with bot.rest.trigger_typing(channel_id):
-                            ai_response = await generate_text(message_content)
+                            ai_response = await generate_text(message_content, user_id)
 
                         if user_id not in prem_users:
                             user_response_count[user_id] += 1
@@ -318,7 +334,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                 else:
                     message_content = content.strip()
                     async with bot.rest.trigger_typing(channel_id):
-                        ai_response = await generate_text(message_content)
+                        ai_response = await generate_text(message_content, user_id)
 
                     if user_id not in prem_users:
                         user_response_count[user_id] += 1
@@ -329,7 +345,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
             else:
                 message_content = content.strip()
                 async with bot.rest.trigger_typing(channel_id):
-                    ai_response = await generate_text(message_content)
+                    ai_response = await generate_text(message_content, user_id)
 
                 user_mention = event.message.author.mention
                 response_message = f"{user_mention} {ai_response}"
@@ -443,6 +459,37 @@ async def setchannel(ctx):
         await bot.rest.create_message(1246889573141839934, content=log_message)
     except Exception as e:
         print(f"Failed to send log message: {e}")
+
+# Memory command
+@bot.command()
+@lightbulb.option('toggle', 'Choose to turn memory on, off, or clear', choices=['on', 'off', 'clear'])
+@lightbulb.command('memory', 'Manage AI memory for personalized interactions')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def memory(ctx: lightbulb.Context) -> None:
+    user_id = str(ctx.author.id)
+    toggle = ctx.options.toggle
+    
+    if toggle == 'on':
+        user_memory_preferences[user_id] = True
+        response_message = 'Memory has been turned on for personalized interactions.'
+    elif toggle == 'off':
+        user_memory_preferences[user_id] = False
+        response_message = 'Memory has been turned off. Memory will not be cleared until you choose to clear it.'
+    elif toggle == 'clear':
+        user_memory_preferences.pop(user_id, None)
+        user_conversation_memory.pop(user_id, None)
+        response_message = 'Memory has been cleared.'
+    else:
+        response_message = 'Invalid action.'
+
+    await ctx.respond(response_message)
+
+    log_message = (
+        f"`memory` invoked by user {ctx.author.id}\n"
+        f"toggle: {toggle.capitalize()}\n"
+        f"Updated user_memory_preferences = {user_memory_preferences}\n\n"
+    )
+    await bot.rest.create_message(1246889573141839934, content=log_message)
 
 # Premium----------------------------------------------------------------------------------------------------------------------------------------
 # Add insult command
