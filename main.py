@@ -1060,11 +1060,11 @@ async def premium(ctx: lightbulb.Context) -> None:
 #     embed = hikari.Embed(
 #         title="⌛ Free Trial Ending Soon ⌛",
 #         description=(
-#             "**You'll Soon Access Premium Commands Like:**\n"
+#             "**You'll Soon Lose Access Premium Commands Like:**\n"
 #             "• Add custom insults.\n"
 #             "• Insult Bot will remember your conversations.\n"
 #             "• Remove cool-downs.\n"
-#             "**Support Server Related Perks Like:**\n"
+#             "**And Support Server Related Perks Like:**\n"
 #             "• Access to behind the scenes discord channels.\n"
 #             "• Have a say in the development of Insult Bot.\n"
 #             "• Supporter exclusive channels.\n\n"
