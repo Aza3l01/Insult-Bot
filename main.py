@@ -37,7 +37,7 @@ prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217',
 user_memory_preferences = {'212990040068849664': True}
 used_free_trial = ['1260110675804422235']
 custom_only_servers = ['1227739786341650482']
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic.", 'Border hopping taco monkey', 'Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!', 'I must have been very cruel in my past time to have to deal with your down syndrome ass.', 'I will smack you so hard that you turn white!', 'Go back to your igloo, Canuck!'], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont talk to negros', 'i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic.", 'Border hopping taco monkey', 'Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!', 'I must have been very cruel in my past time to have to deal with your down syndrome ass.', 'I will smack you so hard that you turn white!', 'Go back to your igloo, Canuck!'], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
 custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Fuck you', 'Cunt', 'Asshole', 'Dickhead', 'gringo', 'Dick'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad'], '855976724322582539': []}
 
 # Other lists
@@ -45,7 +45,6 @@ prem_email = ['billhamletjr@yahoo.com', 'billhamletjr23@gmail.com']
 user_reset_time = {}
 user_response_count = {}
 user_conversation_memory = {}
-
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -247,6 +246,8 @@ async def on_general_message(event: hikari.MessageCreateEvent):
 
     if any(word in message_content for word in hearing):
         selected_response = random.choice(all_responses)
+        if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
+            selected_response += " (user added insult)"
         try:
             await event.message.respond(selected_response)
         except hikari.errors.BadRequestError:
@@ -259,6 +260,8 @@ async def on_general_message(event: hikari.MessageCreateEvent):
         for trigger in custom_triggers[guild_id]:
             if trigger in message_content:
                 selected_response = random.choice(all_responses)
+                if guild_id in custom_insults and trigger in message_content:
+                    selected_response += " (user added insult)"
                 try:
                     await event.message.respond(selected_response)
                 except hikari.errors.ForbiddenError:
@@ -1041,7 +1044,6 @@ async def premium(ctx: lightbulb.Context) -> None:
 # async def notify_users(ctx: lightbulb.Context) -> None:
 #     user_ids_str = ctx.options.user_ids
 #     user_ids = [int(user_id.strip()) for user_id in user_ids_str.split(",")]
-    
 #     embed = hikari.Embed(
 #         title="⌛ Free Trial Ending Soon ⌛",
 #         description=(
