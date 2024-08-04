@@ -19,22 +19,33 @@ response = response_string.split(",")
 prohibited_keywords = os.getenv("PROHIBITED_WORDS")
 prohibited_words = prohibited_keywords.split(",")
 
-used_free_trial = []
-user_custom_styles = {}
-user_memory_preferences = {}
-user_conversation_memory = {}
-custom_only_servers = ['1227739786341650482']
-user_response_count = {}
-user_reset_time = {}
-prem_email = []
+# Premium lists
 # prem_users = ['364400063281102852','919005754130829352','1054440117705650217']
+# user_memory_preferences = {}
+# custom_only_servers = []
 # custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
 # custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
-prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262']
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic."], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont talk to negros', 'i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Dick', 'Fuck you', 'Cunt', 'Asshole'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad']}
+
+# Free lists
+used_free_trial = []
+user_custom_styles = {'212990040068849664': 'Complete Asshole', '606116619915231232': 'obsessive kpop fan'}
 allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408'], '1175923285314252870': ['1175923286312484977']}
 allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116'], '857112618963566592': ['924728966739279882']}
+
+# Free trial lists
+prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235']
+user_memory_preferences = {'212990040068849664': True}
+used_free_trial = ['1260110675804422235']
+custom_only_servers = ['1227739786341650482']
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic.", 'Border hopping taco monkey', 'Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!', 'I must have been very cruel in my past time to have to deal with your down syndrome ass.', 'I will smack you so hard that you turn white!', 'Go back to your igloo, Canuck!'], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont talk to negros', 'i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Fuck you', 'Cunt', 'Asshole', 'Dickhead', 'gringo', 'Dick'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad'], '855976724322582539': []}
+
+# Other lists
+prem_email = ['billhamletjr@yahoo.com', 'billhamletjr23@gmail.com']
+user_reset_time = {}
+user_response_count = {}
+user_conversation_memory = {}
+
 
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
@@ -89,10 +100,8 @@ topgg_client = TopGGClient(bot, topgg_token)
 # AI
 async def generate_text(prompt, user_id=None):
     try:
-        # Default system message
         system_message = "Answer questions with a mean attitude but still be helpful and keep responses very brief"
 
-        # Check if the user has a custom style
         if user_id and user_id in user_custom_styles:
             system_message = user_custom_styles[user_id]
 
@@ -167,7 +176,7 @@ async def on_guild_join(event):
                     description=(
                         "Reply or Ping me to talk to me.\n\n"
                         "Use the `/help` command to get an overview of all available commands.\n\n"
-                        "Get a premium free trial for a month by using the `/free` command.\n\n"
+                        "Get a premium free trial for a week by using the `/free` command.\n\n"
                         "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
                     ),
                     color=0x2B2D31
@@ -309,16 +318,16 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     user_response_count[user_id] = 0
                     user_reset_time[user_id] = current_time
 
-                if user_response_count[user_id] >= 20:
+                if user_response_count[user_id] >= 15:
                     has_voted = await topgg_client.get_user_vote(user_id)
                     if not has_voted:
                         embed = hikari.Embed(
                             title="Limit Reached :(",
                             description=(
                                 f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
-                                "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [member](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
+                                "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
                                 "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                                "Get a premium free trial for a month by using the `/free` command.\n\n"
+                                "Get a premium free trial for a week by using the `/free` command.\n\n"
                                 "**Access Premium Commands Like:**\n"
                                 "• Add custom insults.\n"
                                 "• Insult Bot will remember your conversations.\n"
@@ -513,9 +522,9 @@ async def memory(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle Insult Bot remember your conversations, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To toggle Insult Bot remember your conversations, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a month by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -554,7 +563,7 @@ async def memory(ctx: lightbulb.Context) -> None:
     log_message = (
         f"`memory` invoked by user {ctx.author.id}\n"
         f"toggle: {toggle.capitalize()}\n"
-        f"Updated user_memory_preferences = {user_memory_preferences}\n\n"
+        f"user_memory_preferences = {user_memory_preferences}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
@@ -577,7 +586,7 @@ async def setstyle(ctx: lightbulb.Context) -> None:
     log_message = (
         f"`setstyle` invoked by user {ctx.author.id}\n"
         f"Style: {style}\n"
-        f"Updated user_custom_styles = {user_custom_styles}\n\n"
+        f"user_custom_styles = {user_custom_styles}\n\n"
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
@@ -592,9 +601,9 @@ async def addinsult(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To add custom insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To add custom insults to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a month by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -647,9 +656,9 @@ async def removeinsult(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To remove custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To remove custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a month by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -697,9 +706,9 @@ async def viewinsults(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To view custom insults added to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To view custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a month by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -825,9 +834,9 @@ async def customonly(ctx):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle custom only triggers/insults to your server, please consider becoming a [member](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To toggle custom only triggers/insults to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a month by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -903,8 +912,8 @@ async def help(ctx):
             "**/invite:** Invite the bot to your server.\n"
             "**/support:** Join the support server.\n"
             "**/privacy:** View our privacy policy.\n"
-            "**/free:** Get a premium free trial for a month.\n\n"
-            "**To use (P) premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
+            "**/free:** Get a premium free trial for a week.\n\n"
+            "**To use (P) premium commands and help keep the bot running, consider becoming a [supporter](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
         ),
         color=0x2B2D31
     )
@@ -999,7 +1008,7 @@ async def privacy(ctx):
 # Free premium command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("free", "Get premium for free for a month!")
+@lightbulb.command("free", "Get premium for free for a week!")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def premium(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
@@ -1024,6 +1033,46 @@ async def premium(ctx: lightbulb.Context) -> None:
     )
     await bot.rest.create_message(1246889573141839934, content=log_message)
 
+# # Trial ending dm
+# @bot.command
+# @lightbulb.option("user_ids", "Comma-separated list of user IDs to notify.", type=str)
+# @lightbulb.command("notify_users", "Notify specified users about their trial ending.")
+# @lightbulb.implements(lightbulb.SlashCommand)
+# async def notify_users(ctx: lightbulb.Context) -> None:
+#     user_ids_str = ctx.options.user_ids
+#     user_ids = [int(user_id.strip()) for user_id in user_ids_str.split(",")]
+    
+#     embed = hikari.Embed(
+#         title="⌛ Free Trial Ending Soon ⌛",
+#         description=(
+#             "**You'll Soon Access Premium Commands Like:**\n"
+#             "• Add custom insults.\n"
+#             "• Insult Bot will remember your conversations.\n"
+#             "• Remove cool-downs.\n"
+#             "**Support Server Related Perks Like:**\n"
+#             "• Access to behind the scenes discord channels.\n"
+#             "• Have a say in the development of Insult Bot.\n"
+#             "• Supporter exclusive channels.\n\n"
+#             "To continue using premium commands, consider becoming a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month. ❤️\n\n"
+#             "*Any memberships bought can be refunded within 3 days of purchase.*"
+#         ),
+#         color=0x2B2D31
+#     )
+
+#     notified_users = []
+#     for user_id in user_ids:
+#         try:
+#             user = await bot.rest.fetch_user(user_id)
+#             await user.send(embed=embed)
+#             notified_users.append(user_id)
+#         except Exception as e:
+#             await ctx.respond(f"Failed to notify user {user_id}: {e}")
+
+#     if notified_users:
+#         await ctx.respond(f"Notified users: {', '.join(map(str, notified_users))}")
+#     else:
+#         await ctx.respond("No users were notified.")
+
 # Error handling
 @bot.listen(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
@@ -1034,7 +1083,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	exception = event.exception.__cause__ or event.exception
 
 	if isinstance(exception, lightbulb.CommandIsOnCooldown):
-		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [member](https://ko-fi.com/azaelbots).")
+		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [supporter](https://ko-fi.com/azaelbots).")
 	else:
 		raise exception
 
