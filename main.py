@@ -344,7 +344,10 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                             color=0x2B2D31
                         )
                         embed.set_image("https://i.imgur.com/hxZb7Sq.gif")
-                        await event.message.respond(embed=embed)
+                        try:
+                            await event.message.respond(embed=embed)
+                        except hikari.errors.ForbiddenError:
+                            pass
                         await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
                     else:
                         message_content = content.strip()
@@ -356,7 +359,10 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 
                         user_mention = event.message.author.mention
                         response_message = f"{user_mention} {ai_response}"
-                        await event.message.respond(response_message)
+                        try:
+                            await event.message.respond(response_message)
+                        except hikari.errors.ForbiddenError:
+                            pass
 
                 else:
                     message_content = content.strip()
@@ -368,7 +374,11 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 
                     user_mention = event.message.author.mention
                     response_message = f"{user_mention} {ai_response}"
-                    await event.message.respond(response_message)
+                    try:
+                        await event.message.respond(response_message)
+                    except hikari.errors.ForbiddenError:
+                        pass
+
             else:
                 message_content = content.strip()
                 async with bot.rest.trigger_typing(channel_id):
@@ -376,7 +386,10 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 
                 user_mention = event.message.author.mention
                 response_message = f"{user_mention} {ai_response}"
-                await event.message.respond(response_message)
+                try:
+                    await event.message.respond(response_message)
+                except hikari.errors.ForbiddenError:
+                    pass
 
 # Insult command
 @bot.command
