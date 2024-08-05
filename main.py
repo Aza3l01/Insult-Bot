@@ -415,7 +415,6 @@ async def insult(ctx):
         if any(word in str(ctx.author.id) for word in prem_users):
             await ctx.command.cooldown_manager.reset_cooldown(ctx)
         
-        # Check if the insult contains any prohibited words
         if insult and any(prohibited_word in insult.lower() for prohibited_word in prohibited_words):
             await ctx.respond("Your insult does not comply with Discord's TOS.")
             return
