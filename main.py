@@ -1076,11 +1076,14 @@ async def premium(ctx: lightbulb.Context) -> None:
 #             "• Access to behind the scenes discord channels.\n"
 #             "• Have a say in the development of Insult Bot.\n"
 #             "• Supporter exclusive channels.\n\n"
+#             "For privacy reasons, the data you've entered while using premium commands will be deleted within 48 hours after the free trial ends.\n\n"
 #             "To continue using premium commands, consider becoming a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month. ❤️\n\n"
 #             "*Any memberships bought can be refunded within 3 days of purchase.*"
 #         ),
 #         color=0x2B2D31
 #     )
+
+#     await ctx.respond("Sending notifications...")
 
 #     notified_users = []
 #     for user_id in user_ids:
@@ -1090,11 +1093,13 @@ async def premium(ctx: lightbulb.Context) -> None:
 #             notified_users.append(user_id)
 #         except Exception as e:
 #             await ctx.respond(f"Failed to notify user {user_id}: {e}")
+#             return
 
 #     if notified_users:
-#         await ctx.respond(f"Notified users: {', '.join(map(str, notified_users))}")
+#         notified_ids_str = ', '.join(map(str, notified_users))
+#         await ctx.respond(f"DMs were sent to users: {notified_ids_str}")
 #     else:
-#         await ctx.respond("No users were notified.")
+#         await ctx.respond("No DMs were sent.")
 
 # Error handling
 @bot.listen(lightbulb.CommandErrorEvent)
