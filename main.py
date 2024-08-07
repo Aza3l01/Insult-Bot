@@ -28,17 +28,17 @@ prohibited_words = prohibited_keywords.split(",")
 
 # Free lists
 used_free_trial = []
-user_custom_styles = {'212990040068849664': 'Complete Asshole', '606116619915231232': 'obsessive kpop fan', '1221131586758639637': 'rude but funny'}
-allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408'], '1175923285314252870': ['1175923286312484977'], '695130119903379518': [], '1154230613516238928': []}
-allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116'], '857112618963566592': ['924728966739279882'], '695130119903379518': ['695130120754561046', '714191491144220782'], '1154230613516238928': ['1250103472712319047']}
+user_custom_styles = {'212990040068849664': 'Complete Asshole', '606116619915231232': 'obsessive kpop fan', '1221131586758639637': 'rude but funny', '989157858744615015': 'mean', '1012676017543987240': 'Disrespectful'}
+allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408'], '1175923285314252870': ['1175923286312484977'], '695130119903379518': [], '1154230613516238928': [], '1261779163417673860': ['1261822905143132210']}
+allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116'], '857112618963566592': ['924728966739279882'], '695130119903379518': ['695130120754561046', '714191491144220782'], '1154230613516238928': ['1250103472712319047'], '1261779163417673860': ['1261822905143132210']}
 
 # Free trial lists
-prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637']
-used_free_trial = ['212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637']
-user_memory_preferences = {'212990040068849664': True}
+prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637', '453737328439984148', '1012676017543987240']
+used_free_trial = ['212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637', '453737328439984148', '1012676017543987240']
+user_memory_preferences = {'212990040068849664': True, '1012676017543987240': True}
 custom_only_servers = ['1227739786341650482']
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic.", 'Border hopping taco monkey', 'Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!', 'I must have been very cruel in my past time to have to deal with your down syndrome ass.', 'I will smack you so hard that you turn white!', 'Go back to your igloo, Canuck!'], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT']}
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Fuck you', 'Cunt', 'Asshole', 'Dickhead', 'gringo', 'Dick'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad'], '855976724322582539': []}
+custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic.", 'Border hopping taco monkey', 'Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!', 'I must have been very cruel in my past time to have to deal with your down syndrome ass.', 'I will smack you so hard that you turn white!', 'Go back to your igloo, Canuck!'], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i dont like black kids', 'i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT'], '1197243935446274211': ['fuck nut']}
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '857112618963566592': ['wew'], '1116186669788446760': ['Fuck you', 'Cunt', 'Asshole', 'Dickhead', 'gringo', 'Dick'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', '@unknown-role', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad'], '855976724322582539': [], '1261779163417673860': ['Sigma', 'hi', 'fuck u']}
 
 # Other lists
 prem_email = ['billhamletjr@yahoo.com', 'billhamletjr23@gmail.com']
@@ -952,21 +952,40 @@ async def premium(ctx: lightbulb.Context) -> None:
     if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
         await ctx.respond("You already have premium. 🤦")
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` already had premium but tried to invoke `{ctx.command.name}`")
         return
     
     email = ctx.options.email
     
     if email in prem_email:
         prem_users.append(str(ctx.author.id))
-        await ctx.respond("You have premium now! Thank you so much ❤️")
-    else:
-        await ctx.respond("Your email was not recognized. If you think this is an error, join the [support server](https://discord.com/invite/x7MdgVFUwa) to receive your perks.")
-
-    log_message = (
+        await ctx.respond("You have premium now! Thank you so much. ❤️")
+        log_message = (
         f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
         f"prem_users = {prem_users}\n\n"
-    )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+        )
+        await bot.rest.create_message(1246889573141839934, content=log_message)
+    else:
+        embed = hikari.Embed(
+        title="Invite:",
+        description=(
+            "Your email was not recognized. If you think this is an error, join the [support server](https://discord.com/invite/x7MdgVFUwa) to fix this issue.\n\n"
+            "If you haven't yet subscribed to premium, considering doing so for $1.99 a month. It helps cover the costs associated with running Insult Bot. ❤️\n\n"
+            "Premium Perks:\n"
+            "**Access Premium Commands Like:**\n"
+            "• Add custom insults.\n"
+            "• Insult Bot will remember your conversations.\n"
+            "• Remove cool-downs.\n"
+            "**Support Server Related Perks Like:**\n"
+            "• Access to behind the scenes discord channels.\n"
+            "• Have a say in the development of Insult Bot.\n"
+            "• Supporter exclusive channels.\n\n"
+            "*Any memberships bought can be refunded within 3 days of purchase.*"
+            ),
+        color=0x2f3136
+        )
+        await ctx.respond(embed=embed)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
 
 # Invite command
 @bot.command
