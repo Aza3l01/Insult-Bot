@@ -666,7 +666,7 @@ async def addinsult(ctx):
         f"Received insult: {insult}\n"
         f"custom_insults = {custom_insults}\n\n"
     )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    await send_log_message(1246889573141839934, log_message)
 
 # Remove insult command (P)
 @bot.command
@@ -717,7 +717,7 @@ async def removeinsult(ctx):
         f"Removed insult: {insult_to_remove}\n"
         f"custom_insults = {custom_insults}\n\n"
     )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    await send_log_message(1246889573141839934, log_message)
 
 # View insults command (P)
 @bot.command
@@ -791,7 +791,7 @@ async def addtrigger(ctx):
         f"Received trigger: {trigger}\n"
         f"custom_triggers = {custom_triggers}\n\n"
     )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    await send_log_message(1246889573141839934, log_message)
 
 # Remove trigger command
 @bot.command
@@ -821,7 +821,7 @@ async def removetrigger(ctx):
         f"Removed trigger: {trigger_to_remove}\n"
         f"custom_triggers = {custom_triggers}\n\n"
     )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    await send_log_message(1246889573141839934, log_message)
 
 # View triggers command
 @bot.command
@@ -1134,13 +1134,13 @@ async def send_log_message(channel_id, log_message):
 @bot.listen(lightbulb.CommandErrorEvent)
 async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	if isinstance(event.exception, lightbulb.CommandInvocationError):
-		await event.context.respond(f"Something went wrong, please try again.")
+		await event.context.respond(f"Uh oh, something went wrong, please try again. If this issue keeps persisting, join the [support server](https://discord.com/invite/x7MdgVFUwa) to have your issue resolved.")
 		raise event.exception
 
 	exception = event.exception.__cause__ or event.exception
 
 	if isinstance(exception, lightbulb.CommandIsOnCooldown):
-		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse which could bring the bot down. To remove cool-downs, become a [supporter](https://ko-fi.com/azaelbots).")
+		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse. To remove cool-downs, become a [supporter](https://ko-fi.com/azaelbots).")
 	else:
 		raise exception
 
