@@ -32,12 +32,12 @@ allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934
 allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116'], '857112618963566592': ['924728966739279882'], '695130119903379518': ['695130120754561046', '714191491144220782'], '1154230613516238928': ['1250103472712319047'], '1261779163417673860': ['1261822905143132210'], '1270152024272535605': ['1270152024272535607'], '1263633821711073370': [], '1270079469511512065': ['1270856792544510095'], '725337502600396885': ['774262222259093575'], '1154134862685536316': ['1154134863151116401'], '1270935823478427699': ['1270935823478427702'], '1253974437649448971': ['1270949693861396490'], '1236346842174722059': ['1236346843051462748'], '1269947891703611402': ['1271073641379139635'], '796916666524499968': ['1270982591498948649'], '1271002416917250048': ['1271002417437343750', '1271045753430610047'], '1270862928618192997': ['1271946061530791998', '1270886845865005087', '1270865388111921295']}
 
 # Free trial lists
-prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637', '453737328439984148', '1012676017543987240', '844764974068662272', '688810076747989162', '764580582641893418', '842578543040528395', '982244060167307274', '982019550293921884', '925119973129584650', '1002430898169454644', '982646425533960252', '348412822327263232', '996980321667002399', '1088559784078364752', '1270068398780579850', '1228446946612613133', '1200899929636339795', '574287232974848000', '1260730331233914884', '895731734308593725', '1264737462010380291', '798008507269775370', '1174485838546096220', '408665724303704065', '1025724766834933780', '1211322084907687947', '1235719735321301025', '970506733820719105', '1162150676625895537', '1243544911891005474', '703192846995423282', '1078565430806978691']
-used_free_trial = ['212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637', '453737328439984148', '1012676017543987240', '844764974068662272', '688810076747989162', '764580582641893418', '842578543040528395', '982244060167307274', '982019550293921884', '925119973129584650', '1002430898169454644', '982646425533960252', '348412822327263232', '996980321667002399', '1088559784078364752', '1270068398780579850', '1228446946612613133', '1200899929636339795', '574287232974848000', '1260730331233914884', '895731734308593725', '1264737462010380291', '798008507269775370', '1174485838546096220', '408665724303704065', '1025724766834933780', '1211322084907687947', '1235719735321301025', '970506733820719105', '1162150676625895537', '1243544911891005474', '703192846995423282', '1078565430806978691']
-user_memory_preferences = {'212990040068849664': True, '1012676017543987240': True, '982244060167307274': True, '1088559784078364752': True, '1025724766834933780': True, '1078565430806978691': True, '1231611564050743468': True, '1124278650108383262': True, '364400063281102852': True, '1242790963387039774': True}
-custom_only_servers = ['1227739786341650482', '1270152024272535605', '1269850607271940288', '1270698326186262589', '1268707534911574038', '1154134862685536316', '1270851553938378865', '1270681005275090986', '1270712338538041525']
+prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '1221131586758639637', '453737328439984148', '1012676017543987240', '844764974068662272', '688810076747989162', '764580582641893418', '842578543040528395', '982244060167307274', '982019550293921884', '925119973129584650', '1002430898169454644', '982646425533960252', '348412822327263232', '996980321667002399', '1088559784078364752', '1270068398780579850', '1228446946612613133', '1200899929636339795', '574287232974848000', '1260730331233914884', '895731734308593725', '1264737462010380291', '798008507269775370', '1174485838546096220', '408665724303704065', '1025724766834933780', '1211322084907687947', '1235719735321301025', '970506733820719105', '1162150676625895537', '1243544911891005474', '703192846995423282', '1078565430806978691', '158344721431789568', '273966479978921988', '546452450119516170', '1162387082317152446', '1158441351508131950', '1201248571719164005', '1107672598759882753']
+used_free_trial = ['212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637', '453737328439984148', '1012676017543987240', '844764974068662272', '688810076747989162', '764580582641893418', '842578543040528395', '982244060167307274', '982019550293921884', '925119973129584650', '1002430898169454644', '982646425533960252', '348412822327263232', '996980321667002399', '1088559784078364752', '1270068398780579850', '1228446946612613133', '1200899929636339795', '574287232974848000', '1260730331233914884', '895731734308593725', '1264737462010380291', '798008507269775370', '1174485838546096220', '408665724303704065', '1025724766834933780', '1211322084907687947', '1235719735321301025', '970506733820719105', '1162150676625895537', '1243544911891005474', '703192846995423282', '1078565430806978691', '158344721431789568', '273966479978921988', '546452450119516170', '1162387082317152446', '1158441351508131950', '1201248571719164005', '1107672598759882753']
+user_memory_preferences = {'212990040068849664': True, '1012676017543987240': True, '982244060167307274': True, '1088559784078364752': True, '1025724766834933780': True, '1078565430806978691': True, '1231611564050743468': True, '1124278650108383262': True, '364400063281102852': True, '1201248571719164005': True}
+custom_only_servers = ['1227739786341650482', '1270152024272535605', '1269850607271940288', '1270698326186262589', '1268707534911574038', '1154134862685536316', '1270851553938378865', '1270681005275090986', '1270712338538041525', '1264853471950274560', '1158446284651380759']
 custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'], '1116186669788446760': ['Your mother was a hamster and your father smelt of elderberries!', 'Shut the fuck up, ya porch monkey!', 'Melon muncher', 'Chicken bone sucker', 'You tar monkey', 'Jigaboo', 'You queef goblin', 'I bet your dick smells like vinegar fermenting in feta cheese.', "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic.", 'Border hopping taco monkey', 'Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!', 'I must have been very cruel in my past time to have to deal with your down syndrome ass.', 'I will smack you so hard that you turn white!', 'Go back to your igloo, Canuck!'], '1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT'], '1197243935446274211': ['fuck nut'], '1270441536123047989': ['Get the fuck over it, You snowflake.', 'Pussy.', 'I would rather stick toothpicks under my toenails and drop kick a wall as hard as I can. As long as my ears can stop bleeding after listening to your bullshit.', 'Okay boomer.', "Twinkle, twinkle little whore~ Honey, You're cheaper than the dollar store ;)", "and this is what Mama V doesn't FUCKING LOVE YOU.", 'Shaking my head, Endure it you bitch.', 'TOOOOOO BAD', 'Baby weiner haver']}
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '1116186669788446760': ['Fuck you', 'Cunt', 'Asshole', 'Dickhead', 'gringo', 'Dick'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad'], '855976724322582539': ['kill'], '1261779163417673860': ['Sigma', 'hi', 'fuck u'], '1270152024272535605': ['angel'], '1263633821711073370': ['french', 'gay', 'judas'], '1268666858832396308': ['Hi'], '1270851553938378865': ['bitch fuck you'], '1270940094701768766': ['fuck'], '1224116314487128104': ['fag', 'hello', 'hi', 'hey'], '1263197171809910805': ['i dont like you', 'your mean', 'you suck', 'hi', 'FUCKING', 'plays', 'damn', 'pussy', 'shit'], '1270954659334459472': ['weiner head'], '1270923591277482064': ['alcohol', 'abuse', 'sexual assault', 'racism', 'homophobia', 'guns'], '1271030711704354876': ['fuck you bitch ass nigga', 'LITTLE NIGGA'], '1271092494645592226': ['cat', 'off topic', 'bot'], '1247128942285160550': ['Oe Randi how are you'], '1271130093556731956': ['idk', 'fuck you', 'fuck', 'hi', 'lol', 'lmao'], '1264706238688661575': ['ass', 'nigger', 'nigga', 'nega'], '1270441536123047989': ['Valgina']}
+custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '1116186669788446760': ['Fuck you', 'Cunt', 'Asshole', 'Dickhead', 'gringo', 'Dick'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad'], '855976724322582539': ['kill'], '1261779163417673860': ['Sigma', 'hi', 'fuck u'], '1270152024272535605': ['angel'], '1263633821711073370': ['french', 'gay', 'judas'], '1268666858832396308': ['Hi'], '1270851553938378865': ['bitch fuck you'], '1270940094701768766': ['fuck'], '1224116314487128104': ['fag', 'hello', 'hi', 'hey'], '1263197171809910805': ['i dont like you', 'your mean', 'you suck', 'hi', 'FUCKING', 'plays', 'damn', 'pussy', 'shit'], '1270954659334459472': ['weiner head'], '1270923591277482064': ['alcohol', 'abuse', 'sexual assault', 'racism', 'homophobia', 'guns'], '1271030711704354876': ['fuck you bitch ass nigga', 'LITTLE NIGGA'], '1271092494645592226': ['cat', 'off topic', 'bot'], '1247128942285160550': ['Oe Randi how are you'], '1271130093556731956': ['idk', 'fuck you', 'fuck', 'hi', 'lol', 'lmao'], '1264706238688661575': ['ass', 'nigger', 'nigga', 'nega', 'butler'], '1270441536123047989': ['Valgina'], '1268062242876817438': ['ass', 'mean']}
 
 # Other lists
 prem_email = ['billhamletjr@yahoo.com', 'billhamletjr23@gmail.com']
@@ -174,7 +174,7 @@ async def on_guild_join(event):
                     description=(
                         "Reply or Ping me to talk to me.\n\n"
                         "Use the `/help` command to get an overview of all available commands.\n\n"
-                        "Get a premium free trial for a week by using the `/free` command.\n\n"
+                        # "Get a premium free trial for a week by using the `/free` command.\n\n"
                         "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
                     ),
                     color=0x2B2D31
@@ -329,7 +329,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                                 f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
                                 "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
                                 "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                                "Get a premium free trial for a week by using the `/free` command.\n\n"
+                                # "Get a premium free trial for a week by using the `/free` command.\n\n"
                                 "**Access Premium Commands Like:**\n"
                                 "• Add custom insults.\n"
                                 "• Insult Bot will remember your conversations.\n"
@@ -546,7 +546,7 @@ async def memory(ctx: lightbulb.Context) -> None:
             description=(
                 "To toggle Insult Bot to remember your conversations, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
+                # "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -625,7 +625,7 @@ async def addinsult(ctx):
             description=(
                 "To add custom insults to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
+                # "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -680,7 +680,7 @@ async def removeinsult(ctx):
             description=(
                 "To remove custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
+                # "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -730,7 +730,7 @@ async def viewinsults(ctx):
             description=(
                 "To view custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
+                # "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -858,7 +858,7 @@ async def customonly(ctx):
             description=(
                 "To toggle custom only triggers/insults to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
+                # "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -934,7 +934,7 @@ async def help(ctx):
             "**/invite:** Invite the bot to your server.\n"
             "**/support:** Join the support server.\n"
             "**/privacy:** View our privacy policy.\n"
-            "**/free:** Get a premium free trial for a week.\n\n"
+            # "**/free:** Get a premium free trial for a week.\n\n"
             "**To use (P) premium commands and help keep the bot running, consider becoming a [supporter](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
         ),
         color=0x2B2D31
@@ -1053,36 +1053,36 @@ async def send_log_message(channel_id, log_message):
         log_message = log_message[2000:]
     await bot.rest.create_message(channel_id, content=log_message)
 
-# Free premium command
-@bot.command
-@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("free", "Get premium for free for a week!")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def premium(ctx: lightbulb.Context) -> None:
-    user_id = str(ctx.author.id)
+# # Free premium command
+# @bot.command
+# @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+# @lightbulb.command("free", "Get premium for free for a week!")
+# @lightbulb.implements(lightbulb.SlashCommand)
+# async def premium(ctx: lightbulb.Context) -> None:
+#     user_id = str(ctx.author.id)
 
-    if user_id in prem_users:
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-        await ctx.respond("You already have premium. 🤦")
-        return
+#     if user_id in prem_users:
+#         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+#         await ctx.respond("You already have premium. 🤦")
+#         return
     
-    if user_id in used_free_trial:
-        await ctx.respond("You have already claimed the free trial. 😔")
-        return
+#     if user_id in used_free_trial:
+#         await ctx.respond("You have already claimed the free trial. 😔")
+#         return
 
-    prem_users.append(user_id)
-    used_free_trial.append(user_id)
-    await ctx.respond("You have a free trial premium now! ❤️")
+#     prem_users.append(user_id)
+#     used_free_trial.append(user_id)
+#     await ctx.respond("You have a free trial premium now! ❤️")
 
-    # Prepare log message
-    log_message = (
-        f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
-        f"prem_users = {prem_users}\n"
-        f"used_free_trial = {used_free_trial}\n"
-    )
+#     # Prepare log message
+#     log_message = (
+#         f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
+#         f"prem_users = {prem_users}\n"
+#         f"used_free_trial = {used_free_trial}\n"
+#     )
 
-    # Send the log message, split into chunks if necessary
-    await send_log_message(1246889573141839934, log_message)
+#     # Send the log message, split into chunks if necessary
+#     await send_log_message(1246889573141839934, log_message)
 
 # # Trial ending dm
 # @bot.command
@@ -1095,17 +1095,17 @@ async def premium(ctx: lightbulb.Context) -> None:
 #     embed = hikari.Embed(
 #         title="⌛ Free Trial Ending Soon ⌛",
 #         description=(
-#             "Thank you for trying out premium, means a lot to me!\n\n"
-#             "**You'll Soon Lose Access Premium Commands Like:**\n"
+#             "**You'll Soon Lose Access To Premium Commands Like:**\n"
 #             "• Add custom insults.\n"
 #             "• Insult Bot will remember your conversations.\n"
 #             "• Remove cool-downs.\n"
-#             "**And support server-related perks like:**\n"
+#             "**And Support Server-related Perks Like:**\n"
 #             "• Access to behind-the-scenes Discord channels.\n"
 #             "• Have a say in the development of Insult Bot.\n"
 #             "• Supporter-exclusive channels.\n\n"
 #             "For privacy reasons, the data you've entered while using premium commands will be deleted in 48 hours.\n\n"
 #             "If you would like me to hold your data in case you want to become a supporter in the future, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) to talk to my developer about saving your data.\n\n"
+#             "Thank you for trying out premium, means a lot to me!\n\n"
 #             "To continue using premium commands, consider becoming a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month. ❤️\n\n"
 #             "*Any memberships bought can be refunded within 3 days of purchase.*"
 #         ),
