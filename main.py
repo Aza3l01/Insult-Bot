@@ -4,54 +4,76 @@ import random
 import asyncio
 import aiohttp
 import os
+import re
+import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-import re
 
 load_dotenv()
+hearing = [item for item in os.getenv("HEARING_LIST", "").split(",") if item]
+response = [item for item in os.getenv("RESPONSE_LIST", "").split(",") if item]
+prohibited_words = [item for item in os.getenv("PROHIBITED_WORDS", "").split(",") if item]
 
-hearing_string = os.getenv("HEARING_LIST")
-hearing = hearing_string.split(",")
+DATA_FILE = 'data.json'
 
-response_string = os.getenv("RESPONSE_LIST")
-response = response_string.split(",")
+def load_data():
+    try:
+        with open(DATA_FILE, 'r') as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {
+            "prem_users": {},
+            "used_free_trial": [],
+            "free_trial_start_time": {},
+            "user_memory_preferences": {},
+            "user_conversation_memory": {},
+            "custom_only_servers": [],
+            "user_custom_styles": {},
+            "allowed_channels_per_guild": {},
+            "allowed_ai_channel_per_guild": {},
+            "custom_insults": {},
+            "custom_triggers": {},
+            "autorespond_servers": {}
+        }
 
-prohibited_keywords = os.getenv("PROHIBITED_WORDS")
-prohibited_words = prohibited_keywords.split(",")
+def save_data(data):
+    with open(DATA_FILE, 'w') as file:
+        json.dump(data, file, indent=4)
 
-# Premium lists
-# prem_users = ['364400063281102852','919005754130829352','1054440117705650217','187284746563223562']
-# user_memory_preferences = {}
-# custom_only_servers = []
-# custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah']}
-# custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls']}
+def update_data(new_data):
+    data = load_data()
+    data.update(new_data)
+    save_data(data)
 
-# Free lists
-user_custom_styles = {'212990040068849664': 'Complete Asshole', '606116619915231232': 'obsessive kpop fan', '1221131586758639637': 'rude but funny', '989157858744615015': 'mean', '1012676017543987240': 'Disrespectful', '925119973129584650': 'sucker', '798008507269775370': 'dick', '269275816762933248': 'happy', '798369983004147743': 'German aggressive', '406664155022622720': 'deadpool', '1006100494235742269': 'mean', '364400063281102852': 'default', '703192846995423282': 'harsh', '582191374988869662': 'pink', '1222437486546911242': 'swearing', '878285586807537765': 'sassy', '1231611564050743468': 'insults people', '1228858464017846326': 'racism', '1223496489993633893': 'rude', '852829775680765962': 'rude', '822559014616563714': 'chicky', '158344721431789568': 'Cute Sassy', '1227075587831631903': 'mean', '915098691050807317': 'mean'}
-allowed_channels_per_guild = {'857112618963566592': ['924728966739279882'], '934644448187539517': ['1139231743682019408', '1266099301529161799'], '1175923285314252870': ['1175923286312484977'], '1261779163417673860': ['1261822905143132210'], '1269947891703611402': ['1270222594804809853'], '1270862928618192997': [], '889881424574939226': []}
-allowed_ai_channel_per_guild = {'934644448187539517': ['1266099301529161799'], '1268391505706487889': ['1268394099556220960'], '855976724322582539': ['989295674015248394'], '1034558256233861170': ['1034558256233861173'], '1268398196955025501': ['1268427592768426067'], '1259111810213085185': ['1263718166215786608'], '1116186669788446760': ['1268386978835988480'], '1264775956145373184': ['1264775956145373186'], '1256608720943579156': ['1256608721409282116'], '857112618963566592': ['924728966739279882'], '695130119903379518': ['695130120754561046', '714191491144220782'], '1154230613516238928': ['1250103472712319047'], '1261779163417673860': ['1261822905143132210'], '1270152024272535605': ['1270152024272535607'], '1270079469511512065': ['1270856792544510095'], '725337502600396885': ['774262222259093575'], '1154134862685536316': ['1154134863151116401'], '1270935823478427699': ['1270935823478427702'], '1253974437649448971': ['1270949693861396490'], '1236346842174722059': ['1236346843051462748'], '1269947891703611402': ['1271073641379139635'], '796916666524499968': ['1270982591498948649'], '1271002416917250048': ['1271002417437343750', '1271045753430610047'], '1270862928618192997': ['1271946061530791998', '1270886845865005087', '1270865388111921295', '1270878080260374528'], '889881424574939226': ['889881424574939229']}
+data = load_data()
 
-# Free trial lists
-prem_users = ['364400063281102852', '919005754130829352', '1054440117705650217', '212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '1221131586758639637', '158344721431789568', '273966479978921988', '546452450119516170', '1162387082317152446', '1158441351508131950', '1201248571719164005', '1107672598759882753', '187284746563223562']
-used_free_trial = ['212990040068849664', '1257306182297587712', '1061144263611654144', '1126319859056250940', '891606379767423036', '1136672469978202262', '1260110675804422235', '627992670886690856', '1221131586758639637', '453737328439984148', '1012676017543987240', '844764974068662272', '688810076747989162', '764580582641893418', '842578543040528395', '982244060167307274', '982019550293921884', '925119973129584650', '1002430898169454644', '982646425533960252', '348412822327263232', '996980321667002399', '1088559784078364752', '1270068398780579850', '1228446946612613133', '1200899929636339795', '574287232974848000', '1260730331233914884', '895731734308593725', '1264737462010380291', '798008507269775370', '1174485838546096220', '408665724303704065', '1025724766834933780', '1211322084907687947', '1235719735321301025', '970506733820719105', '1162150676625895537', '1243544911891005474', '703192846995423282', '1078565430806978691', '158344721431789568', '273966479978921988', '546452450119516170', '1162387082317152446', '1158441351508131950', '1201248571719164005', '1107672598759882753']
-user_memory_preferences = {'212990040068849664': True, '1012676017543987240': True, '982244060167307274': True, '1088559784078364752': True, '1025724766834933780': True, '1078565430806978691': True, '1231611564050743468': True, '1124278650108383262': True, '364400063281102852': True, '1201248571719164005': True, '919005754130829352': True}
-custom_only_servers = ['1227739786341650482', '1270152024272535605', '1269850607271940288', '1270698326186262589', '1268707534911574038', '1154134862685536316', '1270851553938378865', '1270681005275090986', '1270712338538041525', '1264853471950274560', '1158446284651380759']
-custom_insults = {'1193319104917024849': ['I love you redhaven', 'I love Redhaven', 'Redhaven is so good looking', 'yea sure', 'corny jawn', 'your ass', 'how was trouble', 'cum dumpster', 'Redhaven sucks', 'hawk tuah'],'1267243400583974912': ['shut up bro'], '1061161566009045052': ['bootyhole'], '1227739786341650482': ['bitch ass boy I fucked your mom long dick style'], '1268410879846912060': ['bitch ass boy I fucked your family long dick style'], '1139807526062411837': ['i will ask drake to go and kidnap u', 'STHU U BLACK AND CANNOT STOP YAPPING WHEN I CANT EVEN SEE U BECUZ U R THAT SHORT AND DONT SAY IM SCARED U R JUST A SCARED LITTLE BITCH IN A SHIRT EATING MY SHIT'], '1197243935446274211': ['fuck nut'], '1270441536123047989': ['Get the fuck over it, You snowflake.', 'Pussy.', 'I would rather stick toothpicks under my toenails and drop kick a wall as hard as I can. As long as my ears can stop bleeding after listening to your bullshit.', 'Okay boomer.', "Twinkle, twinkle little whore~ Honey, You're cheaper than the dollar store ;)", "and this is what Mama V doesn't FUCKING LOVE YOU.", 'Shaking my head, Endure it you bitch.', 'TOOOOOO BAD', 'Baby weiner haver']}
-custom_triggers = {'934644448187539517': ['dick', 'fuck', 'smd', 'motherfucker', 'bellend', 'report', 'pls'], '1116186669788446760': ['Fuck you', 'Cunt', 'Asshole', 'Dickhead', 'gringo', 'Dick'], '1139807526062411837': ['hi', 'ok', 'bitch', 'stupid', 'fuck', 'dumb', 'idiot', 'fanum tax', 'sigma', 'grimace shake', 'ohio', 'mewing', 'caseoh', 'fat', 'ugly', 'dickhead', 'dick', 'pussy', 'bruh', 'stfu', 'sthu', 'hola', 'i dont talk to negros', 'no thx', 'ur welcome', 'smth', 'ikr', 'hate', 'dont like', 'lol', 'same', 'shortie', 'shorty', 'crazy', 'teaming', 'that', 'you', 'u', 'i', 'me', 'everyone', 'admitted', 'asked', 'when', 'what', 'where', 'why', 'how', 'skibidi', 'no', 'nope', 'faster', 'stronger', 'better', 'better', 'better', 'better', 'better', 'didnt', 'great', 'ground', 'coded', '1v1', 'MAD', 'cook', 'ate', 'roar', 'uwu', 'sed', 'sad'], '855976724322582539': ['kill'], '1261779163417673860': ['Sigma', 'hi', 'fuck u'], '1270152024272535605': ['angel'], '1263633821711073370': ['french', 'gay', 'judas'], '1268666858832396308': ['Hi'], '1270851553938378865': ['bitch fuck you'], '1270940094701768766': ['fuck'], '1224116314487128104': ['fag', 'hello', 'hi', 'hey'], '1263197171809910805': ['i dont like you', 'your mean', 'you suck', 'hi', 'FUCKING', 'plays', 'damn', 'pussy', 'shit'], '1270954659334459472': ['weiner head'], '1270923591277482064': ['alcohol', 'abuse', 'sexual assault', 'racism', 'homophobia', 'guns'], '1271030711704354876': ['fuck you bitch ass nigga', 'LITTLE NIGGA'], '1271092494645592226': ['cat', 'off topic', 'bot'], '1247128942285160550': ['Oe Randi how are you'], '1271130093556731956': ['idk', 'fuck you', 'fuck', 'hi', 'lol', 'lmao'], '1264706238688661575': ['ass', 'nigger', 'nigga', 'nega', 'butler'], '1270441536123047989': ['Valgina', 'V', 'Val', 'Kade', 'Fuck you', 'Hello'], '1268062242876817438': ['ass', 'mean'], '1272266585452580884': ['off-topic', 'bot'], '1270862928618192997': ['lmfao', 'Bet', 'bruh', 'lol', 'bet', 'hush', 'coffee', 'lmfaooo', 'lmao', 'lmfao', 'thats adorableee!']}
+# Load data
+prem_users = data.get('prem_users', {})
+used_free_trial = data.get('used_free_trial', [])
+free_trial_start_time = data.get('free_trial_start_time', {})
+user_memory_preferences = data.get('user_memory_preferences', {})
+user_conversation_memory = data.get('user_conversation_memory', {})
+custom_only_servers = data.get('custom_only_servers', [])
+custom_insults = data.get('custom_insults', {})
+custom_triggers = data.get('custom_triggers', {})
+user_custom_styles = data.get('user_custom_styles', {})
+allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
+allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
+autorespond_servers = data.get('autorespond_servers', {})
 
-# Other lists
-prem_email = []
+# Nonpersistent data
+prem_email = ["test@gmail.com"]
 user_reset_time = {}
 user_response_count = {}
-user_conversation_memory = {}
 
+# Tokens
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 bot = lightbulb.BotApp(
 	intents = hikari.Intents.ALL_UNPRIVILEGED | hikari.Intents.GUILD_MESSAGES | hikari.Intents.MESSAGE_CONTENT,
 	token=os.getenv("BOT_TOKEN")
 )
 
-# Top.gg
+# # Top.gg
 class TopGGClient:
     def __init__(self, bot, token):
         self.bot = bot
@@ -98,14 +120,18 @@ topgg_client = TopGGClient(bot, topgg_token)
 # AI
 async def generate_text(prompt, user_id=None):
     try:
+        data = load_data()
+        
         system_message = "Answer questions with a mean attitude but still be helpful and keep responses very brief"
-
-        if user_id and user_id in user_custom_styles:
-            system_message = user_custom_styles[user_id]
-
+        
+        if user_id and user_id in data.get('user_custom_styles', {}):
+            system_message = data['user_custom_styles'][user_id]
+        
         messages = [{"role": "system", "content": system_message}]
-        if user_id and user_id in user_conversation_memory:
-            messages.extend(user_conversation_memory[user_id])
+        
+        if user_id and user_id in data.get('user_conversation_memory', {}):
+            messages.extend(data['user_conversation_memory'][user_id])
+        
         messages.append({"role": "user", "content": prompt})
         
         response = await openai_client.chat.completions.create(
@@ -119,12 +145,13 @@ async def generate_text(prompt, user_id=None):
         )
         
         ai_response = response.choices[0].message.content.strip()
-
-        if user_id and user_memory_preferences.get(user_id, False):
-            if user_id not in user_conversation_memory:
-                user_conversation_memory[user_id] = []
-            user_conversation_memory[user_id].append({"role": "user", "content": prompt})
-            user_conversation_memory[user_id].append({"role": "assistant", "content": ai_response})
+        
+        if user_id and data['user_memory_preferences'].get(user_id, False):
+            if user_id not in data['user_conversation_memory']:
+                data['user_conversation_memory'][user_id] = []
+            data['user_conversation_memory'][user_id].append({"role": "user", "content": prompt})
+            data['user_conversation_memory'][user_id].append({"role": "assistant", "content": ai_response})
+            save_data(data)
         
         return ai_response
     except Exception as e:
@@ -135,21 +162,19 @@ async def generate_text(prompt, user_id=None):
 async def on_message(event: hikari.MessageCreateEvent) -> None:
     if event.channel_id == 1266481246121234554:
         email = event.message.content.strip()
-        if validate_email(email):
+        if re.match(r"[^@]+@[^@]+\.[^@]+", email):
             if email not in prem_email:
                 prem_email.append(email)
-                await bot.rest.create_message(1246889573141839934, f"prem_email = {prem_email}")
+                await bot.rest.create_message(1246886903077408838, f"prem_email = {prem_email}")
             else:
-                await bot.rest.create_message(1246889573141839934, f"prem_email list = {prem_email}")
+                await bot.rest.create_message(1246886903077408838, f"prem_email list = {prem_email}")
         else:
-            await bot.rest.create_message(1246889573141839934, "The provided email is invalid.")
+            await bot.rest.create_message(1246886903077408838, "The provided email is invalid.")
 
-def validate_email(email: str) -> bool:
-    return re.match(r"[^@]+@[^@]+\.[^@]+", email) is not None
-
-# Server count
+# Presence
 @bot.listen(hikari.StartedEvent)
 async def on_starting(event: hikari.StartedEvent) -> None:
+    asyncio.create_task(check_expired_trials())
     while True:
         guilds = await bot.rest.fetch_my_guilds()
         server_count = len(guilds)
@@ -161,6 +186,98 @@ async def on_starting(event: hikari.StartedEvent) -> None:
         )
         await topgg_client.post_guild_count(server_count)
         await asyncio.sleep(3600)
+
+# Expiration check
+async def check_expired_trials():
+    while True:
+        current_time = asyncio.get_event_loop().time()
+        expired_users = []
+        data = load_data()
+
+        for user_id, start_time in data['free_trial_start_time'].items():
+            if current_time - start_time > 432000:
+                expired_users.append(user_id)
+
+        for user_id in expired_users:
+            if user_id in data['prem_users']:
+                server_ids = list(data['prem_users'][user_id])
+
+                for server_id in server_ids:
+                    if server_id in data['custom_only_servers']:
+                        data['custom_only_servers'].remove(server_id)
+
+                    if server_id in data['custom_insults']:
+                        del data['custom_insults'][server_id]
+
+                    if server_id in data.get('autorespond_servers', {}):
+                        del data['autorespond_servers'][server_id]
+
+                del data['prem_users'][user_id]
+                data['user_conversation_memory'].pop(user_id, None)
+
+            data['free_trial_start_time'].pop(user_id, None)
+
+            try:
+                user = await bot.rest.fetch_user(int(user_id))
+                embed = hikari.Embed(
+                    title="⌛ Free Trial Ending Soon ⌛",
+                    description=(
+                        "**You'll Soon Lose Access To Premium Commands Like:**\n"
+                        "• Add custom insults.\n"
+                        "• Insult Bot will remember your conversations.\n"
+                        "• Remove cool-downs.\n"
+                        "**And Support Server-related Perks Like:**\n"
+                        "• Access to behind-the-scenes Discord channels.\n"
+                        "• Have a say in the development of Insult Bot.\n"
+                        "• Supporter-exclusive channels.\n\n"
+                        "For privacy reasons, the data you've entered while using premium commands will be deleted in 48 hours.\n\n"
+                        "If you would like me to hold your data in case you want to become a supporter in the future, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) to talk to my developer about saving your data.\n\n"
+                        "Thank you for trying out premium, means a lot to me!\n\n"
+                        "To continue using premium commands, consider becoming a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month. ❤️\n\n"
+                        "*Any memberships bought can be refunded within 3 days of purchase.*"
+                    ),
+                    color=0x2B2D31
+                )
+                await user.send(embed=embed)
+                await bot.rest.create_message(1246886903077408838, f"Trial expiration DM sent to `{user_id}`.")
+            except hikari.errors.NotFoundError:
+                await bot.rest.create_message(1246886903077408838, f"Failed to send trial expiration DM to `{user_id}`: User not found.")
+            except hikari.errors.ForbiddenError:
+                await bot.rest.create_message(1246886903077408838, f"Failed to send trial expiration DM to `{user_id}`: Forbidden to send DM.")
+
+            asyncio.create_task(delete_user_data_after_delay(user_id, 172800))
+
+        save_data(data)
+        await asyncio.sleep(3600)
+
+# Delete free trial data
+async def delete_user_data_after_delay(user_id, delay):
+    await asyncio.sleep(delay)
+    
+    data = load_data()
+
+    if user_id in data['prem_users']:
+        server_ids = list(data['prem_users'][user_id])
+
+        for server_id in server_ids:
+            if server_id in data['custom_only_servers']:
+                data['custom_only_servers'].remove(server_id)
+
+            if server_id in data['custom_insults']:
+                del data['custom_insults'][server_id]
+
+            if server_id in data.get('autorespond_servers', {}):
+                del data['autorespond_servers'][server_id]
+
+        del data['prem_users'][user_id]
+        data['user_conversation_memory'].pop(user_id, None)
+        print(f"Removed user_conversation_memory entry for user {user_id}")
+
+    data['free_trial_start_time'].pop(user_id, None)
+    data['user_memory_preferences'].pop(user_id, None)
+    
+    save_data(data)
+    await bot.rest.create_message(1246886903077408838, f"Premium data for `{user_id}` has been deleted.")
 
 # Join event
 @bot.listen(hikari.GuildJoinEvent)
@@ -174,7 +291,7 @@ async def on_guild_join(event):
                     description=(
                         "Reply or Ping me to talk to me.\n\n"
                         "Use the `/help` command to get an overview of all available commands.\n\n"
-                        # "Get a premium free trial for a week by using the `/free` command.\n\n"
+                        "Get a premium free trial for a week by using the `/free` command.\n\n"
                         "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
                     ),
                     color=0x2B2D31
@@ -204,6 +321,9 @@ async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     bot_id = bot.get_me().id
     guild_id = str(event.guild_id)
     
+    data = load_data()
+    allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
+
     if guild_id in allowed_channels_per_guild:
         if allowed_channels_per_guild[guild_id]:
             if str(event.channel_id) not in allowed_channels_per_guild[guild_id]:
@@ -234,6 +354,11 @@ async def on_general_message(event: hikari.MessageCreateEvent):
 
     message_content = event.content.lower() if isinstance(event.content, str) else ""
     guild_id = str(event.guild_id)
+
+    data = load_data()
+    custom_only_servers = data.get('custom_only_servers', {})
+    custom_insults = data.get('custom_insults', {})
+    custom_triggers = data.get('custom_triggers', {})
 
     if guild_id in custom_only_servers:
         if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
@@ -271,124 +396,120 @@ async def on_general_message(event: hikari.MessageCreateEvent):
 # AI response message event listener
 @bot.listen(hikari.MessageCreateEvent)
 async def on_ai_message(event: hikari.MessageCreateEvent):
-    if not event.message.author.is_bot:
-        content = event.message.content or ""
+    if event.message.author.is_bot:
+        return
 
-        bot_id = bot.get_me().id
-        bot_mention = f"<@{bot_id}>"
+    content = event.message.content or ""
+    bot_id = bot.get_me().id
+    bot_mention = f"<@{bot_id}>"
 
-        mentions_bot = bot_mention in content
-        references_message = event.message.message_reference is not None
+    mentions_bot = bot_mention in content
+    references_message = event.message.message_reference is not None
 
-        if references_message:
-            referenced_message_id = event.message.message_reference.id
-            try:
-                referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
-                is_reference_to_bot = referenced_message.author.id == bot_id
-            except hikari.errors.ForbiddenError:
-                is_reference_to_bot = False
-            except hikari.errors.NotFoundError:
-                is_reference_to_bot = False
-        else:
+    if references_message:
+        referenced_message_id = event.message.message_reference.id
+        try:
+            referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
+            is_reference_to_bot = referenced_message.author.id == bot_id
+        except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
             is_reference_to_bot = False
+    else:
+        is_reference_to_bot = False
 
-        guild_id = str(event.guild_id)
-        channel_id = str(event.channel_id)
+    guild_id = str(event.guild_id)
+    channel_id = str(event.channel_id)
 
-        if mentions_bot or is_reference_to_bot:
-            if guild_id in allowed_ai_channel_per_guild:
-                if channel_id not in allowed_ai_channel_per_guild[guild_id]:
-                    ai_channel = allowed_ai_channel_per_guild[guild_id][0]
-                    ai_channel_mention = f"<#{ai_channel}>"
-                    try:
-                        await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
-                    except hikari.errors.ForbiddenError:
-                        pass
-                    return
+    data = load_data()
+    autorespond_servers = data.get('autorespond_servers', {})
+    prem_users = data.get('prem_users', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
-            user_id = str(event.message.author.id)
+    if autorespond_servers.get(guild_id):
+        if guild_id in allowed_ai_channel_per_guild and allowed_ai_channel_per_guild[guild_id]:
+            if channel_id not in allowed_ai_channel_per_guild[guild_id]:
+                ai_channel = allowed_ai_channel_per_guild[guild_id][0]
+                ai_channel_mention = f"<#{ai_channel}>"
+                try:
+                    await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
+                except hikari.errors.ForbiddenError:
+                    pass
+                return
 
-            current_time = asyncio.get_event_loop().time()
-            reset_time = user_reset_time.get(user_id, 0)
+        user_id = str(event.message.author.id)
+        message_content = content.strip()
 
-            if current_time - reset_time > 21600:
+        async with bot.rest.trigger_typing(channel_id):
+            ai_response = await generate_text(message_content, user_id)
+
+        response_message = f"{event.message.author.mention} {ai_response}"
+
+        try:
+            await event.message.respond(response_message)
+        except hikari.errors.ForbiddenError:
+            pass
+        return
+
+    if mentions_bot or is_reference_to_bot:
+        if guild_id in allowed_ai_channel_per_guild:
+            if channel_id not in allowed_ai_channel_per_guild[guild_id]:
+                ai_channel = allowed_ai_channel_per_guild[guild_id][0]
+                ai_channel_mention = f"<#{ai_channel}>"
+                try:
+                    await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
+                except hikari.errors.ForbiddenError:
+                    pass
+                return
+
+        user_id = str(event.message.author.id)
+
+        current_time = asyncio.get_event_loop().time()
+        reset_time = user_reset_time.get(user_id, 0)
+
+        if current_time - reset_time > 21600:
+            user_response_count[user_id] = 0
+            user_reset_time[user_id] = current_time
+
+        if user_id not in prem_users:
+            if user_id not in user_response_count:
                 user_response_count[user_id] = 0
                 user_reset_time[user_id] = current_time
 
-            if user_id not in prem_users:
-                if user_id not in user_response_count:
-                    user_response_count[user_id] = 0
-                    user_reset_time[user_id] = current_time
+            if user_response_count[user_id] >= 20:
+                has_voted = await topgg_client.get_user_vote(user_id)
+                if not has_voted:
+                    embed = hikari.Embed(
+                        title="Limit Reached :(",
+                        description=(
+                            f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
+                            "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
+                            "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
+                            "Get a premium free trial for a week by using the `/free` command.\n\n"
+                            "**Access Premium Commands Like:**\n"
+                            "• Add custom insults.\n"
+                            "• Insult Bot will remember your conversations.\n"
+                            "• Remove cool-downs.\n"
+                            "**Support Server Related Perks Like:**\n"
+                            "• Access to behind the scenes discord channels.\n"
+                            "• Have a say in the development of Insult Bot.\n"
+                            "• Supporter exclusive channels.\n\n"
+                            "*Any memberships bought can be refunded within 3 days of purchase.*"
+                        ),
+                        color=0x2B2D31
+                    )
+                    embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+                    await event.message.respond(embed=embed)
+                    return
 
-                if user_response_count[user_id] >= 15:
-                    has_voted = await topgg_client.get_user_vote(user_id)
-                    if not has_voted:
-                        embed = hikari.Embed(
-                            title="Limit Reached :(",
-                            description=(
-                                f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
-                                "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
-                                "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                                # "Get a premium free trial for a week by using the `/free` command.\n\n"
-                                "**Access Premium Commands Like:**\n"
-                                "• Add custom insults.\n"
-                                "• Insult Bot will remember your conversations.\n"
-                                "• Remove cool-downs.\n"
-                                "**Support Server Related Perks Like:**\n"
-                                "• Access to behind the scenes discord channels.\n"
-                                "• Have a say in the development of Insult Bot.\n"
-                                "• Supporter exclusive channels.\n\n"
-                                "*Any memberships bought can be refunded within 3 days of purchase.*"
-                            ),
-                            color=0x2B2D31
-                        )
-                        embed.set_image("https://i.imgur.com/hxZb7Sq.gif")
-                        try:
-                            await event.message.respond(embed=embed)
-                        except hikari.errors.ForbiddenError:
-                            pass
-                        await bot.rest.create_message(1246886903077408838, f"Voting message was sent in `{event.get_guild().name}`")
-                    else:
-                        message_content = content.strip()
-                        async with bot.rest.trigger_typing(channel_id):
-                            ai_response = await generate_text(message_content, user_id)
+        async with bot.rest.trigger_typing(channel_id):
+            ai_response = await generate_text(content, user_id)
 
-                        if user_id not in prem_users:
-                            user_response_count[user_id] += 1
+        user_response_count[user_id] += 1
+        response_message = f"{event.message.author.mention} {ai_response}"
 
-                        user_mention = event.message.author.mention
-                        response_message = f"{user_mention} {ai_response}"
-                        try:
-                            await event.message.respond(response_message)
-                        except hikari.errors.ForbiddenError:
-                            pass
-
-                else:
-                    message_content = content.strip()
-                    async with bot.rest.trigger_typing(channel_id):
-                        ai_response = await generate_text(message_content, user_id)
-
-                    if user_id not in prem_users:
-                        user_response_count[user_id] += 1
-
-                    user_mention = event.message.author.mention
-                    response_message = f"{user_mention} {ai_response}"
-                    try:
-                        await event.message.respond(response_message)
-                    except hikari.errors.ForbiddenError:
-                        pass
-
-            else:
-                message_content = content.strip()
-                async with bot.rest.trigger_typing(channel_id):
-                    ai_response = await generate_text(message_content, user_id)
-
-                user_mention = event.message.author.mention
-                response_message = f"{user_mention} {ai_response}"
-                try:
-                    await event.message.respond(response_message)
-                except hikari.errors.ForbiddenError:
-                    pass
+        try:
+            await event.message.respond(response_message)
+        except hikari.errors.ForbiddenError:
+            pass
 
 # Insult command
 @bot.command
@@ -399,45 +520,51 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
 @lightbulb.command("insult", "Send an insult to someone.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def insult(ctx):
+    # Load data
+    data = load_data()
+    prem_users = data.get('prem_users', {})
+
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    
     channel = ctx.options.channel
     user = ctx.options.user
     insult = ctx.options.insult
     target_channel = ctx.channel_id if channel is None else channel.id
     
-    try:
-        guild = ctx.get_guild()
-        if guild is not None:
-            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-        else:
-            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
-        
-        if any(word in str(ctx.author.id) for word in prem_users):
-            await ctx.command.cooldown_manager.reset_cooldown(ctx)
-        
-        if insult and any(prohibited_word in insult.lower() for prohibited_word in prohibited_words):
-            await ctx.respond("Your insult does not comply with Discord's TOS.")
-            return
-        
-        guild_id = str(ctx.guild_id)
-        if guild_id in custom_insults:
-            all_responses = response + custom_insults[guild_id]
-        else:
-            all_responses = response
-        
-        selected_response = insult if insult else random.choice(all_responses)
-        message = f"{user.mention}, {selected_response}" if user else selected_response
-        
-        if channel is None:
-            await ctx.respond(message)
-        else:
+    if insult and any(word in insult.lower() for word in prohibited_words):
+        await ctx.respond("Your insult does not comply with Discord's TOS.")
+        return
+    
+    guild_id = str(ctx.guild_id)
+    if guild_id in custom_insults:
+        all_responses = response + custom_insults[guild_id]
+    else:
+        all_responses = response
+    
+    selected_response = insult if insult else random.choice(all_responses)
+    message = f"{user.mention}, {selected_response}" if user else selected_response
+    
+    if channel is None:
+        await ctx.respond(message)
+    else:
+        try:
             await bot.rest.create_message(target_channel, message)
             await ctx.respond("Message sent.")
-    except hikari.errors.NotFoundError:
-        await ctx.respond("I don't have access to this channel.")
-    except hikari.errors.ForbiddenError:
-        await ctx.respond("I don't have permission to send messages in that channel.")
+        except hikari.errors.NotFoundError:
+            await ctx.respond("I don't have access to this channel.")
+        except hikari.errors.ForbiddenError:
+            await ctx.respond("I don't have permission to send messages in that channel.")
+    
+    if str(ctx.author.id) in prem_users:
+        prem_users[str(ctx.author.id)] = guild_id
+        update_data({'prem_users': prem_users})
+    
+    # Log command usage
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
-        await ctx.respond(f"An error occurred: {e}")
+        print(f"{e}")
 
 # Setchannel command
 @bot.command
@@ -448,11 +575,24 @@ async def insult(ctx):
 @lightbulb.command("setchannel_toggle", "Restrict Insult Bot and AI Bot to particular channel(s).")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setchannel(ctx):
+    # Load data
+    data = load_data()
+    prem_users = data.get('prem_users', {})
+    allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
+    
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
     guild_id = str(ctx.guild_id)
 
     member = await ctx.bot.rest.fetch_member(ctx.guild_id, ctx.author.id)
     if not any(role.permissions & hikari.Permissions.ADMINISTRATOR for role in member.get_roles()):
         await ctx.respond("Ask your admins to set this up for you. 🤦")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
 
     if guild_id not in allowed_channels_per_guild:
@@ -493,29 +633,34 @@ async def setchannel(ctx):
     else:
         await ctx.respond("Invalid toggle. Use `/setchannel on <#channel>` or `/setchannel off <#channel>`.")
 
-    log_message = (
-        f"`setchannel` invoked by user {ctx.author.id}\n"
-        f"Received server_id: {guild_id}\n"
-        f"Received channel_id: {channel_id}\n"
-        f"Type: {channel_type.capitalize()}\n"
-        f"allowed_channels_per_guild = {allowed_channels_per_guild}\n"
-        f"allowed_ai_channel_per_guild = {allowed_ai_channel_per_guild}\n\n"
-    )
+    update_data({
+        'allowed_channels_per_guild': allowed_channels_per_guild,
+        'allowed_ai_channel_per_guild': allowed_ai_channel_per_guild
+    })
+
+    if str(ctx.author.id) in prem_users:
+        prem_users[str(ctx.author.id)] = guild_id
+        update_data({'prem_users': prem_users})
+
     try:
-        await bot.rest.create_message(1246889573141839934, content=log_message)
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
-        print(f"Failed to send log message: {e}")
+        print(f"{e}")
 
 # View set channels command
 @bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("setchannel_view", "View channel(s) Insult Bot is restricted to.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewsetchannels(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
+    data = load_data()
+    prem_users = data.get('prem_users', {})
+    allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
+    
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
     guild_id = str(ctx.guild_id)
     keyword_channels = allowed_channels_per_guild.get(guild_id, [])
     chatbot_channels = allowed_ai_channel_per_guild.get(guild_id, [])
@@ -533,84 +678,224 @@ async def viewsetchannels(ctx):
     )
     await ctx.respond(embed=embed)
 
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
 # Chatbot----------------------------------------------------------------------------------------------------------------------------------------
+#autorespond
+@bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.option("toggle", "Toggle autorespond on or off.", choices=["on", "off"], type=hikari.OptionType.STRING)
+@lightbulb.command("autorespond", "Enable or disable autorespond in the server (Premium only).")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def autorespond(ctx: lightbulb.Context):
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+    data = load_data()
+
+    prem_users = data.get('prem_users', {})
+    if user_id not in prem_users:
+        embed = hikari.Embed(
+            title="You found a premium command",
+            description=(
+                "To toggle Insult Bot to auto respond in your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind-the-scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter-exclusive channels.\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+            ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+        await ctx.respond(embed=embed)
+
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
+        return
+
+    autorespond_servers = data.get('autorespond_servers', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
+
+    if server_id not in allowed_ai_channel_per_guild or not allowed_ai_channel_per_guild[server_id]:
+        await ctx.respond("Please set a channel for AI responses using the `/setchannel` command before enabling autorespond.")
+        return
+
+    toggle = ctx.options.toggle
+    if toggle == "on":
+        if not autorespond_servers.get(server_id):
+            autorespond_servers[server_id] = True
+            await ctx.respond("Autorespond has been enabled for this server.")
+        else:
+            await ctx.respond("Autorespond is already enabled for this server.")
+    elif toggle == "off":
+        if autorespond_servers.get(server_id):
+            autorespond_servers[server_id] = False
+            await ctx.respond("Autorespond has been disabled for this server.")
+        else:
+            await ctx.respond("Autorespond is already disabled for this server.")
+
+    if user_id not in prem_users:
+        prem_users[user_id] = [server_id]
+    elif server_id not in prem_users[user_id]:
+        prem_users[user_id].append(server_id)
+
+    update_data({
+        'autorespond_servers': autorespond_servers,
+        'allowed_ai_channel_per_guild': allowed_ai_channel_per_guild,
+        'prem_users': prem_users
+    })
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
 # Memory command (P)
 @bot.command()
 @lightbulb.option('toggle', 'Choose to toggle or clear memory.', choices=['on', 'off', 'clear'])
 @lightbulb.command('memory', 'Make Insult Bot remember your conversations.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def memory(ctx: lightbulb.Context) -> None:
-    if str(ctx.author.id) not in prem_users:
+    user_id = str(ctx.author.id)
+    toggle = ctx.options.toggle
+
+    data = load_data()
+    prem_users = data.get('prem_users', {})
+    if user_id not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
                 "To toggle Insult Bot to remember your conversations, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                # "Get a premium free trial for a week by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
                 "**Support Server Related Perks Like:**\n"
-                "• Access to behind the scenes discord channels.\n"
+                "• Access to behind-the-scenes discord channels.\n"
                 "• Have a say in the development of Insult Bot.\n"
-                "• Supporter exclusive channels.\n\n"
+                "• Supporter-exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
+            ),
             color=0x2B2D31
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
-    
-    user_id = str(ctx.author.id)
-    toggle = ctx.options.toggle
-    
+
     if toggle == 'on':
-        user_memory_preferences[user_id] = True
+        data['user_memory_preferences'][user_id] = True
         response_message = 'Memory has been turned on for personalized interactions.'
     elif toggle == 'off':
-        user_memory_preferences[user_id] = False
+        data['user_memory_preferences'][user_id] = False
         response_message = 'Memory has been turned off. Memory will not be cleared until you choose to clear it.'
     elif toggle == 'clear':
-        user_memory_preferences.pop(user_id, None)
-        user_conversation_memory.pop(user_id, None)
+        data['user_conversation_memory'].pop(user_id, None)
         response_message = 'Memory has been cleared.'
     else:
         response_message = 'Invalid action.'
 
+    update_data({
+        'user_memory_preferences': data['user_memory_preferences'],
+        'user_conversation_memory': data['user_conversation_memory'],
+        'prem_users': prem_users
+    })
+
     await ctx.respond(response_message)
 
-    log_message = (
-        f"`memory` invoked by user {ctx.author.id}\n"
-        f"toggle: {toggle.capitalize()}\n"
-        f"user_memory_preferences = {user_memory_preferences}\n\n"
-    )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Set Style command
 @bot.command()
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.option('style', 'Enter a chatbot style.', type=str)
-@lightbulb.command('setstyle', 'Set a custom style for Insult Bot.')
+@lightbulb.option('style', 'Enter your prefered AI style.', type=str)
+@lightbulb.command('style_set', 'Set a custom style for Insult Bot to respond with.')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setstyle(ctx: lightbulb.Context) -> None:
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
     user_id = str(ctx.author.id)
     style = ctx.options.style
 
-    user_custom_styles[user_id] = style
+    if user_id in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    
+    if len(style) > 200:
+        await ctx.respond("Your style is too long. Keep it under 200 characters.")
+        return
+
+    if any(prohibited_word in style.lower() for prohibited_word in prohibited_words):
+        await ctx.respond("Your style does not comply with Discord's TOS.")
+        return
+
+    data = load_data()
+    data['user_custom_styles'][user_id] = style
+    save_data(data)
+    
     await ctx.respond(f'Custom response style has been set to: "{style}"')
 
-    # Log the style change
-    log_message = (
-        f"`setstyle` invoked by user {ctx.author.id}\n"
-        f"Style: {style}\n"
-        f"user_custom_styles = {user_custom_styles}\n\n"
-    )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
+# View style command    
+@bot.command()
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.command('style_view', 'View your current custom style.')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def viewstyle(ctx: lightbulb.Context) -> None:
+    user_id = str(ctx.author.id)
+    data = load_data()
+
+    if user_id in data.get('user_custom_styles', {}):
+        style = data['user_custom_styles'][user_id]
+        await ctx.respond(f'Your current custom style is: "{style}"')
+    else:
+        await ctx.respond("You haven't set a custom style yet.")
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
+#Clear style command
+@bot.command()
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
+@lightbulb.command('style_clear', 'Clear your custom style.')
+@lightbulb.implements(lightbulb.SlashCommand)
+async def clearstyle(ctx: lightbulb.Context) -> None:
+    user_id = str(ctx.author.id)
+    data = load_data()
+
+    if user_id in data.get('user_custom_styles', {}):
+        del data['user_custom_styles'][user_id]
+        save_data(data)
+        await ctx.respond("Your custom style has been cleared.")
+    else:
+        await ctx.respond("You haven't set a custom style yet.")
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Keyword----------------------------------------------------------------------------------------------------------------------------------------
 # Add insult command (P)
@@ -618,14 +903,19 @@ async def setstyle(ctx: lightbulb.Context) -> None:
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
 @lightbulb.command("insult_add", "Add a custom insult to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def addinsult(ctx):
-    if str(ctx.author.id) not in prem_users:
+async def addinsult(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    # Check if the user is a premium user first
+    if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
                 "To add custom insults to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                # "Get a premium free trial for a week by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -635,15 +925,21 @@ async def addinsult(ctx):
                 "• Have a say in the development of Insult Bot.\n"
                 "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
+            ),
             color=0x2B2D31
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
 
-    server_id = str(ctx.guild_id)
+    # If the user is a premium user, ensure their server is listed under them
+    if server_id not in data['prem_users'].get(user_id, []):
+        data['prem_users'][user_id].append(server_id)
+
     insult = ctx.options.insult
 
     if len(insult) > 200:
@@ -654,33 +950,37 @@ async def addinsult(ctx):
         await ctx.respond("Your insult does not comply with Discord's TOS.")
         return
 
-    if server_id not in custom_insults:
-        custom_insults[server_id] = []
+    if server_id not in data['custom_insults']:
+        data['custom_insults'][server_id] = []
 
-    custom_insults[server_id].append(insult)
-    await ctx.respond(f"New insult added.")
+    data['custom_insults'][server_id].append(insult)
+    
+    save_data(data)
+    
+    await ctx.respond("New insult added.")
 
-    log_message = (
-        f"`addinsult` invoked by user {ctx.author.id}\n"
-        f"Received server_id: {server_id}\n"
-        f"Received insult: {insult}\n"
-        f"custom_insults = {custom_insults}\n\n"
-    )
-    await send_log_message(1246889573141839934, log_message)
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Remove insult command (P)
 @bot.command
 @lightbulb.option("insult", "The insult to remove.", type=str)
 @lightbulb.command("insult_remove", "Remove a custom insult from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def removeinsult(ctx):
-    if str(ctx.author.id) not in prem_users:
+async def removeinsult(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
                 "To remove custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                # "Get a premium free trial for a week by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -690,47 +990,58 @@ async def removeinsult(ctx):
                 "• Have a say in the development of Insult Bot.\n"
                 "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
+            ),
             color=0x2B2D31
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
 
-    server_id = str(ctx.guild_id)
+    if server_id not in data['prem_users'].get(user_id, []):
+        data['prem_users'][user_id].append(server_id)
+
     insult_to_remove = ctx.options.insult
 
-    if server_id not in custom_insults or not custom_insults[server_id]:
-        await ctx.respond(f"No insults found.")
+    if server_id not in data['custom_insults'] or not data['custom_insults'][server_id]:
+        await ctx.respond("No insults found.")
         return
 
-    if insult_to_remove not in custom_insults[server_id]:
+    if insult_to_remove not in data['custom_insults'][server_id]:
         await ctx.respond("Insult not found in the list.")
         return
 
-    custom_insults[server_id].remove(insult_to_remove)
+    data['custom_insults'][server_id].remove(insult_to_remove)
+    
+    save_data(data)
+    
     await ctx.respond("The selected insult has been removed.")
 
-    log_message = (
-        f"`removeinsult` invoked by user {ctx.author.id}\n"
-        f"Removed insult: {insult_to_remove}\n"
-        f"custom_insults = {custom_insults}\n\n"
-    )
-    await send_log_message(1246889573141839934, log_message)
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # View insults command (P)
 @bot.command
 @lightbulb.command("insult_view", "View custom insults added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def viewinsults(ctx):
-    if str(ctx.author.id) not in prem_users:
+async def viewinsults(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    # Check if the user is a premium user first
+    if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
                 "To view custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                # "Get a premium free trial for a week by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -740,28 +1051,37 @@ async def viewinsults(ctx):
                 "• Have a say in the development of Insult Bot.\n"
                 "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
+            ),
             color=0x2B2D31
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
 
-    server_id = str(ctx.guild_id)
-
-    if server_id in custom_insults:
-        insults_list = custom_insults[server_id]
-        insults_text = "\n".join(insults_list)
-        embed = hikari.Embed(
-            title="🔹 Custom Insults 🔹",
-            description=insults_text,
-            color=0x2B2D31
-        )
-        await ctx.respond(embed=embed)
+    # If the user is a premium user, show the custom insults
+    if server_id in data.get('custom_insults', {}):
+        insults_list = data['custom_insults'][server_id]
+        if insults_list:
+            insults_text = "\n".join(insults_list)
+            embed = hikari.Embed(
+                title="🔹 Custom Insults 🔹",
+                description=insults_text,
+                color=0x2B2D31
+            )
+            await ctx.respond(embed=embed)
+        else:
+            await ctx.respond("No custom insults found.")
     else:
         await ctx.respond("No custom insults found.")
-    await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{ctx.get_guild().name}`.")
+    
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Add trigger command
 @bot.command
@@ -769,9 +1089,12 @@ async def viewinsults(ctx):
 @lightbulb.option("trigger", "Add your trigger, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
 @lightbulb.command("trigger_add", "Add a custom trigger to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def addtrigger(ctx):
-    if any(word in str(ctx.author.id) for word in prem_users):
+async def addtrigger(ctx: lightbulb.Context) -> None:
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
+    data = load_data()
+
     server_id = str(ctx.guild_id)
     trigger = ctx.options.trigger
 
@@ -779,19 +1102,17 @@ async def addtrigger(ctx):
         await ctx.respond("Your trigger is too long. Keep it under 200 characters.")
         return
 
-    if server_id not in custom_triggers:
-        custom_triggers[server_id] = []
+    if server_id not in data['custom_triggers']:
+        data['custom_triggers'][server_id] = []
 
-    custom_triggers[server_id].append(trigger)
+    data['custom_triggers'][server_id].append(trigger)
+    save_data(data)
     await ctx.respond(f"New trigger added.")
 
-    log_message = (
-        f"`addtrigger` invoked by user {ctx.author.id}\n"
-        f"Received server_id: {server_id}\n"
-        f"Received trigger: {trigger}\n"
-        f"custom_triggers = {custom_triggers}\n\n"
-    )
-    await send_log_message(1246889573141839934, log_message)
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Remove trigger command
 @bot.command
@@ -799,42 +1120,50 @@ async def addtrigger(ctx):
 @lightbulb.option("trigger", "The trigger to remove.", type=str)
 @lightbulb.command("trigger_remove", "Remove a custom trigger from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def removetrigger(ctx):
-    if any(word in str(ctx.author.id) for word in prem_users):
+async def removetrigger(ctx: lightbulb.Context) -> None:
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
+    # Load data
+    data = load_data()
+
     server_id = str(ctx.guild_id)
     trigger_to_remove = ctx.options.trigger
 
-    if server_id not in custom_triggers or not custom_triggers[server_id]:
-        await ctx.respond(f"No triggers found.")
+    if server_id not in data['custom_triggers'] or not data['custom_triggers'][server_id]:
+        await ctx.respond("No triggers found.")
         return
 
-    if trigger_to_remove not in custom_triggers[server_id]:
+    if trigger_to_remove not in data['custom_triggers'][server_id]:
         await ctx.respond("Trigger not found in the list.")
         return
 
-    custom_triggers[server_id].remove(trigger_to_remove)
+    data['custom_triggers'][server_id].remove(trigger_to_remove)
+    save_data(data)
     await ctx.respond("The selected trigger has been removed.")
 
-    log_message = (
-        f"`removetrigger` invoked by user {ctx.author.id}\n"
-        f"Removed trigger: {trigger_to_remove}\n"
-        f"custom_triggers = {custom_triggers}\n\n"
-    )
-    await send_log_message(1246889573141839934, log_message)
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # View triggers command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("trigger_view", "View custom triggers added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def viewtriggers(ctx):
-    if any(word in str(ctx.author.id) for word in prem_users):
+async def viewtriggers(ctx: lightbulb.Context) -> None:
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
+    data = load_data()
     server_id = str(ctx.guild_id)
 
-    if server_id in custom_triggers:
-        triggers_list = custom_triggers[server_id]
+    if server_id in data['custom_triggers']:
+        triggers_list = data['custom_triggers'][server_id]
+        if not triggers_list:
+            await ctx.respond("No custom triggers found.")
+            return
         triggers_text = "\n".join(triggers_list)
         embed = hikari.Embed(
             title="🔹 Custom Triggers 🔹",
@@ -844,21 +1173,29 @@ async def viewtriggers(ctx):
         await ctx.respond(embed=embed)
     else:
         await ctx.respond("No custom triggers found.")
-    await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{ctx.get_guild().name}`.")
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Custom only toggle command (P)
 @bot.command
 @lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.command("customonly", "Set custom insults and triggers only.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def customonly(ctx):
-    if str(ctx.author.id) not in prem_users:
+async def customonly(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    if user_id not in data['prem_users']:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle custom only triggers/insults to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To toggle custom only triggers/insults for your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                # "Get a premium free trial for a week by using the `/free` command.\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Add custom insults.\n"
                 "• Insult Bot will remember your conversations.\n"
@@ -868,37 +1205,40 @@ async def customonly(ctx):
                 "• Have a say in the development of Insult Bot.\n"
                 "• Supporter exclusive channels.\n\n"
                 "*Any memberships bought can be refunded within 3 days of purchase.*"
-                ),
+            ),
             color=0x2B2D31
         )
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
-
-    global custom_only_servers
-
-    server_id = str(ctx.guild_id)
+    
+    if server_id not in data['prem_users'][user_id]:
+        data['prem_users'][user_id].append(server_id)
 
     if ctx.options.toggle == "on":
-        if server_id not in custom_only_servers:
-            custom_only_servers.append(server_id)
+        if server_id not in data['custom_only_servers']:
+            data['custom_only_servers'].append(server_id)
             await ctx.respond(f"Custom insults and triggers only mode enabled for this server.")
         else:
             await ctx.respond(f"Custom insults and triggers only mode is already enabled for this server.")
     elif ctx.options.toggle == "off":
-        if server_id in custom_only_servers:
-            custom_only_servers.remove(server_id)
+        if server_id in data['custom_only_servers']:
+            data['custom_only_servers'].remove(server_id)
             await ctx.respond(f"Custom insults and triggers only mode disabled for this server.")
         else:
             await ctx.respond(f"Custom insults and triggers only mode is not enabled for this server.")
     
-    log_message = (
-        f"`customonly` invoked by user {ctx.author.id}\n"
-        f"Received server ID: {server_id}\n"
-        f"custom_only_servers = {custom_only_servers}\n\n"
-    )
-    await bot.rest.create_message(1246889573141839934, content=log_message)
+    save_data(data)
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+    return
 
 # MISC----------------------------------------------------------------------------------------------------------------------------------------
 # Help command
@@ -907,13 +1247,9 @@ async def customonly(ctx):
 @lightbulb.command("help", "You know what this is ;)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def help(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
     embed = hikari.Embed(
         title="📚 Help 📚",
         description=(
@@ -923,23 +1259,29 @@ async def help(ctx):
             "**/setchannel_toggle:** Restrict Insult Bot to particular channel(s).\n"
             "**/setchannel_view:** View channel(s) Insult Bot is restricted to.\n\n"
             "**Chatbot Commands:**\n"
+            "**/autorespond:** Have Insult Bot autorespond to every message in a set channel(s). (P)\n"
             "**/memory:** Make Insult Bot remember your conversations. (P)\n"
-            "**/style:** Set a custom style for Insult Bot.\n\n"
+            "**/style_[set/view/clear]:** Set/view/clear the custom Insult Bot style.\n\n"
             "**Keyword Commands:**\n"
-            "**/insult_[add/remove/view]:** Add/view/remove custom insults in your server. (P)\n"
-            "**/trigger_[add/remove/view]:** Add/view/remove custom triggers in your server.\n"
+            "**/insult_[add/remove/view]:** Add/remove/view custom insults in your server. (P)\n"
+            "**/trigger_[add/remove/view]:** Add/remove/view custom triggers in your server.\n"
             "**/customonly:** Set custom insults and triggers only. (P)\n\n"
             "**Miscellaneous Commands:**\n"
             "**/claim:** Claim premium by providing your Ko-fi email.\n"
+            "**/free:** Get a premium free trial for a week.\n"
             "**/invite:** Invite the bot to your server.\n"
             "**/support:** Join the support server.\n"
-            "**/privacy:** View our privacy policy.\n"
-            # "**/free:** Get a premium free trial for a week.\n\n"
+            "**/privacy:** View our privacy policy.\n\n"
             "**To use (P) premium commands and help keep the bot running, consider becoming a [supporter](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
         ),
         color=0x2B2D31
     )
     await ctx.respond(embed=embed)
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Claim premium command
 @bot.command
@@ -947,64 +1289,93 @@ async def help(ctx):
 @lightbulb.option("email", "Enter your Ko-fi email", type=str)
 @lightbulb.command("claim", "Claim premium after subscribing.")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def premium(ctx: lightbulb.Context) -> None:
-    if str(ctx.author.id) in prem_users:
+async def claim(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    if user_id in data['prem_users']:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
         await ctx.respond("You already have premium. 🤦")
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` already had premium but tried to invoke `{ctx.command.name}`")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` but already had premium.")
+        except Exception as e:
+            print(f"{e}")
         return
     
     email = ctx.options.email
     
     if email in prem_email:
-        prem_users.append(str(ctx.author.id))
+        if user_id not in data['prem_users']:
+            data['prem_users'][user_id] = [server_id]
+        else:
+            if server_id not in data['prem_users'][user_id]:
+                data['prem_users'][user_id].append(server_id)
+        
+        save_data(data)
         await ctx.respond("You have premium now! Thank you so much. ❤️")
-        log_message = (
-        f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
-        f"prem_users = {prem_users}\n\n"
-        )
-        await bot.rest.create_message(1246889573141839934, content=log_message)
+        
+        try:
+            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
     else:
         embed = hikari.Embed(
-        title="Invite:",
-        description=(
-            "Your email was not recognized. If you think this is an error, join the [support server](https://discord.com/invite/x7MdgVFUwa) to fix this issue.\n\n"
-            "If you haven't yet subscribed to premium, considering doing so for $1.99 a month. It helps cover the costs associated with running Insult Bot. ❤️\n\n"
-            "Premium Perks:\n"
-            "**Access Premium Commands Like:**\n"
-            "• Add custom insults.\n"
-            "• Insult Bot will remember your conversations.\n"
-            "• Remove cool-downs.\n"
-            "**Support Server Related Perks Like:**\n"
-            "• Access to behind the scenes discord channels.\n"
-            "• Have a say in the development of Insult Bot.\n"
-            "• Supporter exclusive channels.\n\n"
-            "*Any memberships bought can be refunded within 3 days of purchase.*"
+            title="Invite:",
+            description=(
+                "Your email was not recognized. If you think this is an error, join the [support server](https://discord.com/invite/x7MdgVFUwa) to fix this issue.\n\n"
+                "If you haven't yet subscribed to premium, consider doing so for $1.99 a month. It helps cover the costs associated with running Insult Bot. ❤️\n\n"
+                "Premium Perks:\n"
+                "**Access Premium Commands Like:**\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
             ),
-        color=0x2f3136
+            color=0x2f3136
         )
         await ctx.respond(embed=embed)
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}`")
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
 
-# Invite command
+# Free premium command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("invite", "Invite the bot to your server.")
+@lightbulb.command("free", "Get premium for free for a week!")
 @lightbulb.implements(lightbulb.SlashCommand)
-async def invite(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
+async def free(ctx: lightbulb.Context) -> None:
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-    embed = hikari.Embed(
-        title="Invite:",
-        description=("[Invite the bot to your server.](https://discord.com/oauth2/authorize?client_id=801431445452750879&permissions=414464727104&scope=applications.commands%20bot)"),
-        color=0x2f3136
-    )
-    await ctx.respond(embed=embed)
+
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    if user_id in data['prem_users']:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+        await ctx.respond("You already have premium. 🤦")
+        return
+    
+    if user_id in data['used_free_trial']:
+        await ctx.respond("You have already claimed the free trial. 😔")
+        return
+
+    data['prem_users'][user_id] = [server_id]
+    data['used_free_trial'].append(user_id)
+    data['free_trial_start_time'][user_id] = asyncio.get_event_loop().time()
+    save_data(data)
+    await ctx.respond("You have premium now! ❤️")
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Support command
 @bot.command
@@ -1012,13 +1383,9 @@ async def invite(ctx):
 @lightbulb.command("support", "Join the support server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def support(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
     embed = hikari.Embed(
         title="Support Server:",
         description=("[Join the support server.](https://discord.com/invite/x7MdgVFUwa)"),
@@ -1026,19 +1393,20 @@ async def support(ctx):
     )
     await ctx.respond(embed=embed)
 
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
 # Privacy command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("privacy", "Privacy policy statement.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def privacy(ctx):
-    guild = ctx.get_guild()
-    if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used in `{guild.name}`.")
-    else:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` was used.")
     if any(word in str(ctx.author.id) for word in prem_users):
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
     embed = hikari.Embed(
 		title="Privacy Policy:",
 		description="The personal information of any user, including the message content it replies to, is not tracked by Insult Bot. The channel_id alone is stored when added by using the /setchannel command, and it is stored only while this command is active in your server.\n\nThe user_id, server_id and added insults of premium members are stored to provide the user the with perks and is deleted once a user is no longer a member.\n\nJoin the [support server](https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
@@ -1046,89 +1414,10 @@ async def privacy(ctx):
 	)
     await ctx.respond(embed=embed)
 
-# Function to split and send the log message
-async def send_log_message(channel_id, log_message):
-    while len(log_message) > 2000:
-        await bot.rest.create_message(channel_id, content=log_message[:2000])
-        log_message = log_message[2000:]
-    await bot.rest.create_message(channel_id, content=log_message)
-
-# # Free premium command
-# @bot.command
-# @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-# @lightbulb.command("free", "Get premium for free for a week!")
-# @lightbulb.implements(lightbulb.SlashCommand)
-# async def premium(ctx: lightbulb.Context) -> None:
-#     user_id = str(ctx.author.id)
-
-#     if user_id in prem_users:
-#         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-#         await ctx.respond("You already have premium. 🤦")
-#         return
-    
-#     if user_id in used_free_trial:
-#         await ctx.respond("You have already claimed the free trial. 😔")
-#         return
-
-#     prem_users.append(user_id)
-#     used_free_trial.append(user_id)
-#     await ctx.respond("You have a free trial premium now! ❤️")
-
-#     # Prepare log message
-#     log_message = (
-#         f"`{ctx.command.name}` invoked by user {ctx.author.id}\n"
-#         f"prem_users = {prem_users}\n"
-#         f"used_free_trial = {used_free_trial}\n"
-#     )
-
-#     # Send the log message, split into chunks if necessary
-#     await send_log_message(1246889573141839934, log_message)
-
-# # Trial ending dm
-# @bot.command
-# @lightbulb.option("user_ids", "Comma-separated list of user IDs to notify.", type=str)
-# @lightbulb.command("notify_users", "Notify specified users about their trial ending.")
-# @lightbulb.implements(lightbulb.SlashCommand)
-# async def notify_users(ctx: lightbulb.Context) -> None:
-#     user_ids_str = ctx.options.user_ids
-#     user_ids = [int(user_id.strip()) for user_id in user_ids_str.split(",")]
-#     embed = hikari.Embed(
-#         title="⌛ Free Trial Ending Soon ⌛",
-#         description=(
-#             "**You'll Soon Lose Access To Premium Commands Like:**\n"
-#             "• Add custom insults.\n"
-#             "• Insult Bot will remember your conversations.\n"
-#             "• Remove cool-downs.\n"
-#             "**And Support Server-related Perks Like:**\n"
-#             "• Access to behind-the-scenes Discord channels.\n"
-#             "• Have a say in the development of Insult Bot.\n"
-#             "• Supporter-exclusive channels.\n\n"
-#             "For privacy reasons, the data you've entered while using premium commands will be deleted in 48 hours. All other data will persist.\n\n"
-#             "If you would like me to hold your data in case you want to become a supporter in the future, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) to talk to my developer about saving your data.\n\n"
-#             "Thank you for trying out premium, means a lot to me!\n\n"
-#             "To continue using premium commands, consider becoming a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month. ❤️\n\n"
-#             "*Any memberships bought can be refunded within 3 days of purchase.*"
-#         ),
-#         color=0x2B2D31
-#     )
-
-#     await ctx.respond("Sending notifications...")
-
-#     notified_users = []
-#     for user_id in user_ids:
-#         try:
-#             user = await bot.rest.fetch_user(user_id)
-#             await user.send(embed=embed)
-#             notified_users.append(user_id)
-#         except Exception as e:
-#             await ctx.respond(f"Failed to notify user {user_id}: {e}")
-#             return
-
-#     if notified_users:
-#         notified_ids_str = ', '.join(map(str, notified_users))
-#         await ctx.respond(f"DMs were sent to users: {notified_ids_str}")
-#     else:
-#         await ctx.respond("No DMs were sent.")
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
 
 # Error handling
 @bot.listen(lightbulb.CommandErrorEvent)
