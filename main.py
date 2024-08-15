@@ -475,7 +475,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                 user_response_count[user_id] = 0
                 user_reset_time[user_id] = current_time
 
-            if user_response_count[user_id] >= 20:
+            if user_response_count[user_id] >= 2:
                 has_voted = await topgg_client.get_user_vote(user_id)
                 if not has_voted:
                     embed = hikari.Embed(
@@ -500,6 +500,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     )
                     embed.set_image("https://i.imgur.com/rcgSVxC.gif")
                     await event.message.respond(embed=embed)
+                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
                     return
 
         async with bot.rest.trigger_typing(channel_id):
