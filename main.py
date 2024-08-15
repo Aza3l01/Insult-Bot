@@ -475,7 +475,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                 user_response_count[user_id] = 0
                 user_reset_time[user_id] = current_time
 
-            if user_response_count[user_id] >= 2:
+            if user_response_count[user_id] >= 20:
                 has_voted = await topgg_client.get_user_vote(user_id)
                 if not has_voted:
                     embed = hikari.Embed(
