@@ -371,8 +371,6 @@ async def on_general_message(event: hikari.MessageCreateEvent):
 
     if any(word in message_content for word in hearing):
         selected_response = random.choice(all_responses)
-        if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
-            selected_response += " (user added insult)"
         try:
             await event.message.respond(selected_response)
         except hikari.errors.BadRequestError:
@@ -385,8 +383,6 @@ async def on_general_message(event: hikari.MessageCreateEvent):
         for trigger in custom_triggers[guild_id]:
             if trigger in message_content:
                 selected_response = random.choice(all_responses)
-                if guild_id in custom_insults and trigger in message_content:
-                    selected_response += " (user added insult)"
                 try:
                     await event.message.respond(selected_response)
                 except hikari.errors.ForbiddenError:
