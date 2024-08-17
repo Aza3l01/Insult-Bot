@@ -9,7 +9,16 @@
         "1054440117705650217": [
             "1193319104917024849"
         ],
-        "187284746563223562": []
+        "187284746563223562": [],
+        "856563726391312394": [
+            "1010340447882842142"
+        ],
+        "736214005776908370": [
+            "1116186669788446760"
+        ],
+        "1253136409439633480": [
+            "1262169229348569171"
+        ]
     },
     "used_free_trial": [
         "212990040068849664",
@@ -53,9 +62,16 @@
         "1243544911891005474",
         "703192846995423282",
         "1078565430806978691",
-        "399903686018465792"
+        "399903686018465792",
+        "856563726391312394",
+        "736214005776908370",
+        "1253136409439633480"
     ],
-    "free_trial_start_time": {},
+    "free_trial_start_time": {
+        "856563726391312394": 171505.343,
+        "736214005776908370": 262233.093,
+        "1253136409439633480": 264675.312
+    },
     "user_memory_preferences": {
         "212990040068849664": true
     },
@@ -98,7 +114,19 @@
             "Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!",
             "I must have been very cruel in my past time to have to deal with your down syndrome ass.",
             "I will smack you so hard that you turn white!",
-            "Go back to your igloo, Canuck!"
+            "Go back to your igloo, Canuck!",
+            "twat sucker midget fucker",
+            "Blue veined custard chucker rear-end receiver",
+            "This fucking glue eater above me likes to receive it in the ass from horses",
+            "This fucking chromosome above me got his first ejaculation from watching his mom take a shit when he was 13",
+            "You have more sperm species in your ass than a white woman\u2019s utero you donkey banger",
+            "Sir for the tenth time I can't let you in, your banned from this Chuck E Cheese for shitting in the ball pit and pissing on the kids",
+            "You're French Canadian aren't you",
+            "Please stop crying your making the strippers uncomfortable",
+            "This is why dad left...again",
+            "You smell worse than I thought you would",
+            "shut up you spear chucking watermelon loving monkey",
+            "just eat your cereal from your uncircumcised dick and scrape the cheese"
         ]
     },
     "custom_triggers": {
@@ -110,84 +138,6 @@
             "bellend",
             "report",
             "pls"
-        ],
-        "1116186669788446760": [
-            "Fuck you",
-            "Cunt",
-            "Asshole",
-            "Dickhead",
-            "gringo",
-            "Dick",
-            "hi",
-            "ok",
-            "bitch",
-            "stupid",
-            "fuck",
-            "dumb",
-            "idiot",
-            "fanum tax",
-            "sigma",
-            "grimace shake",
-            "ohio",
-            "mewing",
-            "caseoh",
-            "fat",
-            "ugly",
-            "dickhead",
-            "dick",
-            "pussy",
-            "bruh",
-            "stfu",
-            "sthu",
-            "hola",
-            "i dont talk to negros",
-            "no thx",
-            "ur welcome",
-            "smth",
-            "ikr",
-            "hate",
-            "dont like",
-            "lol",
-            "same",
-            "shortie",
-            "shorty",
-            "crazy",
-            "teaming",
-            "that",
-            "you",
-            "u",
-            "i",
-            "me",
-            "everyone",
-            "admitted",
-            "asked",
-            "when",
-            "what",
-            "where",
-            "why",
-            "how",
-            "skibidi",
-            "no",
-            "nope",
-            "faster",
-            "stronger",
-            "better",
-            "better",
-            "better",
-            "better",
-            "better",
-            "didnt",
-            "great",
-            "ground",
-            "coded",
-            "1v1",
-            "MAD",
-            "cook",
-            "ate",
-            "roar",
-            "uwu",
-            "sed",
-            "sad"
         ],
         "1139807526062411837": [
             "hi",
@@ -322,6 +272,35 @@
             "cat",
             "off topic",
             "bot"
+        ],
+        "1268482750550376458": [
+            "monkey",
+            "fat",
+            "bitch",
+            "fuck",
+            "pig",
+            "the",
+            "man",
+            "smh",
+            "mom",
+            "hate",
+            "dick, cock, pussy"
+        ],
+        "1221223001199083643": [
+            "gay",
+            "bitch",
+            "faggot",
+            "and",
+            "slut",
+            "oh",
+            "no",
+            "your",
+            "stop",
+            "scared",
+            "dick"
+        ],
+        "898056876510564383": [
+            "bailed"
         ]
     },
     "user_custom_styles": {
@@ -352,7 +331,7 @@
             "924728966739279882"
         ],
         "934644448187539517": [
-            "1139231743682019408"
+            "1266099301529161799"
         ],
         "1175923285314252870": [
             "1175923286312484977"
