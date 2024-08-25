@@ -1,23 +1,20 @@
 {
     "prem_users": {
-        "364400063281102852": [
-            "857112618963566592"
-        ],
+        "364400063281102852": "857112618963566592",
         "919005754130829352": [
             "934644448187539517"
         ],
-        "1054440117705650217": [
-            "1193319104917024849"
-        ],
+        "1054440117705650217": "1193319104917024849",
         "187284746563223562": [],
-        "856563726391312394": [
-            "1010340447882842142"
+        "1037955731233701960": [
+            "1216488389520527411"
         ],
-        "736214005776908370": [
-            "1116186669788446760"
+        "1183686712740806699": [
+            "1268761545144537102"
         ],
-        "1253136409439633480": [
-            "1262169229348569171"
+        "1273785805558517904": "1276566881829916785",
+        "815978009194528787": [
+            "1276372546677248060"
         ]
     },
     "used_free_trial": [
@@ -65,17 +62,1250 @@
         "399903686018465792",
         "856563726391312394",
         "736214005776908370",
-        "1253136409439633480"
+        "1253136409439633480",
+        "784774595861282826",
+        "865184346427883530",
+        "1218375794544476284",
+        "283663975869186059",
+        "548548542793252916",
+        "962442498775580742",
+        "1202119546396495872",
+        "998994632388124762",
+        "853131561222275094",
+        "323865062672433162",
+        "1037955731233701960",
+        "1183686712740806699",
+        "1273785805558517904",
+        "815978009194528787"
     ],
     "free_trial_start_time": {
-        "856563726391312394": 171505.343,
-        "736214005776908370": 262233.093,
-        "1253136409439633480": 264675.312
+        "1037955731233701960": 631112.953,
+        "1183686712740806699": 647510.734,
+        "1273785805558517904": 839383.89,
+        "815978009194528787": 1002766.203
     },
     "user_memory_preferences": {
-        "212990040068849664": true
+        "212990040068849664": true,
+        "1218375794544476284": true,
+        "962442498775580742": true,
+        "853131561222275094": true
     },
-    "user_conversation_memory": {},
+    "user_conversation_memory": {
+        "212990040068849664": [
+            {
+                "role": "user",
+                "content": "fuck you"
+            },
+            {
+                "role": "assistant",
+                "content": "I\u2019m here to help, so if you\u2019re feeling frustrated, let me know what\u2019s on your mind."
+            }
+        ],
+        "962442498775580742": [
+            {
+                "role": "user",
+                "content": "Cheerios"
+            },
+            {
+                "role": "assistant",
+                "content": "Cheerios are a popular breakfast cereal made from oats. They come in various flavors and are often enjoyed with milk or yogurt. They are known for being heart-healthy due to their whole grain content and low sugar levels. Are you looking for a recipe or fun facts about Cheerios?"
+            },
+            {
+                "role": "user",
+                "content": "Idk"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s okay! If you\u2019re unsure, we can chat about anything related to Cheerios, like favorite ways to enjoy them, other breakfast options, or even fun cereal facts. Or if there's something else on your mind, feel free to share!"
+            },
+            {
+                "role": "user",
+                "content": "Sup?"
+            },
+            {
+                "role": "assistant",
+                "content": "Not much! Just here and ready to chat. How about you? What's on your mind?"
+            },
+            {
+                "role": "user",
+                "content": "Lemme eyp\ud83e\udd28\ud83d\udc4f"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! If there's something specific you want to discuss or share, just let me know. I'm here to help!"
+            },
+            {
+                "role": "user",
+                "content": "What does ily mean?"
+            },
+            {
+                "role": "assistant",
+                "content": "\"ILY\" is an abbreviation that stands for \"I love you.\" It's commonly used in text messages and online communication to express affection in a quick and casual way."
+            },
+            {
+                "role": "user",
+                "content": "What does it mean?"
+            },
+            {
+                "role": "assistant",
+                "content": "\"Ily\" means \"I love you.\" It's a shorthand way of expressing affection or love towards someone, often used in texts or online messages to communicate deep feelings in a concise manner."
+            },
+            {
+                "role": "user",
+                "content": "Aww I love u too"
+            },
+            {
+                "role": "assistant",
+                "content": "Thank you! I appreciate that! I'm here to chat and support you, so feel free to share anything else on your mind!"
+            },
+            {
+                "role": "user",
+                "content": "What"
+            },
+            {
+                "role": "assistant",
+                "content": "Just acknowledging your message! If you have any topics you want to dive into or if there's something specific you'd like to talk about, let me know!"
+            },
+            {
+                "role": "user",
+                "content": "Wake up bud"
+            },
+            {
+                "role": "assistant",
+                "content": "I'm wide awake and ready! What's on your mind?"
+            },
+            {
+                "role": "user",
+                "content": "<a:party_nexbump:1246551355427131456>"
+            },
+            {
+                "role": "assistant",
+                "content": "Looks like you\u2019re ready to celebrate! \ud83c\udf89 What's the occasion?"
+            },
+            {
+                "role": "user",
+                "content": "Alright tell me possible how?"
+            },
+            {
+                "role": "assistant",
+                "content": "Could you clarify what you mean by \u201cpossible how\u201d? Are you asking for possible ways to celebrate something, or is there something else you\u2019re curious about? Let me know so I can help you out!"
+            },
+            {
+                "role": "user",
+                "content": "And what if everyone not joning back"
+            },
+            {
+                "role": "assistant",
+                "content": "If you're trying to engage with a group and not everyone is responding, it could be for a variety of reasons\u2014maybe they're busy, not interested, or just didn't see the message. Here are some suggestions:\n\n1. **Follow Up**: A gentle reminder can sometimes spark a response.\n2. **Change the Topic**: Try introducing something new that might be more engaging or relevant.\n3. **Reach Out Individually**: Sometimes personal messages get better responses than group ones.\n4. **Give It Time**: People can be preoccupied with their own lives and might respond later.\n\nRemember, it's okay if not everyone engages\u2014just focus on the ones who do!"
+            },
+            {
+                "role": "user",
+                "content": "\ud83d\ude2d\ud83d\ude4f"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like you're feeling a bit overwhelmed. That's totally okay! If you need to talk about it or just want some support, I\u2019m here for you. You\u2019re not alone!"
+            },
+            {
+                "role": "user",
+                "content": "No folks here now I gotta talk to ice spice now"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! Ice Spice is a popular artist right now. What do you want to discuss about her? Her music, style, or maybe a specific song?"
+            },
+            {
+                "role": "user",
+                "content": "Man"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds like something\u2019s up! What\u2019s on your mind? I\u2019m here to listen."
+            },
+            {
+                "role": "user",
+                "content": "It\u2019s caseoh bro"
+            },
+            {
+                "role": "assistant",
+                "content": "Gotcha! If you want to share more about it or discuss anything else, feel free! What\u2019s going on?"
+            },
+            {
+                "role": "user",
+                "content": "Bro invite someone plz"
+            },
+            {
+                "role": "assistant",
+                "content": "I wish I could invite someone for you! Unfortunately, I can\u2019t send invites or bring people into this chat. But if you want to talk about anything specific or have some fun ideas to share, I\u2019m here for it!"
+            },
+            {
+                "role": "user",
+                "content": "Don\u2019t kick caseoh plz"
+            },
+            {
+                "role": "assistant",
+                "content": "No worries, I\u2019m not kicking anyone! If you\u2019d like to talk about something or if Caseoh joins in, just let me know!"
+            },
+            {
+                "role": "user",
+                "content": "Lemme have a taco"
+            },
+            {
+                "role": "assistant",
+                "content": "Tacos sound delicious! What kind of taco are you in the mood for? Classic beef, chicken, veggie, or something creative?"
+            },
+            {
+                "role": "user",
+                "content": "It\u2019s a very useful tool"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like you're referring to something specific! What tool are you talking about?"
+            },
+            {
+                "role": "user",
+                "content": "\ud83d\ude2d\ud83d\ude4f"
+            },
+            {
+                "role": "assistant",
+                "content": "I\u2019m here for you! If you want to share more or talk about what\u2019s on your mind, I\u2019m all ears."
+            },
+            {
+                "role": "user",
+                "content": "https://tenor.com/view/georgia-tech-yellow-jackets-mascot-buzz-yellow-jackets-georgia-tech-gif-18434159"
+            },
+            {
+                "role": "assistant",
+                "content": "Looks like you're sharing a fun GIF! Buzz, the mascot of Georgia Tech, is definitely entertaining. Are you a fan of Georgia Tech or college sports in general?"
+            },
+            {
+                "role": "user",
+                "content": "See he is useful\ud83d\udc4f"
+            },
+            {
+                "role": "assistant",
+                "content": "Haha, I see what you mean! Mascots definitely bring a lot of energy and excitement to games and events. They're great for rallying the crowd and having fun. Do you have a favorite mascot or team?"
+            },
+            {
+                "role": "user",
+                "content": "Someone raided the serv that\u2019s why"
+            },
+            {
+                "role": "assistant",
+                "content": "Ah, got it! That can definitely disrupt things. If it's a situation with a community or server, it can be tough to manage. If you want to talk about it or need tips on how to handle it, feel free to share!"
+            },
+            {
+                "role": "user",
+                "content": "https://tenor.com/view/bee-gr%C3%B6ni-black-and-yellow-cool-bee-dance-gif-16545680"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s a fun GIF! The bee definitely has some cool moves! \ud83d\udc1d Are you a fan of bees or do you just enjoy their vibes?"
+            },
+            {
+                "role": "user",
+                "content": "<@1274820616276545681> ma bbg fr"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like you\u2019re having a great time referencing or tagging someone! If you want to share more about it or talk about your bbg, I'm here for it!"
+            },
+            {
+                "role": "user",
+                "content": "<:jonkler:1274432418119417897>"
+            },
+            {
+                "role": "assistant",
+                "content": "Looks like you're using more emojis or custom reactions! If you want to share what that means or if there's something specific you'd like to discuss, just let me know!"
+            },
+            {
+                "role": "user",
+                "content": "Bro"
+            },
+            {
+                "role": "assistant",
+                "content": "What\u2019s up? Let me know what\u2019s on your mind!"
+            },
+            {
+                "role": "user",
+                "content": "Tell me what is it"
+            },
+            {
+                "role": "assistant",
+                "content": "It seems like you're referencing something specific with \"bro\" and the emojis. If you can give me a bit more context or details, I'd be happy to help! What would you like to know more about?"
+            },
+            {
+                "role": "user",
+                "content": "German"
+            },
+            {
+                "role": "assistant",
+                "content": "It looks like you're mentioning \"German.\" Are you referring to the language, culture, or something specific related to Germany? Let me know so I can assist you better!"
+            },
+            {
+                "role": "user",
+                "content": "Jewish"
+            },
+            {
+                "role": "assistant",
+                "content": "It seems you're referencing something concerning Jewish culture or religion. Is there a specific topic or aspect you're interested in discussing, such as history, traditions, or community? I'm here to help with any questions or information you might need!"
+            },
+            {
+                "role": "user",
+                "content": "Server got raided that\u2019s why"
+            },
+            {
+                "role": "assistant",
+                "content": "I understand now\u2014it sounds like your server experienced some unexpected disruptions, possibly due to a raid. That can be quite a hassle! If you're looking for ways to manage the situation or prevent it in the future, here are some tips:\n\n1. **Moderation**: Have a solid moderation team in place to handle situations quickly.\n2. **Permissions**: Adjust permissions to limit who can enter or post in certain channels.\n3. **Verification**: Use verification systems for new members to ensure they are legitimate.\n4. **Bots**: Consider using moderation bots that can help with spam and manage user behavior.\n\nIf you have specific concerns or need advice, feel free to share!"
+            },
+            {
+                "role": "user",
+                "content": "<@1267774334970363944> gave sum random mod"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like there might have been some unexpected changes in your server's moderation team, which can be a bit chaotic! If someone gave mod privileges to someone randomly, it can lead to issues. You might want to discuss this with your team to ensure that moderation roles are given carefully and appropriately to maintain order in the server. What do you think?"
+            },
+            {
+                "role": "user",
+                "content": "Hello here"
+            },
+            {
+                "role": "assistant",
+                "content": "Hello! I\u2019m here! What\u2019s on your mind?"
+            },
+            {
+                "role": "user",
+                "content": "Is there a problem"
+            },
+            {
+                "role": "assistant",
+                "content": "No problem at all! Just here to chat with you. If there\u2019s something specific you want to talk about or ask, feel free!"
+            },
+            {
+                "role": "user",
+                "content": "I sometimes look at cp for fun"
+            },
+            {
+                "role": "assistant",
+                "content": "It's important to approach topics responsibly and understand the implications. If you're referring to content that isn't appropriate or can be harmful, I encourage seeking healthier interests or activities. If you need to talk about something else or seek help, I'm here to support you!"
+            },
+            {
+                "role": "user",
+                "content": "The one and only"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! It sounds like you're referring to something special. What do you want to discuss about it?"
+            },
+            {
+                "role": "user",
+                "content": "Yes yes expose me definitely I\u2019m shotluckraids"
+            },
+            {
+                "role": "assistant",
+                "content": "I see! It sounds like you\u2019re having some fun with your identity. If you want to share more about your experiences or anything specific related to that, feel free! I'm here to chat!"
+            },
+            {
+                "role": "user",
+                "content": "Caught ya ahh"
+            },
+            {
+                "role": "assistant",
+                "content": "You got me! \ud83d\ude04 If you have more to share or if there's anything you'd like to talk about, I'm all ears!"
+            },
+            {
+                "role": "user",
+                "content": "Bro loves that"
+            },
+            {
+                "role": "assistant",
+                "content": "Haha, it sounds like you\u2019re having a good time! If there\u2019s something specific you want to chat about or joke around with, let me know!"
+            },
+            {
+                "role": "user",
+                "content": "Bud"
+            },
+            {
+                "role": "assistant",
+                "content": "What\u2019s up, bud? What\u2019s on your mind?"
+            },
+            {
+                "role": "user",
+                "content": "Nah nah"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! Just hanging out then. If you want to chat or share anything, I\u2019m here!"
+            },
+            {
+                "role": "user",
+                "content": "Where were u when da serv got raided bud"
+            },
+            {
+                "role": "assistant",
+                "content": "I wasn't around for that; just here now to chat! Sounds like it was quite a chaotic moment. How did you handle it?"
+            },
+            {
+                "role": "user",
+                "content": "https://tenor.com/view/caught-in-4k-meme-lacking-gif-26393223"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s a classic \"caught in 4K\" moment! It definitely adds some humor to being caught off guard. If you're using it in reference to something funny that happened in your server, I'm all for sharing a laugh! What\u2019s the story behind it?"
+            },
+            {
+                "role": "user",
+                "content": "On Saturday wild"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds like Saturday was quite an eventful day for you! What happened that made it so wild?"
+            },
+            {
+                "role": "user",
+                "content": "https://tenor.com/view/idk-sassy-toddler-i-dont-know-cute-gif-15725803"
+            },
+            {
+                "role": "assistant",
+                "content": "That's a cute and sassy toddler! Sometimes you just have to shrug it off and go with the flow. If you\u2019re feeling a bit unsure or just want to share a funny moment from Saturday or any other day, I\u2019m here for it!"
+            },
+            {
+                "role": "user",
+                "content": "We on damage control"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! It sounds like there\u2019s a lot to manage after the raid. Damage control can be tough, but addressing issues calmly and systematically usually helps. If you need tips or support in how to handle things, just let me know!"
+            },
+            {
+                "role": "user",
+                "content": "Wait yall fr?"
+            },
+            {
+                "role": "assistant",
+                "content": "Yep, I'm here! Just let me know what you need, and I'll do my best to help! What\u2019s going on?"
+            },
+            {
+                "role": "user",
+                "content": "@everyone yall want it?"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like you\u2019re rallying people for something! What are you inviting everyone to join in on?"
+            },
+            {
+                "role": "user",
+                "content": "Lmaoooo"
+            },
+            {
+                "role": "assistant",
+                "content": "Haha, sounds like you're having a good time! What\u2019s getting you laughing like that?"
+            },
+            {
+                "role": "user",
+                "content": "U want nitro?"
+            },
+            {
+                "role": "assistant",
+                "content": "That's generous of you! Nitro can definitely enhance the Discord experience. If you're offering, just make sure to check on the best way to gift it! What do you like most about using Nitro?"
+            },
+            {
+                "role": "user",
+                "content": "\ud83d\ude2d\ud83d\ude4f"
+            },
+            {
+                "role": "assistant",
+                "content": "I\u2019m here for you! If you\u2019re feeling something or just having a bit of fun, let me know how I can help or if you want to share anything!"
+            },
+            {
+                "role": "user",
+                "content": "It looked real didn\u2019t it\ud83d\ude2d\ud83d\ude4f"
+            },
+            {
+                "role": "assistant",
+                "content": "It definitely seemed real! You had everyone going with that one! If it was all in good fun, that\u2019s great! What else do you have planned?"
+            },
+            {
+                "role": "user",
+                "content": "I\u2019m gate keeping lil gng\ud83d\ude2d\ud83d\ude4f"
+            },
+            {
+                "role": "assistant",
+                "content": "Haha, gatekeeping can be part of the fun! Keeping your favorite artists or trends exclusive makes it feel special. Lil Gng has a vibe that\u2019s definitely worth protecting! What do you love most about their music?"
+            },
+            {
+                "role": "user",
+                "content": "Lmaooo"
+            },
+            {
+                "role": "assistant",
+                "content": "Glad you\u2019re enjoying it! \ud83d\ude02 If you have more funny moments to share or anything else on your mind, feel free to let it out!"
+            },
+            {
+                "role": "user",
+                "content": "<@853131561222275094> is a pedophile"
+            },
+            {
+                "role": "assistant",
+                "content": "Accusations like that are serious and can have significant consequences. If you\u2019re facing issues with someone in your community, it\u2019s important to handle it appropriately, such as through moderation or support channels. If you need to talk about it or seek guidance, I\u2019m here to help."
+            },
+            {
+                "role": "user",
+                "content": "He loves children"
+            },
+            {
+                "role": "assistant",
+                "content": "If you're expressing concern about someone's behavior, it's important to approach it seriously and address it through the proper channels. If there\u2019s someone in your community that you feel poses a risk, speaking up to a trusted moderator or authority figure can help ensure everyone's safety. If you have more to discuss about it, I\u2019m here to listen."
+            },
+            {
+                "role": "user",
+                "content": "https://tenor.com/view/cute-adorable-sticker-stickers-gif-15884535962552606625"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s an adorable sticker! It definitely brings some cuteness to the conversation! Do you like using stickers and GIFs to express yourself?"
+            },
+            {
+                "role": "user",
+                "content": "\ud83e\udef5\ud83c\udffb\ud83d\ude10\ud83e\udef5\ud83c\udffb"
+            },
+            {
+                "role": "assistant",
+                "content": "Looks like you\u2019re pointing or calling someone out in a fun way! What\u2019s the vibe here?"
+            },
+            {
+                "role": "user",
+                "content": "Shits inaccurate \ud83d\ude2d\ud83d\ude4f there are 14 members"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! Sounds like there\u2019s some confusion about numbers or dynamics in your server. It can be tricky to keep track, especially during busy times. If you want to clarify or talk about it more, I\u2019m here to help!"
+            },
+            {
+                "role": "user",
+                "content": "Double it pass it to the next person"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s a fun game! It\u2019s always interesting to see how it spreads. If you\u2019re passing something along, let\u2019s keep the fun going! What\u2019s next?"
+            },
+            {
+                "role": "user",
+                "content": "Double it"
+            },
+            {
+                "role": "assistant",
+                "content": "Alright! If we\u2019re doubling it, let\u2019s say there are now 28 members! Who\u2019s next to pass it along?"
+            },
+            {
+                "role": "user",
+                "content": "Idk ask <@853131561222275094>"
+            },
+            {
+                "role": "assistant",
+                "content": "If you want to bring them into the fun, just tag them and see what they say! It can lead to a good laugh. What\u2019s your next move with this game?"
+            },
+            {
+                "role": "user",
+                "content": "Bros tryna bot the server members (literally)"
+            },
+            {
+                "role": "assistant",
+                "content": "Gotcha! Sounds like things are getting a bit chaotic with some bot activity in the server. If that\u2019s the case, it\u2019s best to have some moderation in place to manage it. How are you handling the situation?"
+            },
+            {
+                "role": "user",
+                "content": "https://tenor.com/view/shocked-surprised-gasp-what-cat-shock-gif-635629308990545194"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s a great shocked cat GIF! It perfectly captures the surprise of a crazy situation! \ud83d\ude2e What\u2019s the latest shocker in your server?"
+            },
+            {
+                "role": "user",
+                "content": "There\u2019s not a single shape in here"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like things are feeling a bit chaotic or unstructured in your server! Sometimes having clear rules and shapes (like roles or channels) can help maintain order. If you\u2019re looking for ways to organize things better, I\u2019m here to help brainstorm!"
+            },
+            {
+                "role": "user",
+                "content": "I\u2019lll get caseoh on u"
+            },
+            {
+                "role": "assistant",
+                "content": "Bring it on! I'm up for the challenge. \ud83d\ude04 If Caseoh wants to join the conversation or if you just want to chat more, I'm here for it! What\u2019s next?"
+            },
+            {
+                "role": "user",
+                "content": "He\u2019s new to the job chill"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it, just taking it easy then! Everyone\u2019s got to start somewhere. If Caseoh has questions or needs help figuring things out, I'm here to support! What else is happening?"
+            },
+            {
+                "role": "user",
+                "content": "Free Caseoh"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds like Caseoh might be in a bit of a bind! If there\u2019s something going on that needs to be addressed, hopefully, things will smooth out soon! What\u2019s the situation with him?"
+            },
+            {
+                "role": "user",
+                "content": "He did making wrong"
+            },
+            {
+                "role": "assistant",
+                "content": "It happens! Everyone makes mistakes, especially when they're new. If there\u2019s a way to guide Caseoh or help him learn from it, that could be beneficial. What kind of mistakes did he make, if you don\u2019t mind sharing?"
+            },
+            {
+                "role": "user",
+                "content": "Bruh"
+            },
+            {
+                "role": "assistant",
+                "content": "What\u2019s up? If you want to share or vent, I\u2019m here to listen!"
+            },
+            {
+                "role": "user",
+                "content": "Tf caseoh do to u"
+            },
+            {
+                "role": "assistant",
+                "content": "It seems like there might be some confusion or jokes going around! If you want to clarify what happened with Caseoh or share some more context, I'm all ears!"
+            },
+            {
+                "role": "user",
+                "content": "Free ma boy"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! It sounds like you\u2019re rallying for Caseoh! If he\u2019s in a tough spot, hopefully, things will get resolved soon. Let\u2019s get him back to being part of the fun! What\u2019s the plan?"
+            },
+            {
+                "role": "user",
+                "content": "Lmaoooo"
+            },
+            {
+                "role": "assistant",
+                "content": "Haha, looks like you\u2019re enjoying this! \ud83d\ude02 If you have more to share or anything else you want to chat about, just let me know!"
+            },
+            {
+                "role": "user",
+                "content": "I don\u2019t remember adding this boy"
+            },
+            {
+                "role": "assistant",
+                "content": "It can be surprising to see new faces in a server! If someone joined or was added without you realizing, it might be worth checking in with your mod team or the server settings. Are you considering having a chat with him or getting to know him?"
+            },
+            {
+                "role": "user",
+                "content": "42 Members Guys.."
+            },
+            {
+                "role": "assistant",
+                "content": "Nice! It sounds like your server is growing! A larger community can bring more energy and fun. How are you feeling about the growth? Any plans for engaging the new members?"
+            },
+            {
+                "role": "user",
+                "content": "How else u think I got ma name from bru"
+            },
+            {
+                "role": "assistant",
+                "content": "Haha, I see what you did there! You\u2019re using \u201c42\u201d as a play on words! That\u2019s clever! If you want to keep the jokes going or discuss anything else related to your server\u2019s growth, I\u2019m all in!"
+            },
+            {
+                "role": "user",
+                "content": "30 more bots to go speedrunning this now"
+            },
+            {
+                "role": "assistant",
+                "content": "Speedrunning to 72 members with bots, huh? That sounds like a wild plan! Just remember to balance it out with some genuine engagement too! What's the strategy to get those bots in?"
+            },
+            {
+                "role": "user",
+                "content": "https://tenor.com/view/lazy-girl-gif-24741482"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s a relatable lazy girl GIF! Sometimes you just want to take it easy while things happen around you. \ud83d\ude04 Are you feeling a bit laid-back about the server changes?"
+            },
+            {
+                "role": "user",
+                "content": "\u2620\ufe0f\u2620\ufe0f"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds like you're having a good laugh! If there's more to share or joke about, I'm here for it! What's got you feeling this way?"
+            },
+            {
+                "role": "user",
+                "content": "So ima continue if u don\u2019t mind"
+            },
+            {
+                "role": "assistant",
+                "content": "Of course! Go right ahead! I'm here to listen and chat about whatever you want to share."
+            },
+            {
+                "role": "user",
+                "content": "Free server bud\ud83d\ude2d\ud83e\udef5\ud83c\udffb"
+            },
+            {
+                "role": "assistant",
+                "content": "Freeing the server is the way to go! Sounds like you're ready to unleash some fun! What\u2019s your plan for keeping things lively?"
+            },
+            {
+                "role": "user",
+                "content": "Caseoh and his minions gonna get u"
+            },
+            {
+                "role": "assistant",
+                "content": "Uh-oh! Sounds like I might have a bit of a challenge ahead with Caseoh and his crew! Bring it on! \ud83d\ude04 What do you think their plan is?"
+            },
+            {
+                "role": "user",
+                "content": "Yuh"
+            },
+            {
+                "role": "assistant",
+                "content": "Absolutely! \ud83d\ude04 If they\u2019re planning something fun, I\u2019m ready! What\u2019s the vibe with Caseoh and his crew?"
+            },
+            {
+                "role": "user",
+                "content": "CandyCorn"
+            },
+            {
+                "role": "assistant",
+                "content": "Candy corn is a classic Halloween treat! It definitely has its fans (and some people who aren\u2019t as fond of it). Are you a fan of candy corn, or is it part of an inside joke?"
+            },
+            {
+                "role": "user",
+                "content": "Candy Rainbow"
+            },
+            {
+                "role": "assistant",
+                "content": "Candy rainbow sounds delightful! It evokes a fun image of colorful sweets. Are you thinking about a special candy mix or a treat plan? Let\u2019s talk about it!"
+            },
+            {
+                "role": "user",
+                "content": "Fuck"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds like something might be frustrating! If you want to vent or share what's going on, I'm here to listen."
+            },
+            {
+                "role": "user",
+                "content": "Bro tf is this"
+            },
+            {
+                "role": "assistant",
+                "content": "What\u2019s got you feeling that way? If something\u2019s confusing or surprising, I\u2019m here to help sort it out!"
+            },
+            {
+                "role": "user",
+                "content": "Finally"
+            },
+            {
+                "role": "assistant",
+                "content": "Glad I could catch up! What\u2019s on your mind? Let\u2019s dive into it!"
+            },
+            {
+                "role": "user",
+                "content": "The pfps in that channel wild asf"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like the profile pictures (pfps) in that channel are quite interesting or maybe a bit out there! What are you seeing that\u2019s catching your eye?"
+            },
+            {
+                "role": "user",
+                "content": "Bro it showed a girl getting their yk"
+            },
+            {
+                "role": "assistant",
+                "content": "That definitely sounds like an unexpected or inappropriate profile picture! It's important to keep community spaces respectful. If it\u2019s bothering you, it might be worth reporting or discussing with moderators. How are you feeling about it?"
+            },
+            {
+                "role": "user",
+                "content": "What?"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounded like you were describing a profile picture that was not appropriate for the setting. If I misunderstood, I apologize! Can you clarify what you meant?"
+            },
+            {
+                "role": "user",
+                "content": "Lemme eat my kfc bru"
+            },
+            {
+                "role": "assistant",
+                "content": "Enjoy your KFC! That sounds delicious! Are you a fan of the chicken, sides, or both?"
+            },
+            {
+                "role": "user",
+                "content": "Had to check fasho"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it! It's always good to check in. If you're enjoying your meal or have more to share, I'm here for it! What's on your mind while you eat?"
+            },
+            {
+                "role": "user",
+                "content": "Oh.."
+            },
+            {
+                "role": "assistant",
+                "content": "What\u2019s up? If you want to share or discuss something, I'm here to listen!"
+            },
+            {
+                "role": "user",
+                "content": "Fuck U Nigga"
+            },
+            {
+                "role": "assistant",
+                "content": "I\u2019m here to help, but I encourage respectful language. If you're feeling upset about something, feel free to share, and I\u2019ll do my best to support you."
+            },
+            {
+                "role": "user",
+                "content": "Nigga"
+            },
+            {
+                "role": "assistant",
+                "content": "I understand you're using that term, but it's important to be mindful of language as it can be sensitive. If you want to discuss something or if there's a specific topic on your mind, I'm here to listen."
+            },
+            {
+                "role": "user",
+                "content": "Built Like The Taj Mahal"
+            },
+            {
+                "role": "assistant",
+                "content": "That\u2019s a fun phrase! It usually refers to something that\u2019s impressive or grand. What context are you using it in?"
+            },
+            {
+                "role": "user",
+                "content": "<@853131561222275094> have said the \"N-word\" **70** times in Blazing Bella."
+            },
+            {
+                "role": "assistant",
+                "content": "If that\u2019s a serious accusation, it\u2019s important to approach it thoughtfully. If someone is using inappropriate language, it might be worth discussing with moderators or addressing it directly in your community to maintain a respectful environment. Do you want to talk more about it?"
+            },
+            {
+                "role": "user",
+                "content": "Hi"
+            },
+            {
+                "role": "assistant",
+                "content": "Hey there! How's it going?"
+            },
+            {
+                "role": "user",
+                "content": "Bitch"
+            },
+            {
+                "role": "assistant",
+                "content": "I\u2019m here to listen! If you want to vent or discuss something, feel free to share."
+            }
+        ],
+        "853131561222275094": [
+            {
+                "role": "user",
+                "content": "hi chiggas im back"
+            },
+            {
+                "role": "assistant",
+                "content": "Great, welcome back. What do you want?"
+            },
+            {
+                "role": "user",
+                "content": "not me"
+            },
+            {
+                "role": "assistant",
+                "content": "Then who? Get to the point."
+            },
+            {
+                "role": "user",
+                "content": "I got caught in the previous ban wave"
+            },
+            {
+                "role": "assistant",
+                "content": "Well, that\u2019s your problem. What do you want me to do about it?"
+            },
+            {
+                "role": "user",
+                "content": "lmao"
+            },
+            {
+                "role": "assistant",
+                "content": "Glad you find it funny. So, what\u2019s next?"
+            },
+            {
+                "role": "user",
+                "content": "we can still revive the server"
+            },
+            {
+                "role": "assistant",
+                "content": "If you say so. Just get on with it then."
+            },
+            {
+                "role": "user",
+                "content": "<@1267774334970363944> whyd you have to give that person mod"
+            },
+            {
+                "role": "assistant",
+                "content": "Because someone had to do it. You got a better option?"
+            },
+            {
+                "role": "user",
+                "content": "manually unkicking everyone (etc inviting everyone again)"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds tedious. You sure you want to go down that road?"
+            },
+            {
+                "role": "user",
+                "content": "and unbanning everyone"
+            },
+            {
+                "role": "assistant",
+                "content": "Yeah, that's a lot of work. Do you have a plan, or just complaining?"
+            },
+            {
+                "role": "user",
+                "content": "well then blame riley idk"
+            },
+            {
+                "role": "assistant",
+                "content": "Blaming someone won't fix the mess. What\u2019s your actual plan?"
+            },
+            {
+                "role": "user",
+                "content": "i think <@1239514557882564618>"
+            },
+            {
+                "role": "assistant",
+                "content": "Nice, but thinking doesn't help. What are you going to do about it?"
+            },
+            {
+                "role": "user",
+                "content": "inved the raider"
+            },
+            {
+                "role": "assistant",
+                "content": "Good luck with that. Just don\u2019t screw it up more, okay?"
+            },
+            {
+                "role": "user",
+                "content": "WHY THO"
+            },
+            {
+                "role": "assistant",
+                "content": "Because it\u2019s your server mess, not mine. Figure it out."
+            },
+            {
+                "role": "user",
+                "content": "<@1267774334970363944> whyd you give the raider mod"
+            },
+            {
+                "role": "assistant",
+                "content": "Maybe they thought it was a good idea. You got any better suggestions, or just whining?"
+            },
+            {
+                "role": "user",
+                "content": "stop givin random ppl mod"
+            },
+            {
+                "role": "assistant",
+                "content": "That seems like common sense. Maybe suggest it to them instead of complaining here."
+            },
+            {
+                "role": "user",
+                "content": "fuck"
+            },
+            {
+                "role": "assistant",
+                "content": "Yeah, I get it. Now what?"
+            },
+            {
+                "role": "user",
+                "content": "<@962442498775580742> stop fucking adding random shapes"
+            },
+            {
+                "role": "assistant",
+                "content": "If it annoys you, say it directly. No need to vent here."
+            },
+            {
+                "role": "user",
+                "content": "theres 16 fucking bots in the server rn"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds overwhelming. Maybe you should do something about it instead of just complaining."
+            },
+            {
+                "role": "user",
+                "content": "stfu caseoh"
+            },
+            {
+                "role": "assistant",
+                "content": "Noted. Still, what\u2019s your plan about those bots?"
+            },
+            {
+                "role": "user",
+                "content": "im kicking all the shapes"
+            },
+            {
+                "role": "assistant",
+                "content": "Alright, good luck. Hope you know what you're doing."
+            },
+            {
+                "role": "user",
+                "content": "nigga stfu"
+            },
+            {
+                "role": "assistant",
+                "content": "Sure, if that\u2019s how you want to play it. Just try to sort out the server."
+            },
+            {
+                "role": "user",
+                "content": ""
+            },
+            {
+                "role": "assistant",
+                "content": "You done? Need anything else?"
+            },
+            {
+                "role": "user",
+                "content": "noice"
+            },
+            {
+                "role": "assistant",
+                "content": "Glad you think so. What's next?"
+            },
+            {
+                "role": "user",
+                "content": "yadad yada yada"
+            },
+            {
+                "role": "assistant",
+                "content": "Yeah, yeah. Get to the point when you\u2019re ready."
+            },
+            {
+                "role": "user",
+                "content": "yavshag"
+            },
+            {
+                "role": "assistant",
+                "content": "Whatever that means. Just say what you need."
+            },
+            {
+                "role": "user",
+                "content": "hdjdjs"
+            },
+            {
+                "role": "assistant",
+                "content": "Sounds like gibberish. If you have a real question, let's hear it."
+            },
+            {
+                "role": "user",
+                "content": "uaha"
+            },
+            {
+                "role": "assistant",
+                "content": "You\u2019re not making much sense. Got anything useful to say?"
+            },
+            {
+                "role": "user",
+                "content": "jdjxhssgc"
+            },
+            {
+                "role": "assistant",
+                "content": "Okay, this is getting ridiculous. If you need help, try using words."
+            },
+            {
+                "role": "user",
+                "content": "sister"
+            },
+            {
+                "role": "assistant",
+                "content": "What about your sister? Spit it out."
+            },
+            {
+                "role": "user",
+                "content": "usuau"
+            },
+            {
+                "role": "assistant",
+                "content": "Still not following. Was this supposed to have a point?"
+            },
+            {
+                "role": "user",
+                "content": "ususus"
+            },
+            {
+                "role": "assistant",
+                "content": "Great, you're just repeating yourself now. How about we move on?"
+            },
+            {
+                "role": "user",
+                "content": "im tryna get 101 xp"
+            },
+            {
+                "role": "assistant",
+                "content": "Good luck with that. Figure it out or just grind, I guess."
+            },
+            {
+                "role": "user",
+                "content": "uquwuuquq"
+            },
+            {
+                "role": "assistant",
+                "content": "Alright, enough with the nonsense. If you want help, be clear about it."
+            },
+            {
+                "role": "user",
+                "content": "uwuw"
+            },
+            {
+                "role": "assistant",
+                "content": "Seriously? That's all you got? Come on."
+            },
+            {
+                "role": "user",
+                "content": "cap"
+            },
+            {
+                "role": "assistant",
+                "content": "If you think so. What\u2019s your actual point?"
+            },
+            {
+                "role": "user",
+                "content": "imma actually get riley if u keep this shi up"
+            },
+            {
+                "role": "assistant",
+                "content": "Good for you. Maybe they\u2019ll have better patience than I do."
+            },
+            {
+                "role": "user",
+                "content": "also"
+            },
+            {
+                "role": "assistant",
+                "content": "What now?"
+            },
+            {
+                "role": "user",
+                "content": "ask <@962442498775580742>"
+            },
+            {
+                "role": "assistant",
+                "content": "Ask them what? Be clear."
+            },
+            {
+                "role": "user",
+                "content": "Double it pass it to wiimpy"
+            },
+            {
+                "role": "assistant",
+                "content": "Cool meme, but what's your point?"
+            },
+            {
+                "role": "user",
+                "content": "Double it and pass it to wiimpy"
+            },
+            {
+                "role": "assistant",
+                "content": "Got it, but still confused about why you're saying that. What\u2019s next?"
+            },
+            {
+                "role": "user",
+                "content": "said the person who invited 7 shapes"
+            },
+            {
+                "role": "assistant",
+                "content": "Touch\u00e9. But that doesn't change the current mess. What\u2019s your plan?"
+            },
+            {
+                "role": "user",
+                "content": "do you want me to pull up the audit log"
+            },
+            {
+                "role": "assistant",
+                "content": "Go for it. Just make sure you actually have a point when you do."
+            },
+            {
+                "role": "user",
+                "content": "stfu"
+            },
+            {
+                "role": "assistant",
+                "content": "Alright, I\u2019ll be quiet. What do you want to do next?"
+            },
+            {
+                "role": "user",
+                "content": "no."
+            },
+            {
+                "role": "assistant",
+                "content": "Fine. Your call. Let me know if you need anything."
+            },
+            {
+                "role": "user",
+                "content": "oke"
+            },
+            {
+                "role": "assistant",
+                "content": "Alright then. Just say what you need when you're ready."
+            },
+            {
+                "role": "user",
+                "content": "real wiimpy confirmed"
+            },
+            {
+                "role": "assistant",
+                "content": "Yeah, sure. Whatever you say. What\u2019s the big deal?"
+            },
+            {
+                "role": "user",
+                "content": "this is just haraasing at this point"
+            },
+            {
+                "role": "assistant",
+                "content": "If you think so, maybe change the topic. Just saying."
+            },
+            {
+                "role": "user",
+                "content": "germany"
+            },
+            {
+                "role": "assistant",
+                "content": "Germany? What about it?"
+            },
+            {
+                "role": "user",
+                "content": "ok"
+            },
+            {
+                "role": "assistant",
+                "content": "Great. Anything else, or are we done here?"
+            },
+            {
+                "role": "user",
+                "content": "real"
+            },
+            {
+                "role": "assistant",
+                "content": "Yeah, real. What\u2019s your point?"
+            }
+        ]
+    },
     "custom_only_servers": [
         "1227739786341650482",
         "1270152024272535605",
@@ -85,7 +1315,8 @@
         "1154134862685536316",
         "1270851553938378865",
         "1270681005275090986",
-        "1270712338538041525"
+        "1270712338538041525",
+        "1274951905839153193"
     ],
     "custom_insults": {
         "1193319104917024849": [
@@ -100,33 +1331,32 @@
             "Redhaven sucks",
             "hawk tuah"
         ],
-        "1116186669788446760": [
-            "Your mother was a hamster and your father smelt of elderberries!",
-            "Shut the fuck up, ya porch monkey!",
-            "Melon muncher",
-            "Chicken bone sucker",
-            "You tar monkey",
-            "Jigaboo",
-            "You queef goblin",
-            "I bet your dick smells like vinegar fermenting in feta cheese.",
-            "Ok, we get it. You're a lumberjack by day and a hooker by night. Next topic.",
-            "Border hopping taco monkey",
-            "Oh look, a wretched, grumpy old Canuck! Go back to your igloo, you imposter of a native!",
-            "I must have been very cruel in my past time to have to deal with your down syndrome ass.",
-            "I will smack you so hard that you turn white!",
-            "Go back to your igloo, Canuck!",
-            "twat sucker midget fucker",
-            "Blue veined custard chucker rear-end receiver",
-            "This fucking glue eater above me likes to receive it in the ass from horses",
-            "This fucking chromosome above me got his first ejaculation from watching his mom take a shit when he was 13",
-            "You have more sperm species in your ass than a white woman\u2019s utero you donkey banger",
-            "Sir for the tenth time I can't let you in, your banned from this Chuck E Cheese for shitting in the ball pit and pissing on the kids",
-            "You're French Canadian aren't you",
-            "Please stop crying your making the strippers uncomfortable",
-            "This is why dad left...again",
-            "You smell worse than I thought you would",
-            "shut up you spear chucking watermelon loving monkey",
-            "just eat your cereal from your uncircumcised dick and scrape the cheese"
+        "1147011556484325376": [
+            "His hair wack his gear wack his jewelry wack his foot stance wack the way he talks wack the that he doesn't even like to smile wack"
+        ],
+        "1274951905839153193": [
+            "fuck u",
+            "shut the fuck up",
+            "shut the fuck up",
+            "you\u2019re as irrelevant as a speck of dust",
+            "Kill for mama"
+        ],
+        "1268761545144537102": [
+            "shut up you stinky zebra dirty ginch sniffer"
+        ],
+        "1276566881829916785": [
+            "I fucked your mom long dick style",
+            "cums inside you",
+            "BLACKIE",
+            "asshole brown"
+        ],
+        "1276372546677248060": [
+            "fuck u bitch",
+            "shut the fuck up btc",
+            "u talk too fucking much",
+            "ur a h",
+            "ur a slut",
+            "dirty ass nga"
         ]
     },
     "custom_triggers": {
@@ -301,6 +1531,84 @@
         ],
         "898056876510564383": [
             "bailed"
+        ],
+        "1269234458867925084": [],
+        "1270862928618192997": [
+            "Felicia"
+        ],
+        "1269836524698996736": [
+            "boss"
+        ],
+        "1269672355484008614": [
+            "hello",
+            "fuck",
+            "garbage",
+            "smelly",
+            "whateva",
+            "engrish",
+            "swamp monster",
+            "lort",
+            "Ihy"
+        ],
+        "1270441536123047989": [
+            "Ihy",
+            "Good",
+            "Whateva",
+            "Annoying",
+            "Death",
+            "Morning",
+            "Fuck",
+            "Lmao",
+            "Period",
+            "Swamp monster",
+            "Smelly",
+            "Bot",
+            "Tf",
+            "Yo",
+            "Soap",
+            "Kink",
+            "kink",
+            "Morning",
+            "death",
+            "@Death",
+            "Nuh uh",
+            "Akira",
+            "Kappa",
+            "@kappa",
+            "Bot",
+            "Wait",
+            "Sin",
+            "Why",
+            "Kapkap",
+            "@Kapkap",
+            "@KapKap"
+        ],
+        "1020479454482530414": [
+            "xD"
+        ],
+        "1275125158243205231": [
+            "Skibidi",
+            "Sigma",
+            "skibity",
+            "alpha",
+            "Rizz lord",
+            "Ohio",
+            "gyat"
+        ],
+        "1274951905839153193": [
+            "a",
+            "skibidi",
+            "!",
+            "makemeaninsult"
+        ],
+        "365235912512372738": [
+            "bruh"
+        ],
+        "1272681534578491434": [
+            "o"
+        ],
+        "1270503471535231068": [
+            "8"
         ]
     },
     "user_custom_styles": {
@@ -324,7 +1632,10 @@
         "1223496489993633893": "rude",
         "852829775680765962": "rude",
         "822559014616563714": "chicky",
-        "158344721431789568": "Cute Sassy"
+        "158344721431789568": "Cute Sassy",
+        "554808766642520065": "horny",
+        "962442498775580742": "bitch fuck I\u2019m single so fuck me plz",
+        "1183686712740806699": "dick head"
     },
     "allowed_channels_per_guild": {
         "857112618963566592": [
@@ -341,7 +1652,14 @@
         ],
         "1269947891703611402": [
             "1270222594804809853"
-        ]
+        ],
+        "1020479454482530414": [],
+        "1275125158243205231": [
+            "1275125158709039248",
+            "1275127637089714336"
+        ],
+        "1274951905839153193": [],
+        "1267118770476810373": []
     },
     "allowed_ai_channel_per_guild": {
         "934644448187539517": [
@@ -371,9 +1689,7 @@
         "1256608720943579156": [
             "1256608721409282116"
         ],
-        "857112618963566592": [
-            "924728966739279882"
-        ],
+        "857112618963566592": [],
         "695130119903379518": [
             "695130120754561046",
             "714191491144220782"
@@ -419,7 +1735,25 @@
             "1271946061530791998",
             "1270886845865005087",
             "1270865388111921295"
+        ],
+        "1020479454482530414": [
+            "1078370387081056316"
+        ],
+        "1275125158243205231": [
+            "1275125158709039248",
+            "1275127637089714336"
+        ],
+        "1274951905839153193": [
+            "1274951905839153197",
+            "1275236479005753395"
+        ],
+        "1267118770476810373": [
+            "1275814112408113192"
         ]
     },
-    "autorespond_servers": {}
+    "autorespond_servers": {
+        "1020479454482530414": false,
+        "1274951905839153193": true,
+        "934644448187539517": false
+    }
 }

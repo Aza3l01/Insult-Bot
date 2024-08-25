@@ -422,16 +422,13 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     prem_users = data.get('prem_users', {})
     allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
+    # Check if autorespond is enabled in this server
     if autorespond_servers.get(guild_id):
-        if guild_id in allowed_ai_channel_per_guild and allowed_ai_channel_per_guild[guild_id]:
-            if channel_id not in allowed_ai_channel_per_guild[guild_id]:
-                ai_channel = allowed_ai_channel_per_guild[guild_id][0]
-                ai_channel_mention = f"<#{ai_channel}>"
-                try:
-                    await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
-                except hikari.errors.ForbiddenError:
-                    pass
-                return
+        # Get the allowed AI channel for this guild if set
+        allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
+        if allowed_channels and channel_id not in allowed_channels:
+            # If a specific channel is set, only respond in that channel
+            return
 
         user_id = str(event.message.author.id)
         message_content = content.strip()
@@ -447,16 +444,13 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
             pass
         return
 
+    # Handle bot mentions or references to the bot
     if mentions_bot or is_reference_to_bot:
-        if guild_id in allowed_ai_channel_per_guild:
-            if channel_id not in allowed_ai_channel_per_guild[guild_id]:
-                ai_channel = allowed_ai_channel_per_guild[guild_id][0]
-                ai_channel_mention = f"<#{ai_channel}>"
-                try:
-                    await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
-                except hikari.errors.ForbiddenError:
-                    pass
-                return
+        # Check if there's an allowed AI channel set
+        allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
+        if allowed_channels and channel_id not in allowed_channels:
+            # If a specific channel is set, only respond in that channel
+            return
 
         user_id = str(event.message.author.id)
 
@@ -484,7 +478,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                             "Get a premium free trial for a week by using the `/free` command.\n\n"
                             "**Access Premium Commands Like:**\n"
                             "• Unlimited responses from Insult Bot.\n"
-                            "• Have Insult Bot repond to every message in set channel(s).\n"
+                            "• Have Insult Bot respond to every message in set channel(s).\n"
                             "• Add custom insults.\n"
                             "• Insult Bot will remember your conversations.\n"
                             "• Remove cool-downs.\n"
