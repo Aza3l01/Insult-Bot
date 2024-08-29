@@ -1324,6 +1324,22 @@
             {
                 "role": "assistant",
                 "content": "What\u2019s caught your attention? Let me know what\u2019s happening!"
+            },
+            {
+                "role": "user",
+                "content": "Tf happen to this server?"
+            },
+            {
+                "role": "assistant",
+                "content": "It sounds like something might have changed or gone wrong in the server. What specific issues are you noticing?"
+            },
+            {
+                "role": "user",
+                "content": "Well this server dead"
+            },
+            {
+                "role": "assistant",
+                "content": "I understand! It can be tough when a server feels inactive. Sometimes people just need a little encouragement to engage. Do you have any plans to liven things up or any ideas for events to bring everyone back together?"
             }
         ],
         "853131561222275094": [
@@ -3096,7 +3112,8 @@
         "1270681005275090986",
         "1270712338538041525",
         "1274951905839153193",
-        "1234530334130049094"
+        "1234530334130049094",
+        "857112618963566592"
     ],
     "custom_insults": {
         "1193319104917024849": [
@@ -3160,6 +3177,9 @@
             "Go drown in a lake of diet coke you neutered asshole.",
             "If my dog had a face like yours I'd shave its ass and make it walk backwards.",
             "get fucked, scrub"
+        ],
+        "857112618963566592": [
+            "testinsult"
         ]
     },
     "custom_triggers": {
@@ -3435,7 +3455,8 @@
             "cunt, bkl, bsdk",
             "cunt",
             "yo",
-            "<@1155345863355404360>"
+            "<@1155345863355404360>",
+            "<@1200688319961501716>"
         ],
         "1275334358114238484": [
             "ping"
@@ -3449,7 +3470,8 @@
             "fuck you"
         ],
         "857112618963566592": [
-            "adding"
+            "adding",
+            "testtrigger"
         ]
     },
     "user_custom_styles": {
@@ -3605,7 +3627,7 @@
         "1274951905839153193": true,
         "934644448187539517": true,
         "1270862928618192997": true,
-        "857112618963566592": true
+        "857112618963566592": false
     },
     "custom_combos": {}
 }

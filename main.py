@@ -208,9 +208,6 @@ async def check_expired_trials():
                     if server_id in data['custom_only_servers']:
                         data['custom_only_servers'].remove(server_id)
 
-                    if server_id in data['custom_insults']:
-                        del data['custom_insults'][server_id]
-
                     if server_id in data.get('autorespond_servers', {}):
                         del data['autorespond_servers'][server_id]
 
@@ -227,7 +224,6 @@ async def check_expired_trials():
                         "**You'll Soon Lose Access To Premium Commands Like:**\n"
                         "• Unlimited responses from Insult Bot.\n"
                         "• Have Insult Bot repond to every message in set channel(s).\n"
-                        "• Add custom insults.\n"
                         "• Add custom trigger-insult combos.\n"
                         "• Insult Bot will remember your conversations.\n"
                         "• Remove cool-downs.\n"
@@ -267,9 +263,6 @@ async def delete_user_data_after_delay(user_id, delay):
         for server_id in server_ids:
             if server_id in data['custom_only_servers']:
                 data['custom_only_servers'].remove(server_id)
-
-            if server_id in data['custom_insults']:
-                del data['custom_insults'][server_id]
 
             if server_id in data.get('autorespond_servers', {}):
                 del data['autorespond_servers'][server_id]
@@ -419,16 +412,21 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     content = event.message.content or ""
     bot_id = bot.get_me().id
     bot_mention = f"<@{bot_id}>"
-
     mentions_bot = bot_mention in content
     references_message = event.message.message_reference is not None
 
     if references_message:
         referenced_message_id = event.message.message_reference.id
-        try:
-            referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
-            is_reference_to_bot = referenced_message.author.id == bot_id
-        except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
+        if referenced_message_id:
+            try:
+                referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
+                is_reference_to_bot = referenced_message.author.id == bot_id
+            except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
+                is_reference_to_bot = False
+            except hikari.errors.BadRequestError as e:
+                print(f"BadRequestError: {e}")
+                is_reference_to_bot = False
+        else:
             is_reference_to_bot = False
     else:
         is_reference_to_bot = False
@@ -441,54 +439,65 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     prem_users = data.get('prem_users', {})
     allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
+    # Check if autorespond is enabled in this server
     if autorespond_servers.get(guild_id):
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
+            ai_channel = allowed_ai_channel_per_guild[guild_id][0]
+            ai_channel_mention = f"<#{ai_channel}>"
+            try:
+                await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
+            except hikari.errors.ForbiddenError:
+                pass
             return
 
         user_id = str(event.message.author.id)
         message_content = content.strip()
-
         async with bot.rest.trigger_typing(channel_id):
             ai_response = await generate_text(message_content, user_id)
 
         response_message = f"{event.message.author.mention} {ai_response}"
-
         try:
             await event.message.respond(response_message)
         except hikari.errors.ForbiddenError:
             pass
         return
 
+    # Handle bot mentions or references to the bot
     if mentions_bot or is_reference_to_bot:
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
+            ai_channel = allowed_ai_channel_per_guild[guild_id][0]
+            ai_channel_mention = f"<#{ai_channel}>"
+            try:
+                await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
+            except hikari.errors.ForbiddenError:
+                pass
             return
 
         user_id = str(event.message.author.id)
-
         current_time = asyncio.get_event_loop().time()
         reset_time = user_reset_time.get(user_id, 0)
 
         if current_time - reset_time > 21600:
             user_response_count[user_id] = 0
             user_reset_time[user_id] = current_time
-
-        if user_id not in prem_users:
+        else:
             if user_id not in user_response_count:
                 user_response_count[user_id] = 0
                 user_reset_time[user_id] = current_time
 
-            if user_response_count[user_id] >= 20:
+        if user_id not in prem_users:
+            if user_response_count.get(user_id, 0) >= 20:
                 has_voted = await topgg_client.get_user_vote(user_id)
                 if not has_voted:
                     embed = hikari.Embed(
                         title="Limit Reached :(",
                         description=(
-                            f"{event.message.author.mention}, limit resets in 6 hours.\n\n"
-                            "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](http://ko-fi.com/azaelbots/tiers) for $1.99 a month.\n\n"
+                            f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
+                            "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
                             "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                            "Get a premium free trial for a week by using the /free command.\n\n"
+                            "Get a premium free trial for a week by using the `/free` command.\n\n"
                             "**Access Premium Commands Like:**\n"
                             "• Unlimited responses from Insult Bot.\n"
                             "• Have Insult Bot respond to every message in set channel(s).\n"
@@ -506,15 +515,14 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     )
                     embed.set_image("https://i.imgur.com/rcgSVxC.gif")
                     await event.message.respond(embed=embed)
-                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in {event.get_guild().name} to {event.author.id}.")
+                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
                     return
 
         async with bot.rest.trigger_typing(channel_id):
             ai_response = await generate_text(content, user_id)
 
-        user_response_count[user_id] += 1
+        user_response_count[user_id] = user_response_count.get(user_id, 0) + 1
         response_message = f"{event.message.author.mention} {ai_response}"
-
         try:
             await event.message.respond(response_message)
         except hikari.errors.ForbiddenError:
@@ -693,7 +701,7 @@ async def viewsetchannels(ctx):
         print(f"{e}")
 
 # Chatbot----------------------------------------------------------------------------------------------------------------------------------------
-#autorespond
+# Autorespond (P)
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("toggle", "Toggle autorespond on or off.", choices=["on", "off"], type=hikari.OptionType.STRING)
@@ -913,7 +921,7 @@ async def clearstyle(ctx: lightbulb.Context) -> None:
         print(f"{e}")
 
 # Replybot----------------------------------------------------------------------------------------------------------------------------------------
-# Add insult command (P)
+# Add insult command
 @bot.command
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
 @lightbulb.command("insult_add", "Add a custom insult to this server.")
@@ -923,38 +931,6 @@ async def addinsult(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
 
-    # Check if the user is a premium user first
-    if user_id not in data.get('prem_users', {}):
-        embed = hikari.Embed(
-            title="You found a premium command",
-            description=(
-                "To add custom insults to your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
-                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
-                "**Access Premium Commands Like:**\n"
-                "• Unlimited responses from Insult Bot.\n"
-                "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
-                "• Add custom trigger-insult combos.\n"
-                "• Insult Bot will remember your conversations.\n"
-                "• Remove cool-downs.\n"
-                "**Support Server Related Perks Like:**\n"
-                "• Access to behind the scenes discord channels.\n"
-                "• Have a say in the development of Insult Bot.\n"
-                "• Supporter exclusive channels.\n\n"
-                "*Any memberships bought can be refunded within 3 days of purchase.*"
-            ),
-            color=0x2B2D31
-        )
-        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
-        await ctx.respond(embed=embed)
-        try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
-        except Exception as e:
-            print(f"{e}")
-        return
-
-    # If the user is a premium user, ensure their server is listed under them
     if server_id not in data['prem_users'].get(user_id, []):
         data['prem_users'][user_id].append(server_id)
 
@@ -982,7 +958,7 @@ async def addinsult(ctx: lightbulb.Context) -> None:
     except Exception as e:
         print(f"{e}")
 
-# Remove insult command (P)
+# Remove insult command
 @bot.command
 @lightbulb.option("insult", "The insult to remove.", type=str)
 @lightbulb.command("insult_remove", "Remove a custom insult from this server.")
@@ -991,36 +967,6 @@ async def removeinsult(ctx: lightbulb.Context) -> None:
     data = load_data()
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-
-    if user_id not in data.get('prem_users', {}):
-        embed = hikari.Embed(
-            title="You found a premium command",
-            description=(
-                "To remove custom insults added from your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
-                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
-                "**Access Premium Commands Like:**\n"
-                "• Unlimited responses from Insult Bot.\n"
-                "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
-                "• Add custom trigger-insult combos.\n"
-                "• Insult Bot will remember your conversations.\n"
-                "• Remove cool-downs.\n"
-                "**Support Server Related Perks Like:**\n"
-                "• Access to behind the scenes discord channels.\n"
-                "• Have a say in the development of Insult Bot.\n"
-                "• Supporter exclusive channels.\n\n"
-                "*Any memberships bought can be refunded within 3 days of purchase.*"
-            ),
-            color=0x2B2D31
-        )
-        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
-        await ctx.respond(embed=embed)
-        try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
-        except Exception as e:
-            print(f"{e}")
-        return
 
     if server_id not in data['prem_users'].get(user_id, []):
         data['prem_users'][user_id].append(server_id)
@@ -1046,47 +992,14 @@ async def removeinsult(ctx: lightbulb.Context) -> None:
     except Exception as e:
         print(f"{e}")
 
-# View insults command (P)
+# View insults command
 @bot.command
 @lightbulb.command("insult_view", "View custom insults added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx: lightbulb.Context) -> None:
     data = load_data()
-    user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
 
-    # Check if the user is a premium user first
-    if user_id not in data.get('prem_users', {}):
-        embed = hikari.Embed(
-            title="You found a premium command",
-            description=(
-                "To view custom insults added in your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
-                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
-                "**Access Premium Commands Like:**\n"
-                "• Unlimited responses from Insult Bot.\n"
-                "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
-                "• Add custom trigger-insult combos.\n"
-                "• Insult Bot will remember your conversations.\n"
-                "• Remove cool-downs.\n"
-                "**Support Server Related Perks Like:**\n"
-                "• Access to behind the scenes discord channels.\n"
-                "• Have a say in the development of Insult Bot.\n"
-                "• Supporter exclusive channels.\n\n"
-                "*Any memberships bought can be refunded within 3 days of purchase.*"
-            ),
-            color=0x2B2D31
-        )
-        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
-        await ctx.respond(embed=embed)
-        try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
-        except Exception as e:
-            print(f"{e}")
-        return
-
-    # If the user is a premium user, show the custom insults
     if server_id in data.get('custom_insults', {}):
         insults_list = data['custom_insults'][server_id]
         if insults_list:
@@ -1478,7 +1391,7 @@ async def help(ctx):
             "**/memory:** Make Insult Bot remember your conversations. (P)\n"
             "**/style_[set/view/clear]:** Set/view/clear the custom style of Insult Bot.\n\n"
             "**Replybot Commands:**\n"
-            "**/insult_[add/remove/view]:** Add/remove/view custom insults. (P)\n"
+            "**/insult_[add/remove/view]:** Add/remove/view custom insults.\n"
             "**/trigger_[add/remove/view]:** Add/remove/view custom triggers.\n"
             "**/combo_[add/remove/view]:** Add/remove/view trigger-insult combos. (P)\n"
             "**/customonly:** Set custom insults and triggers only. (P)\n\n"
