@@ -237,7 +237,7 @@ async def check_expired_trials():
                         "For privacy reasons, the data you've entered while using premium commands will be deleted in 48 hours.\n\n"
                         "If you would like me to hold your data in case you want to become a supporter in the future, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) to talk to my developer about saving your data.\n\n"
                         "Thank you for trying out premium, means a lot to me!\n\n"
-                        "To continue using premium commands, consider becoming a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month. ❤️\n\n"
+                        "To continue using premium commands, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for $1.99 a month. ❤️\n\n"
                         "*Any memberships bought can be refunded within 3 days of purchase.*"
                     ),
                     color=0x2B2D31
@@ -443,7 +443,6 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     if autorespond_servers.get(guild_id):
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
-            # If a specific channel is set, only respond in that channel
             return
 
         user_id = str(event.message.author.id)
@@ -460,12 +459,9 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
             pass
         return
 
-    # Handle bot mentions or references to the bot
     if mentions_bot or is_reference_to_bot:
-        # Check if there's an allowed AI channel set
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
-            # If a specific channel is set, only respond in that channel
             return
 
         user_id = str(event.message.author.id)
@@ -488,10 +484,10 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     embed = hikari.Embed(
                         title="Limit Reached :(",
                         description=(
-                            f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
-                            "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
+                            f"{event.message.author.mention}, limit resets in 6 hours.\n\n"
+                            "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](http://ko-fi.com/azaelbots/tiers) for $1.99 a month.\n\n"
                             "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                            "Get a premium free trial for a week by using the `/free` command.\n\n"
+                            "Get a premium free trial for a week by using the /free command.\n\n"
                             "**Access Premium Commands Like:**\n"
                             "• Unlimited responses from Insult Bot.\n"
                             "• Have Insult Bot respond to every message in set channel(s).\n"
@@ -508,7 +504,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     )
                     embed.set_image("https://i.imgur.com/rcgSVxC.gif")
                     await event.message.respond(embed=embed)
-                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
+                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in {event.get_guild().name} to {event.author.id}.")
                     return
 
         async with bot.rest.trigger_typing(channel_id):
@@ -711,7 +707,7 @@ async def autorespond(ctx: lightbulb.Context):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle Insult Bot to auto respond in your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To toggle Insult Bot to auto respond in your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -741,7 +737,7 @@ async def autorespond(ctx: lightbulb.Context):
     allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
     if server_id not in allowed_ai_channel_per_guild or not allowed_ai_channel_per_guild[server_id]:
-        await ctx.respond("Please set a channel for AI responses using the `/setchannel` command before enabling autorespond.")
+        await ctx.respond("Please set a channel for AI responses using the `/setchannel_toggle` command before enabling autorespond.")
         return
 
     toggle = ctx.options.toggle
@@ -789,7 +785,7 @@ async def memory(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle Insult Bot to remember your conversations, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To toggle Insult Bot to remember your conversations, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -928,7 +924,7 @@ async def addinsult(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To add custom insults to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To add custom insults to your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -995,7 +991,7 @@ async def removeinsult(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To remove custom insults added from your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To remove custom insults added from your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1058,7 +1054,7 @@ async def viewinsults(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To view custom insults added in your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To view custom insults added in your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1216,7 +1212,7 @@ async def combo_add(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To add custom combos to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To add custom combos to your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1273,7 +1269,7 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To remove custom combos from your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To remove custom combos from your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1335,7 +1331,7 @@ async def combo_view(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To view custom combos in your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To view custom combos in your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1394,7 +1390,7 @@ async def customonly(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To toggle custom only triggers/insults for your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To toggle custom only triggers/insults for your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1456,8 +1452,8 @@ async def help(ctx):
     embed = hikari.Embed(
         title="📚 Help 📚",
         description=(
-            "Insult Bot is a feature-rich chatbot/replybot. To talk to Insult Bot, reply or ping the bot in chat. Use the `/setchannel_toggle` command to set channels for the bot to respond in.\n\n"
-            "For suggestions and resolving issues, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa). My developer will be happy to help!\n\n"
+            "To talk to Insult Bot, reply or ping the bot in chat. Use the `/setchannel_toggle` command to set channels for the bot to respond in.\n\n"
+            "For suggestions and resolving issues, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa). My developer will be happy to help! "
             "[Click here](https://discord.com/api/oauth2/authorize?client_id=801431445452750879&permissions=414464727104&scope=applications.commands%20bot), to invite the bot to your server.\n\n"
             # "[Click here](https://discord.com/invite/x7MdgVFUwa), to view the privacy policy statement.\n\n"
             "**Core Commands:**\n"
@@ -1467,16 +1463,16 @@ async def help(ctx):
             "**Chatbot Commands:**\n"
             "**/autorespond:** Have Insult Bot respond to every message in a set channel(s). (P)\n"
             "**/memory:** Make Insult Bot remember your conversations. (P)\n"
-            "**/style_[set/view/clear]:** Set/view/clear the custom Insult Bot style.\n\n"
+            "**/style_[set/view/clear]:** Set/view/clear the custom style of Insult Bot.\n\n"
             "**Replybot Commands:**\n"
-            "**/insult_[add/remove/view]:** Add/remove/view custom insults in your server. (P)\n"
-            "**/trigger_[add/remove/view]:** Add/remove/view custom triggers in your server.\n"
-            "**/combo[add/remove/view]:** Add/remove/view trigger-insult combos in your server. (P)\n"
+            "**/insult_[add/remove/view]:** Add/remove/view custom insults. (P)\n"
+            "**/trigger_[add/remove/view]:** Add/remove/view custom triggers.\n"
+            "**/combo_[add/remove/view]:** Add/remove/view trigger-insult combos. (P)\n"
             "**/customonly:** Set custom insults and triggers only. (P)\n\n"
             "**Miscellaneous Commands:**\n"
             "**/claim:** Claim premium by providing your Ko-fi email.\n"
             "**/free:** Get a premium free trial for a week.\n\n"
-            "**To use (P) premium commands and help keep the bot running, consider becoming a [supporter](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
+            "**To use (P) premium commands and help keep the bot running, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for  $1.99 a month. ❤️**\n\n"
         ),
         color=0x2B2D31
     )
@@ -1593,7 +1589,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 	exception = event.exception.__cause__ or event.exception
 
 	if isinstance(exception, lightbulb.CommandIsOnCooldown):
-		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse. To remove cool-downs, become a [supporter](https://ko-fi.com/azaelbots).")
+		await event.context.respond(f"`/{event.context.command.name}` is on cooldown. Retry in `{exception.retry_after:.0f}` seconds. ⏱️\nCommands are ratelimited to prevent spam abuse. To remove cool-downs, become a [supporter](http://ko-fi.com/azaelbots/tiers).")
 	else:
 		raise exception
 
