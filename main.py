@@ -361,7 +361,6 @@ async def on_general_message(event: hikari.MessageCreateEvent):
         if guild_id in custom_combos:
             for trigger, insult in custom_combos[guild_id]:
                 if trigger.lower() in message_content:
-                    print(f"Trigger found in custom_combos: {trigger}")  # Debugging
                     try:
                         await event.message.respond(insult)
                     except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
@@ -381,7 +380,6 @@ async def on_general_message(event: hikari.MessageCreateEvent):
         if guild_id in custom_combos:
             for trigger, insult in custom_combos[guild_id]:
                 if trigger.lower() in message_content:
-                    print(f"Trigger found in custom_combos: {trigger}")  # Debugging
                     try:
                         await event.message.respond(insult)
                     except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
@@ -391,7 +389,6 @@ async def on_general_message(event: hikari.MessageCreateEvent):
 
         # Check for standard hearing words
         if any(word in message_content for word in hearing):
-            print(f"Hearing word found: {message_content}")  # Debugging
             selected_response = random.choice(all_responses)
             try:
                 await event.message.respond(selected_response)
@@ -404,7 +401,6 @@ async def on_general_message(event: hikari.MessageCreateEvent):
         if guild_id in custom_triggers:
             for trigger in custom_triggers[guild_id]:
                 if trigger.lower() in message_content:
-                    print(f"Trigger found in custom_triggers: {trigger}")  # Debugging
                     selected_response = random.choice(all_responses)
                     try:
                         await event.message.respond(selected_response)
@@ -916,7 +912,7 @@ async def clearstyle(ctx: lightbulb.Context) -> None:
     except Exception as e:
         print(f"{e}")
 
-# Keyword----------------------------------------------------------------------------------------------------------------------------------------
+# Replybot----------------------------------------------------------------------------------------------------------------------------------------
 # Add insult command (P)
 @bot.command
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
@@ -1460,7 +1456,10 @@ async def help(ctx):
     embed = hikari.Embed(
         title="📚 Help 📚",
         description=(
-            "**Reply or ping Insult Bot to talk.**\n\n"
+            "Insult Bot is a feature-rich chatbot/replybot. To talk to Insult Bot, reply or ping the bot in chat. Use the `/setchannel_toggle` command to set channels for the bot to respond in.\n\n"
+            "For suggestions and resolving issues, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa). My developer will be happy to help!\n\n"
+            "[Click here](https://discord.com/api/oauth2/authorize?client_id=801431445452750879&permissions=414464727104&scope=applications.commands%20bot), to invite the bot to your server.\n\n"
+            # "[Click here](https://discord.com/invite/x7MdgVFUwa), to view the privacy policy statement.\n\n"
             "**Core Commands:**\n"
             "**/insult:** Send an insult to someone.\n"
             "**/setchannel_toggle:** Restrict Insult Bot to particular channel(s).\n"
@@ -1469,16 +1468,14 @@ async def help(ctx):
             "**/autorespond:** Have Insult Bot respond to every message in a set channel(s). (P)\n"
             "**/memory:** Make Insult Bot remember your conversations. (P)\n"
             "**/style_[set/view/clear]:** Set/view/clear the custom Insult Bot style.\n\n"
-            "**Keyword Commands:**\n"
+            "**Replybot Commands:**\n"
             "**/insult_[add/remove/view]:** Add/remove/view custom insults in your server. (P)\n"
             "**/trigger_[add/remove/view]:** Add/remove/view custom triggers in your server.\n"
             "**/combo[add/remove/view]:** Add/remove/view trigger-insult combos in your server. (P)\n"
             "**/customonly:** Set custom insults and triggers only. (P)\n\n"
             "**Miscellaneous Commands:**\n"
             "**/claim:** Claim premium by providing your Ko-fi email.\n"
-            "**/free:** Get a premium free trial for a week.\n"
-            "**/support:** Join the support server.\n"
-            "**/privacy:** View our privacy policy.\n\n"
+            "**/free:** Get a premium free trial for a week.\n\n"
             "**To use (P) premium commands and help keep the bot running, consider becoming a [supporter](https://ko-fi.com/azaelbots) for  $1.99 a month. ❤️**\n\n"
         ),
         color=0x2B2D31
@@ -1580,48 +1577,6 @@ async def free(ctx: lightbulb.Context) -> None:
     data['free_trial_start_time'][user_id] = asyncio.get_event_loop().time()
     save_data(data)
     await ctx.respond("You have premium now! ❤️")
-
-    try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
-    except Exception as e:
-        print(f"{e}")
-
-# Support command
-@bot.command
-@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("support", "Join the support server.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def support(ctx):
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
-    embed = hikari.Embed(
-        title="Support Server:",
-        description=("[Join the support server.](https://discord.com/invite/x7MdgVFUwa)"),
-        color=0x2B2D31
-    )
-    await ctx.respond(embed=embed)
-
-    try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
-    except Exception as e:
-        print(f"{e}")
-
-# Privacy command
-@bot.command
-@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("privacy", "Privacy policy statement.")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def privacy(ctx):
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
-    embed = hikari.Embed(
-		title="Privacy Policy:",
-		description="The personal information of any user, including the message content it replies to, is not tracked by Insult Bot. The channel_id alone is stored when added by using the /setchannel command, and it is stored only while this command is active in your server.\n\nThe user_id, server_id and added insults of premium members are stored to provide the user the with perks and is deleted once a user is no longer a member.\n\nJoin the [support server](https://discord.com/invite/x7MdgVFUwa) to request the deletion of your data.",
-		color=0x2B2D31
-	)
-    await ctx.respond(embed=embed)
 
     try:
         await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
