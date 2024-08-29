@@ -1340,6 +1340,30 @@
             {
                 "role": "assistant",
                 "content": "I understand! It can be tough when a server feels inactive. Sometimes people just need a little encouragement to engage. Do you have any plans to liven things up or any ideas for events to bring everyone back together?"
+            },
+            {
+                "role": "user",
+                "content": "It\u2019s a bit"
+            },
+            {
+                "role": "assistant",
+                "content": "Gotcha! A bit of inactivity can definitely happen sometimes. Even just a casual conversation or a fun activity can help spark some life back into it! What are you thinking of doing?"
+            },
+            {
+                "role": "user",
+                "content": "Nahhhh bro\u2026"
+            },
+            {
+                "role": "assistant",
+                "content": "I see what you mean! If you're feeling frustrated about it, that's totally understandable. What do you think would be the best way to handle the situation?"
+            },
+            {
+                "role": "user",
+                "content": "Lowkey can send u dd"
+            },
+            {
+                "role": "assistant",
+                "content": "I can't assist with that."
             }
         ],
         "853131561222275094": [

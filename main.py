@@ -501,7 +501,6 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                             "**Access Premium Commands Like:**\n"
                             "• Unlimited responses from Insult Bot.\n"
                             "• Have Insult Bot respond to every message in set channel(s).\n"
-                            "• Add custom insults.\n"
                             "• Add custom trigger-insult combos.\n"
                             "• Insult Bot will remember your conversations.\n"
                             "• Remove cool-downs.\n"
@@ -723,7 +722,6 @@ async def autorespond(ctx: lightbulb.Context):
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
@@ -789,7 +787,6 @@ async def autorespond(ctx: lightbulb.Context):
 async def memory(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     toggle = ctx.options.toggle
-
     data = load_data()
     prem_users = data.get('prem_users', {})
     if user_id not in prem_users:
@@ -802,7 +799,6 @@ async def memory(ctx: lightbulb.Context) -> None:
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
@@ -1127,7 +1123,6 @@ async def combo_add(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
 
-    # Check if user has premium
     if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
@@ -1138,7 +1133,6 @@ async def combo_add(ctx: lightbulb.Context) -> None:
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
@@ -1185,7 +1179,6 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
 
-    # Check if user has premium
     if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
@@ -1194,10 +1187,8 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
-                "• Add custom trigger-insult combos.\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
@@ -1249,7 +1240,6 @@ async def combo_view(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
 
-    # Check if user has premium
     if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
@@ -1258,10 +1248,8 @@ async def combo_view(ctx: lightbulb.Context) -> None:
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
-                "• Add custom trigger-insult combos.\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
@@ -1321,7 +1309,6 @@ async def customonly(ctx: lightbulb.Context) -> None:
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
@@ -1455,7 +1442,6 @@ async def claim(ctx: lightbulb.Context) -> None:
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
-                "• Add custom insults.\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
