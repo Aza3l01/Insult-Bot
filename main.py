@@ -439,16 +439,9 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     prem_users = data.get('prem_users', {})
     allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
-    # Check if autorespond is enabled in this server
     if autorespond_servers.get(guild_id):
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
-            ai_channel = allowed_ai_channel_per_guild[guild_id][0]
-            ai_channel_mention = f"<#{ai_channel}>"
-            try:
-                await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
-            except hikari.errors.ForbiddenError:
-                pass
             return
 
         user_id = str(event.message.author.id)
@@ -463,16 +456,9 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
             pass
         return
 
-    # Handle bot mentions or references to the bot
     if mentions_bot or is_reference_to_bot:
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
-            ai_channel = allowed_ai_channel_per_guild[guild_id][0]
-            ai_channel_mention = f"<#{ai_channel}>"
-            try:
-                await event.message.respond(f"{event.message.author.mention}, AI responses are set to be in {ai_channel_mention}. Please use that channel for AI interactions.")
-            except hikari.errors.ForbiddenError:
-                pass
             return
 
         user_id = str(event.message.author.id)
