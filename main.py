@@ -33,6 +33,7 @@ def load_data():
             "allowed_ai_channel_per_guild": {},
             "custom_insults": {},
             "custom_triggers": {},
+            "custom_combos": {},
             "autorespond_servers": {}
         }
 
@@ -60,6 +61,7 @@ user_custom_styles = data.get('user_custom_styles', {})
 allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
 allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 autorespond_servers = data.get('autorespond_servers', {})
+custom_combos = data.get('custom_combos', {})
 
 # Nonpersistent data
 prem_email = ["test@gmail.com"]
@@ -326,28 +328,25 @@ async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     data = load_data()
     allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
 
-    if guild_id in allowed_channels_per_guild:
-        if allowed_channels_per_guild[guild_id]:
-            if str(event.channel_id) not in allowed_channels_per_guild[guild_id]:
-                return False
+    # Check if the channel is allowed
+    if guild_id in allowed_channels_per_guild and allowed_channels_per_guild[guild_id]:
+        if str(event.channel_id) not in allowed_channels_per_guild[guild_id]:
+            return False
 
     message_content = event.message.content.lower() if isinstance(event.message.content, str) else ""
     mentions_bot = f"<@{bot_id}>" in message_content
     
-    references_message = False
+    # Check if the message references the bot
     if event.message.message_reference:
         referenced_message_id = event.message.message_reference.id
         try:
             referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
             if referenced_message.author.id == bot_id:
-                references_message = True
+                return False
         except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
             pass
 
-    if mentions_bot or references_message:
-        return False
-
-    return True
+    return not mentions_bot
 
 @bot.listen(hikari.MessageCreateEvent)
 async def on_general_message(event: hikari.MessageCreateEvent):
@@ -357,12 +356,20 @@ async def on_general_message(event: hikari.MessageCreateEvent):
     message_content = event.content.lower() if isinstance(event.content, str) else ""
     guild_id = str(event.guild_id)
 
-    data = load_data()
-    custom_only_servers = data.get('custom_only_servers', {})
-    custom_insults = data.get('custom_insults', {})
-    custom_triggers = data.get('custom_triggers', {})
-
+    # Custom combos handling
     if guild_id in custom_only_servers:
+        if guild_id in custom_combos:
+            for trigger, insult in custom_combos[guild_id]:
+                if trigger.lower() in message_content:
+                    print(f"Trigger found in custom_combos: {trigger}")  # Debugging
+                    try:
+                        await event.message.respond(insult)
+                    except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                        pass
+                    await asyncio.sleep(15)
+                    return
+
+        # Custom insults handling
         if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
             all_responses = custom_insults[guild_id]
         else:
@@ -370,26 +377,41 @@ async def on_general_message(event: hikari.MessageCreateEvent):
     else:
         all_responses = response + custom_insults.get(guild_id, [])
 
-    if any(word in message_content for word in hearing):
-        selected_response = random.choice(all_responses)
-        try:
-            await event.message.respond(selected_response)
-        except hikari.errors.BadRequestError:
-            pass
-        except hikari.errors.ForbiddenError:
-            pass
-        await asyncio.sleep(15)
+        # Check for custom combos in normal mode
+        if guild_id in custom_combos:
+            for trigger, insult in custom_combos[guild_id]:
+                if trigger.lower() in message_content:
+                    print(f"Trigger found in custom_combos: {trigger}")  # Debugging
+                    try:
+                        await event.message.respond(insult)
+                    except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                        pass
+                    await asyncio.sleep(15)
+                    return
 
-    if guild_id in custom_triggers:
-        for trigger in custom_triggers[guild_id]:
-            if trigger in message_content:
-                selected_response = random.choice(all_responses)
-                try:
-                    await event.message.respond(selected_response)
-                except hikari.errors.ForbiddenError:
-                    pass
-                await asyncio.sleep(15)
-                break
+        # Check for standard hearing words
+        if any(word in message_content for word in hearing):
+            print(f"Hearing word found: {message_content}")  # Debugging
+            selected_response = random.choice(all_responses)
+            try:
+                await event.message.respond(selected_response)
+            except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                pass
+            await asyncio.sleep(15)
+            return
+
+        # Check for custom triggers
+        if guild_id in custom_triggers:
+            for trigger in custom_triggers[guild_id]:
+                if trigger.lower() in message_content:
+                    print(f"Trigger found in custom_triggers: {trigger}")  # Debugging
+                    selected_response = random.choice(all_responses)
+                    try:
+                        await event.message.respond(selected_response)
+                    except hikari.errors.ForbiddenError:
+                        pass
+                    await asyncio.sleep(15)
+                    break
 
 # AI response message event listener
 @bot.listen(hikari.MessageCreateEvent)
@@ -422,9 +444,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     prem_users = data.get('prem_users', {})
     allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
-    # Check if autorespond is enabled in this server
     if autorespond_servers.get(guild_id):
-        # Get the allowed AI channel for this guild if set
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
             # If a specific channel is set, only respond in that channel
@@ -1184,6 +1204,112 @@ async def viewtriggers(ctx: lightbulb.Context) -> None:
     except Exception as e:
         print(f"{e}")
 
+# Add combo command
+@bot.command
+@lightbulb.option("insult", "The insult to send when the trigger is activated.", type=str)
+@lightbulb.option("trigger", "The trigger phrase to add.", type=str)
+@lightbulb.command("combo_add", "Add a trigger-insult combo to this server.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def combo_add(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    # Check if user has premium
+    if user_id not in data.get('prem_users', {}):
+        # Send a premium feature message similar to other premium commands
+        await ctx.respond("This is a premium command. Please subscribe to use this feature.")
+        return
+
+    trigger = ctx.options.trigger
+    insult = ctx.options.insult
+
+    if server_id not in data['custom_combos']:
+        data['custom_combos'][server_id] = []
+
+    data['custom_combos'][server_id].append((trigger, insult))
+    
+    save_data(data)
+    
+    await ctx.respond(f"New combo added: `{trigger}` -> `{insult}`")
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
+# Remove combo command
+@bot.command
+@lightbulb.option("trigger", "The trigger phrase to remove the combo.", type=str)
+@lightbulb.command("combo_remove", "Remove a trigger-insult combo from this server.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def combo_remove(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    # Check if user has premium
+    if user_id not in data.get('prem_users', {}):
+        await ctx.respond("This is a premium command. Please subscribe to use this feature.")
+        return
+
+    trigger_to_remove = ctx.options.trigger
+
+    if server_id not in data['custom_combos'] or not data['custom_combos'][server_id]:
+        await ctx.respond("No combos found.")
+        return
+
+    combos = data['custom_combos'][server_id]
+    filtered_combos = [combo for combo in combos if combo[0] != trigger_to_remove]
+
+    if len(filtered_combos) == len(combos):
+        await ctx.respond("Combo not found.")
+        return
+
+    data['custom_combos'][server_id] = filtered_combos
+    save_data(data)
+    
+    await ctx.respond(f"The combo with trigger `{trigger_to_remove}` has been removed.")
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
+# View combo command
+@bot.command
+@lightbulb.command("combo_view", "View all trigger-insult combos in this server.")
+@lightbulb.implements(lightbulb.SlashCommand)
+async def combo_view(ctx: lightbulb.Context) -> None:
+    data = load_data()
+    user_id = str(ctx.author.id)
+    server_id = str(ctx.guild_id)
+
+    # Check if user has premium
+    if user_id not in data.get('prem_users', {}):
+        await ctx.respond("This is a premium command. Please subscribe to use this feature.")
+        return
+
+    if server_id in data['custom_combos']:
+        combos = data['custom_combos'][server_id]
+        if combos:
+            combo_list = "\n".join([f"`{trigger}`: `{insult}`" for trigger, insult in combos])
+            embed = hikari.Embed(
+                title="🔹 Custom Combos 🔹",
+                description=combo_list,
+                color=0x2B2D31
+            )
+            await ctx.respond(embed=embed)
+        else:
+            await ctx.respond("No custom combos found.")
+    else:
+        await ctx.respond("No custom combos found.")
+
+    try:
+        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+    except Exception as e:
+        print(f"{e}")
+
 # Custom only toggle command (P)
 @bot.command
 @lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
@@ -1272,6 +1398,7 @@ async def help(ctx):
             "**Keyword Commands:**\n"
             "**/insult_[add/remove/view]:** Add/remove/view custom insults in your server. (P)\n"
             "**/trigger_[add/remove/view]:** Add/remove/view custom triggers in your server.\n"
+            "**/combo[add/remove/view]:** Add/remove/view trigger-insult combos in your server. (P)\n"
             "**/customonly:** Set custom insults and triggers only. (P)\n\n"
             "**Miscellaneous Commands:**\n"
             "**/claim:** Claim premium by providing your Ko-fi email.\n"
