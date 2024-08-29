@@ -999,7 +999,7 @@ async def removeinsult(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To remove custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To remove custom insults added from your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1062,7 +1062,7 @@ async def viewinsults(ctx: lightbulb.Context) -> None:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
-                "To view custom insults added to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "To view custom insults added in your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
@@ -1217,8 +1217,32 @@ async def combo_add(ctx: lightbulb.Context) -> None:
 
     # Check if user has premium
     if user_id not in data.get('prem_users', {}):
-        # Send a premium feature message similar to other premium commands
-        await ctx.respond("This is a premium command. Please subscribe to use this feature.")
+        embed = hikari.Embed(
+            title="You found a premium command",
+            description=(
+                "To add custom combos to your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Unlimited responses from Insult Bot.\n"
+                "• Have Insult Bot repond to every message in set channel(s).\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+            ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+        await ctx.respond(embed=embed)
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
 
     trigger = ctx.options.trigger
@@ -1250,7 +1274,32 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
 
     # Check if user has premium
     if user_id not in data.get('prem_users', {}):
-        await ctx.respond("This is a premium command. Please subscribe to use this feature.")
+        embed = hikari.Embed(
+            title="You found a premium command",
+            description=(
+                "To remove custom combos from your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Unlimited responses from Insult Bot.\n"
+                "• Have Insult Bot repond to every message in set channel(s).\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+            ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+        await ctx.respond(embed=embed)
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
 
     trigger_to_remove = ctx.options.trigger
@@ -1287,7 +1336,32 @@ async def combo_view(ctx: lightbulb.Context) -> None:
 
     # Check if user has premium
     if user_id not in data.get('prem_users', {}):
-        await ctx.respond("This is a premium command. Please subscribe to use this feature.")
+        embed = hikari.Embed(
+            title="You found a premium command",
+            description=(
+                "To view custom combos in your server, consider becoming a [supporter](https://ko-fi.com/azaelbots) for only $1.99 a month.\n\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "Get a premium free trial for a week by using the `/free` command.\n"
+                "**Access Premium Commands Like:**\n"
+                "• Unlimited responses from Insult Bot.\n"
+                "• Have Insult Bot repond to every message in set channel(s).\n"
+                "• Add custom insults.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n"
+                "**Support Server Related Perks Like:**\n"
+                "• Access to behind the scenes discord channels.\n"
+                "• Have a say in the development of Insult Bot.\n"
+                "• Supporter exclusive channels.\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+            ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+        await ctx.respond(embed=embed)
+        try:
+            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        except Exception as e:
+            print(f"{e}")
         return
 
     if server_id in data['custom_combos']:
