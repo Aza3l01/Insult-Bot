@@ -64,7 +64,7 @@ autorespond_servers = data.get('autorespond_servers', {})
 custom_combos = data.get('custom_combos', {})
 
 # Nonpersistent data
-prem_email = ["test@gmail.com"]
+prem_email = ['test@gmail.com', 'brasilejustin1998@gmail.com']
 user_reset_time = {}
 user_response_count = {}
 
@@ -575,7 +575,7 @@ async def insult(ctx):
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("toggle", "Toggle Insult Bot on/off in the selected channel.", choices=["on", "off"], type=hikari.OptionType.STRING)
 @lightbulb.option("channel", "Select a channel to proceed.", type=hikari.OptionType.CHANNEL, channel_types=[hikari.ChannelType.GUILD_TEXT])
-@lightbulb.option("type", "Select whether to enable 'chatbot' or 'keywords' responses in the channel.", choices=["chatbot", "keywords"], type=hikari.OptionType.STRING, required=True)
+@lightbulb.option("type", "Select whether to enable 'chatbot' or 'replybot' responses in the channel.", choices=["chatbot", "replybot"], type=hikari.OptionType.STRING, required=True)
 @lightbulb.command("setchannel_toggle", "Restrict Insult Bot and AI Bot to particular channel(s).")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def setchannel(ctx):
@@ -591,8 +591,11 @@ async def setchannel(ctx):
     guild_id = str(ctx.guild_id)
 
     member = await ctx.bot.rest.fetch_member(ctx.guild_id, ctx.author.id)
-    if not any(role.permissions & hikari.Permissions.ADMINISTRATOR for role in member.get_roles()):
-        await ctx.respond("Ask your admins to set this up for you. 🤦")
+    is_admin = any(role.permissions & hikari.Permissions.ADMINISTRATOR for role in member.get_roles())
+    is_premium_user = str(ctx.author.id) in prem_users
+
+    if not is_admin and not is_premium_user:
+        await ctx.respond("Ask your admins or upgrade to premium to set this up. 🤦")
         try:
             await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
@@ -609,12 +612,12 @@ async def setchannel(ctx):
     channel_type = ctx.options.type
 
     if toggle == "on":
-        if channel_type == "keywords":
+        if channel_type == "replybot":
             if channel_id and channel_id not in allowed_channels_per_guild[guild_id]:
                 allowed_channels_per_guild[guild_id].append(channel_id)
-                await ctx.respond(f"Insult Bot will only respond with keywords in <#{channel_id}>.")
+                await ctx.respond(f"Insult Bot will only respond with replybot in <#{channel_id}>.")
             elif channel_id in allowed_channels_per_guild[guild_id]:
-                await ctx.respond(f"Insult Bot is already restricted to keywords in <#{channel_id}>.")
+                await ctx.respond(f"Insult Bot is already restricted to replybot in <#{channel_id}>.")
             else:
                 await ctx.respond("Please specify a valid channel.")
         elif channel_type == "chatbot":
@@ -626,9 +629,9 @@ async def setchannel(ctx):
             else:
                 await ctx.respond("Please specify a valid channel.")
     elif toggle == "off":
-        if channel_type == "keywords" and channel_id in allowed_channels_per_guild[guild_id]:
+        if channel_type == "replybot" and channel_id in allowed_channels_per_guild[guild_id]:
             allowed_channels_per_guild[guild_id].remove(channel_id)
-            await ctx.respond(f"Bot's restriction to send keywords in <#{channel_id}> has been removed.")
+            await ctx.respond(f"Bot's restriction to send replybot in <#{channel_id}> has been removed.")
         elif channel_type == "chatbot" and channel_id in allowed_ai_channel_per_guild[guild_id]:
             allowed_ai_channel_per_guild[guild_id].remove(channel_id)
             await ctx.respond(f"Bot's restriction as a chatbot in <#{channel_id}> has been removed.")
@@ -692,7 +695,7 @@ async def viewsetchannels(ctx):
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("toggle", "Toggle autorespond on or off.", choices=["on", "off"], type=hikari.OptionType.STRING)
-@lightbulb.command("autorespond", "Enable or disable autorespond in the server (Premium only).")
+@lightbulb.command("autorespond", "Enable or disable autorespond in the server. (Premium Only)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def autorespond(ctx: lightbulb.Context):
     user_id = str(ctx.author.id)
@@ -770,7 +773,7 @@ async def autorespond(ctx: lightbulb.Context):
 # Memory command (P)
 @bot.command()
 @lightbulb.option('toggle', 'Choose to toggle or clear memory.', choices=['on', 'off', 'clear'])
-@lightbulb.command('memory', 'Make Insult Bot remember your conversations.')
+@lightbulb.command('memory', 'Make Insult Bot remember your conversations. (Premium Only)')
 @lightbulb.implements(lightbulb.SlashCommand)
 async def memory(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
@@ -907,17 +910,16 @@ async def clearstyle(ctx: lightbulb.Context) -> None:
 # Replybot----------------------------------------------------------------------------------------------------------------------------------------
 # Add insult command
 @bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("insult", "Add your insult, ensuring it complies with Discord's TOS. (maximum 200 characters)", type=str)
 @lightbulb.command("insult_add", "Add a custom insult to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx: lightbulb.Context) -> None:
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    
     data = load_data()
-    user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-
-    if server_id not in data['prem_users'].get(user_id, []):
-        data['prem_users'][user_id].append(server_id)
-
     insult = ctx.options.insult
 
     if len(insult) > 200:
@@ -944,17 +946,16 @@ async def addinsult(ctx: lightbulb.Context) -> None:
 
 # Remove insult command
 @bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("insult", "The insult to remove.", type=str)
 @lightbulb.command("insult_remove", "Remove a custom insult from this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx: lightbulb.Context) -> None:
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
     data = load_data()
-    user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-
-    if server_id not in data['prem_users'].get(user_id, []):
-        data['prem_users'][user_id].append(server_id)
-
     insult_to_remove = ctx.options.insult
 
     if server_id not in data['custom_insults'] or not data['custom_insults'][server_id]:
@@ -978,9 +979,13 @@ async def removeinsult(ctx: lightbulb.Context) -> None:
 
 # View insults command
 @bot.command
+@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.command("insult_view", "View custom insults added to this server.")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx: lightbulb.Context) -> None:
+    if str(ctx.author.id) in prem_users:
+        await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    
     data = load_data()
     server_id = str(ctx.guild_id)
 
@@ -1100,11 +1105,11 @@ async def viewtriggers(ctx: lightbulb.Context) -> None:
     except Exception as e:
         print(f"{e}")
 
-# Add combo command
+# Add combo command (P)
 @bot.command
 @lightbulb.option("insult", "The insult to send when the trigger is activated.", type=str)
 @lightbulb.option("trigger", "The trigger phrase to add.", type=str)
-@lightbulb.command("combo_add", "Add a trigger-insult combo to this server.")
+@lightbulb.command("combo_add", "Add a trigger-insult combo to this server. (Premium Only)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def combo_add(ctx: lightbulb.Context) -> None:
     data = load_data()
@@ -1157,10 +1162,10 @@ async def combo_add(ctx: lightbulb.Context) -> None:
     except Exception as e:
         print(f"{e}")
 
-# Remove combo command
+# Remove combo command (P)
 @bot.command
 @lightbulb.option("trigger", "The trigger phrase to remove the combo.", type=str)
-@lightbulb.command("combo_remove", "Remove a trigger-insult combo from this server.")
+@lightbulb.command("combo_remove", "Remove a trigger-insult combo from this server. (Premium Only)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def combo_remove(ctx: lightbulb.Context) -> None:
     data = load_data()
@@ -1219,9 +1224,9 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
     except Exception as e:
         print(f"{e}")
 
-# View combo command
+# View combo command (P)
 @bot.command
-@lightbulb.command("combo_view", "View all trigger-insult combos in this server.")
+@lightbulb.command("combo_view", "View all trigger-insult combos in this server. (Premium Only)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def combo_view(ctx: lightbulb.Context) -> None:
     data = load_data()
@@ -1280,7 +1285,7 @@ async def combo_view(ctx: lightbulb.Context) -> None:
 # Custom only toggle command (P)
 @bot.command
 @lightbulb.option("toggle", "Toggle custom insults and triggers only mode on/off.", choices=["on", "off"], type=hikari.OptionType.STRING)
-@lightbulb.command("customonly", "Set custom insults and triggers only.")
+@lightbulb.command("customonly", "Set custom insults and triggers only. (Premium Only)")
 @lightbulb.implements(lightbulb.SlashCommand)
 async def customonly(ctx: lightbulb.Context) -> None:
     data = load_data()
