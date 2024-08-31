@@ -267,9 +267,11 @@ async def delete_user_data_after_delay(user_id, delay):
             if server_id in data.get('autorespond_servers', {}):
                 del data['autorespond_servers'][server_id]
 
+            if server_id in data['custom_combos']:
+                del data['custom_combos'][server_id]
+
         del data['prem_users'][user_id]
         data['user_conversation_memory'].pop(user_id, None)
-        print(f"Removed user_conversation_memory entry for user {user_id}")
 
     data['free_trial_start_time'].pop(user_id, None)
     data['user_memory_preferences'].pop(user_id, None)
@@ -1148,7 +1150,7 @@ async def combo_add(ctx: lightbulb.Context) -> None:
     
     save_data(data)
     
-    await ctx.respond(f"New combo added: `{trigger}` -> `{insult}`")
+    await ctx.respond(f"New combo added.")
 
     try:
         await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
