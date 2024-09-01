@@ -64,7 +64,7 @@ autorespond_servers = data.get('autorespond_servers', {})
 custom_combos = data.get('custom_combos', {})
 
 # Nonpersistent data
-prem_email = ['test@gmail.com', 'brasilejustin1998@gmail.com']
+prem_email = ['test@gmail.com']
 user_reset_time = {}
 user_response_count = {}
 
