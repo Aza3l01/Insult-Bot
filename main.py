@@ -316,7 +316,7 @@ async def on_guild_leave(event):
         await bot.rest.create_message(1246886903077408838, f"Left `{guild.name}`.")
 
 # Core----------------------------------------------------------------------------------------------------------------------------------------
-# General message event listener
+# Message event listener
 async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     bot_id = bot.get_me().id
     guild_id = str(event.guild_id)
@@ -324,7 +324,6 @@ async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     data = load_data()
     allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
 
-    # Check if the channel is allowed
     if guild_id in allowed_channels_per_guild and allowed_channels_per_guild[guild_id]:
         if str(event.channel_id) not in allowed_channels_per_guild[guild_id]:
             return False
@@ -332,7 +331,6 @@ async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     message_content = event.message.content.lower() if isinstance(event.message.content, str) else ""
     mentions_bot = f"<@{bot_id}>" in message_content
     
-    # Check if the message references the bot
     if event.message.message_reference:
         referenced_message_id = event.message.message_reference.id
         try:
@@ -352,14 +350,14 @@ async def on_general_message(event: hikari.MessageCreateEvent):
     message_content = event.content.lower() if isinstance(event.content, str) else ""
     guild_id = str(event.guild_id)
 
-    # Load data
     data = load_data()
     custom_combos = data.get('custom_combos', {})
     custom_insults = data.get('custom_insults', {})
     custom_triggers = data.get('custom_triggers', {})
     hearing = data.get('hearing', [])
 
-    # Custom combos handling
+    all_responses = []
+
     if guild_id in custom_combos:
         for trigger, insult in custom_combos[guild_id]:
             if trigger.lower() in message_content:
@@ -370,44 +368,43 @@ async def on_general_message(event: hikari.MessageCreateEvent):
                 await asyncio.sleep(15)
                 return
 
-    # Custom insults handling
     if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
         all_responses = custom_insults[guild_id]
-    else:
-        all_responses = hearing + custom_insults.get(guild_id, [])
 
-    # Check for custom combos in normal mode
-    if guild_id in custom_combos:
-        for trigger, insult in custom_combos[guild_id]:
-            if trigger.lower() in message_content:
-                try:
-                    await event.message.respond(insult)
-                except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
-                    pass
-                await asyncio.sleep(15)
-                return
+    if guild_id in custom_insults:
+        all_responses.extend(custom_insults[guild_id])
+    all_responses.extend(hearing)
 
-    # Check for standard hearing words
-    if any(word in message_content for word in hearing):
-        selected_response = random.choice(all_responses)
-        try:
-            await event.message.respond(selected_response)
-        except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
-            pass
-        await asyncio.sleep(15)
-        return
+    if all_responses:
+        if guild_id in custom_combos:
+            for trigger, insult in custom_combos[guild_id]:
+                if trigger.lower() in message_content:
+                    try:
+                        await event.message.respond(insult)
+                    except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                        pass
+                    await asyncio.sleep(15)
+                    return
 
-    # Check for custom triggers
-    if guild_id in custom_triggers:
-        for trigger in custom_triggers[guild_id]:
-            if trigger.lower() in message_content:
-                selected_response = random.choice(all_responses)
-                try:
-                    await event.message.respond(selected_response)
-                except hikari.errors.ForbiddenError:
-                    pass
-                await asyncio.sleep(15)
-                break
+        if any(word in message_content for word in hearing):
+            selected_response = random.choice(all_responses)
+            try:
+                await event.message.respond(selected_response)
+            except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                pass
+            await asyncio.sleep(15)
+            return
+
+        if guild_id in custom_triggers:
+            for trigger in custom_triggers[guild_id]:
+                if trigger.lower() in message_content:
+                    selected_response = random.choice(all_responses)
+                    try:
+                        await event.message.respond(selected_response)
+                    except hikari.errors.ForbiddenError:
+                        pass
+                    await asyncio.sleep(15)
+                    break
 
 # AI response message event listener
 @bot.listen(hikari.MessageCreateEvent)
