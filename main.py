@@ -352,58 +352,62 @@ async def on_general_message(event: hikari.MessageCreateEvent):
     message_content = event.content.lower() if isinstance(event.content, str) else ""
     guild_id = str(event.guild_id)
 
+    # Load data
+    data = load_data()
+    custom_combos = data.get('custom_combos', {})
+    custom_insults = data.get('custom_insults', {})
+    custom_triggers = data.get('custom_triggers', {})
+    hearing = data.get('hearing', [])
+
     # Custom combos handling
-    if guild_id in custom_only_servers:
-        if guild_id in custom_combos:
-            for trigger, insult in custom_combos[guild_id]:
-                if trigger.lower() in message_content:
-                    try:
-                        await event.message.respond(insult)
-                    except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
-                        pass
-                    await asyncio.sleep(15)
-                    return
+    if guild_id in custom_combos:
+        for trigger, insult in custom_combos[guild_id]:
+            if trigger.lower() in message_content:
+                try:
+                    await event.message.respond(insult)
+                except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                    pass
+                await asyncio.sleep(15)
+                return
 
-        # Custom insults handling
-        if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
-            all_responses = custom_insults[guild_id]
-        else:
-            return
+    # Custom insults handling
+    if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
+        all_responses = custom_insults[guild_id]
     else:
-        all_responses = response + custom_insults.get(guild_id, [])
+        all_responses = hearing + custom_insults.get(guild_id, [])
 
-        # Check for custom combos in normal mode
-        if guild_id in custom_combos:
-            for trigger, insult in custom_combos[guild_id]:
-                if trigger.lower() in message_content:
-                    try:
-                        await event.message.respond(insult)
-                    except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
-                        pass
-                    await asyncio.sleep(15)
-                    return
+    # Check for custom combos in normal mode
+    if guild_id in custom_combos:
+        for trigger, insult in custom_combos[guild_id]:
+            if trigger.lower() in message_content:
+                try:
+                    await event.message.respond(insult)
+                except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                    pass
+                await asyncio.sleep(15)
+                return
 
-        # Check for standard hearing words
-        if any(word in message_content for word in hearing):
-            selected_response = random.choice(all_responses)
-            try:
-                await event.message.respond(selected_response)
-            except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
-                pass
-            await asyncio.sleep(15)
-            return
+    # Check for standard hearing words
+    if any(word in message_content for word in hearing):
+        selected_response = random.choice(all_responses)
+        try:
+            await event.message.respond(selected_response)
+        except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+            pass
+        await asyncio.sleep(15)
+        return
 
-        # Check for custom triggers
-        if guild_id in custom_triggers:
-            for trigger in custom_triggers[guild_id]:
-                if trigger.lower() in message_content:
-                    selected_response = random.choice(all_responses)
-                    try:
-                        await event.message.respond(selected_response)
-                    except hikari.errors.ForbiddenError:
-                        pass
-                    await asyncio.sleep(15)
-                    break
+    # Check for custom triggers
+    if guild_id in custom_triggers:
+        for trigger in custom_triggers[guild_id]:
+            if trigger.lower() in message_content:
+                selected_response = random.choice(all_responses)
+                try:
+                    await event.message.respond(selected_response)
+                except hikari.errors.ForbiddenError:
+                    pass
+                await asyncio.sleep(15)
+                break
 
 # AI response message event listener
 @bot.listen(hikari.MessageCreateEvent)
@@ -1022,7 +1026,7 @@ async def addtrigger(ctx: lightbulb.Context) -> None:
     data = load_data()
 
     server_id = str(ctx.guild_id)
-    trigger = ctx.options.trigger
+    trigger = ctx.options.trigger.lower()
 
     if len(trigger) > 200:
         await ctx.respond("Your trigger is too long. Keep it under 200 characters.")
@@ -1031,14 +1035,27 @@ async def addtrigger(ctx: lightbulb.Context) -> None:
     if server_id not in data['custom_triggers']:
         data['custom_triggers'][server_id] = []
 
+    custom_combos = data.get('custom_combos', {}).get(server_id, [])
+
+    # Check if the trigger already exists in custom_triggers
+    if trigger in (t.lower() for t in data['custom_triggers'][server_id]):
+        await ctx.respond("This trigger already exists in this server.")
+        return
+
+    # Check if the trigger already exists in custom_combos
+    if any(trigger == t.lower() for t, _ in custom_combos):
+        await ctx.respond("This trigger already exists in `/combo_add`. Please remove it from there before adding it here.")
+        return
+
+    # Add the new trigger
     data['custom_triggers'][server_id].append(trigger)
     save_data(data)
-    await ctx.respond(f"New trigger added.")
+    await ctx.respond("New trigger added.")
 
     try:
         await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
-        print(f"{e}")
+        print(f"Failed to log command usage: {e}")
 
 # Remove trigger command
 @bot.command
@@ -1125,7 +1142,7 @@ async def combo_add(ctx: lightbulb.Context) -> None:
                 "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
-                "• Have Insult Bot repond to every message in set channel(s).\n"
+                "• Have Insult Bot respond to every message in set channel(s).\n"
                 "• Add custom trigger-insult combos.\n"
                 "• Insult Bot will remember your conversations.\n"
                 "• Remove cool-downs.\n"
@@ -1145,17 +1162,35 @@ async def combo_add(ctx: lightbulb.Context) -> None:
             print(f"{e}")
         return
 
-    trigger = ctx.options.trigger
-    insult = ctx.options.insult
+    trigger = ctx.options.trigger.lower()
+    insult = ctx.options.insult.lower()
 
+    if any(prohibited_word in insult for prohibited_word in prohibited_words):
+        await ctx.respond("Your insult does not comply with Discord's TOS.")
+        return
+
+    # Initialize server data if it doesn't exist
     if server_id not in data['custom_combos']:
         data['custom_combos'][server_id] = []
 
+    custom_triggers = data.get('custom_triggers', {}).get(server_id, [])
+
+    # Check if the trigger already exists in custom_combos
+    if any(trigger == t.lower() for t, _ in data['custom_combos'][server_id]):
+        await ctx.respond("This trigger already exists in `/combo_add`. Please remove it from there before adding it here.")
+        return
+
+    # Check if the trigger already exists in custom_triggers
+    if trigger in (t.lower() for t in custom_triggers):
+        await ctx.respond("This trigger already exists in `/trigger_add`. Please remove it from there before adding it here.")
+        return
+
+    # Add the new combo
     data['custom_combos'][server_id].append((trigger, insult))
     
     save_data(data)
     
-    await ctx.respond(f"New combo added.")
+    await ctx.respond("New combo added.")
 
     try:
         await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
