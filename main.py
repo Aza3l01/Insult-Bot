@@ -64,9 +64,10 @@ autorespond_servers = data.get('autorespond_servers', {})
 custom_combos = data.get('custom_combos', {})
 
 # Nonpersistent data
-prem_email = ['test@gmail.com']
+prem_email = []
 user_reset_time = {}
 user_response_count = {}
+user_limit_reached = {}
 
 # Tokens
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -291,7 +292,6 @@ async def on_guild_join(event):
                     description=(
                         "Reply or Ping me to talk to me.\n\n"
                         "Use the `/help` command to get an overview of all available commands.\n\n"
-                        "Get a premium free trial for a week by using the `/free` command.\n\n"
                         "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
                     ),
                     color=0x2B2D31
@@ -442,31 +442,20 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     prem_users = data.get('prem_users', {})
     allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
+    user_id = str(event.message.author.id)
+    current_time = asyncio.get_event_loop().time()
+    reset_time = user_reset_time.get(user_id, 0)
+
+    if user_id in user_limit_reached:
+        if current_time - user_limit_reached[user_id] < 21600:
+            return
+        else:
+            del user_limit_reached[user_id]
+
     if autorespond_servers.get(guild_id):
         allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
         if allowed_channels and channel_id not in allowed_channels:
             return
-
-        user_id = str(event.message.author.id)
-        message_content = content.strip()
-        async with bot.rest.trigger_typing(channel_id):
-            ai_response = await generate_text(message_content, user_id)
-
-        response_message = f"{event.message.author.mention} {ai_response}"
-        try:
-            await event.message.respond(response_message)
-        except hikari.errors.ForbiddenError:
-            pass
-        return
-
-    if mentions_bot or is_reference_to_bot:
-        allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
-        if allowed_channels and channel_id not in allowed_channels:
-            return
-
-        user_id = str(event.message.author.id)
-        current_time = asyncio.get_event_loop().time()
-        reset_time = user_reset_time.get(user_id, 0)
 
         if current_time - reset_time > 21600:
             user_response_count[user_id] = 0
@@ -486,7 +475,6 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                             f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
                             "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
                             "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
-                            "Get a premium free trial for a week by using the `/free` command.\n\n"
                             "**Access Premium Commands Like:**\n"
                             "• Unlimited responses from Insult Bot.\n"
                             "• Have Insult Bot respond to every message in set channel(s).\n"
@@ -504,6 +492,56 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     embed.set_image("https://i.imgur.com/rcgSVxC.gif")
                     await event.message.respond(embed=embed)
                     await bot.rest.create_message(1246886903077408838, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
+
+                    # Mark user as having hit the limit
+                    user_limit_reached[user_id] = current_time
+                    return
+
+        async with bot.rest.trigger_typing(channel_id):
+            ai_response = await generate_text(content, user_id)
+
+        user_response_count[user_id] = user_response_count.get(user_id, 0) + 1
+        response_message = f"{event.message.author.mention} {ai_response}"
+        try:
+            await event.message.respond(response_message)
+        except hikari.errors.ForbiddenError:
+            pass
+        return
+
+    if mentions_bot or is_reference_to_bot:
+        allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
+        if allowed_channels and channel_id not in allowed_channels:
+            return
+
+        if user_id not in prem_users:
+            if user_response_count.get(user_id, 0) >= 20:
+                has_voted = await topgg_client.get_user_vote(user_id)
+                if not has_voted:
+                    embed = hikari.Embed(
+                        title="Limit Reached :(",
+                        description=(
+                            f"{event.message.author.mention}, limit resets in `6 hours`.\n\n"
+                            "If you want to continue for free, [vote](https://top.gg/bot/801431445452750879/vote) to gain unlimited access for the next 12 hours or become a [supporter](https://ko-fi.com/azaelbots) for $1.99 a month.\n\n"
+                            "I will never completely paywall my bot, but limits like this lower running costs and keep the bot running. ❤️\n\n"
+                            "**Access Premium Commands Like:**\n"
+                            "• Unlimited responses from Insult Bot.\n"
+                            "• Have Insult Bot respond to every message in set channel(s).\n"
+                            "• Add custom trigger-insult combos.\n"
+                            "• Insult Bot will remember your conversations.\n"
+                            "• Remove cool-downs.\n"
+                            "**Support Server Related Perks Like:**\n"
+                            "• Access to behind the scenes discord channels.\n"
+                            "• Have a say in the development of Insult Bot.\n"
+                            "• Supporter exclusive channels.\n\n"
+                            "*Any memberships bought can be refunded within 3 days of purchase.*"
+                        ),
+                        color=0x2B2D31
+                    )
+                    embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+                    await event.message.respond(embed=embed)
+                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
+
+                    user_limit_reached[user_id] = current_time
                     return
 
         async with bot.rest.trigger_typing(channel_id):
@@ -710,7 +748,6 @@ async def autorespond(ctx: lightbulb.Context):
             description=(
                 "To toggle Insult Bot to auto respond in your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
@@ -787,7 +824,6 @@ async def memory(ctx: lightbulb.Context) -> None:
             description=(
                 "To toggle Insult Bot to remember your conversations, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
@@ -1136,7 +1172,6 @@ async def combo_add(ctx: lightbulb.Context) -> None:
             description=(
                 "To add custom combos to your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot respond to every message in set channel(s).\n"
@@ -1210,7 +1245,6 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
             description=(
                 "To remove custom combos from your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
@@ -1271,7 +1305,6 @@ async def combo_view(ctx: lightbulb.Context) -> None:
             description=(
                 "To view custom combos in your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
@@ -1330,7 +1363,6 @@ async def customonly(ctx: lightbulb.Context) -> None:
             description=(
                 "To toggle custom only triggers/insults for your server, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $1.99 a month.\n\n"
                 "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
-                "Get a premium free trial for a week by using the `/free` command.\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
                 "• Have Insult Bot repond to every message in set channel(s).\n"
@@ -1391,9 +1423,9 @@ async def help(ctx):
         title="📚 Help 📚",
         description=(
             "To talk to Insult Bot, reply or ping the bot in chat. Use the `/setchannel_toggle` command to set channels for the bot to respond in.\n\n"
-            "For suggestions and resolving issues, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa). My developer will be happy to help! "
+            "For suggestions and help, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa). My developer will be happy to help! "
             "[Click here](https://discord.com/api/oauth2/authorize?client_id=801431445452750879&permissions=414464727104&scope=applications.commands%20bot), to invite the bot to your server.\n\n"
-            # "[Click here](https://discord.com/invite/x7MdgVFUwa), to view the privacy policy statement.\n\n"
+            "Use the `/claim` command to receive your perks after becoming a supporter.\n\n"
             "**Core Commands:**\n"
             "**/insult:** Send an insult to someone.\n"
             "**/setchannel_toggle:** Restrict Insult Bot to particular channel(s).\n"
@@ -1407,10 +1439,7 @@ async def help(ctx):
             "**/trigger_[add/remove/view]:** Add/remove/view custom triggers.\n"
             "**/combo_[add/remove/view]:** Add/remove/view trigger-insult combos. (P)\n"
             "**/customonly:** Set custom insults and triggers only. (P)\n\n"
-            "**Miscellaneous Commands:**\n"
-            "**/claim:** Claim premium by providing your Ko-fi email.\n"
-            "**/free:** Get a premium free trial for a week.\n\n"
-            "**To use (P) premium commands and help keep the bot running, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for  $1.99 a month. ❤️**\n\n"
+            "**To use (P) premium commands and help cover costs associated with running Insult Bot, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for  $1.99 a month. ❤️**\n\n"
         ),
         color=0x2B2D31
     )
@@ -1421,7 +1450,7 @@ async def help(ctx):
     except Exception as e:
         print(f"{e}")
 
-# Claim premium command
+# Claim command
 @bot.command
 @lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
 @lightbulb.option("email", "Enter your Ko-fi email", type=str)
@@ -1462,7 +1491,7 @@ async def claim(ctx: lightbulb.Context) -> None:
             title="Invite:",
             description=(
                 "Your email was not recognized. If you think this is an error, join the [support server](https://discord.com/invite/x7MdgVFUwa) to fix this issue.\n\n"
-                "If you haven't yet subscribed to premium, consider doing so for $1.99 a month. It helps cover the costs associated with running Insult Bot. ❤️\n\n"
+                "If you haven't yet subscribed, consider doing so for $1.99 a month. It helps cover the costs associated with running Insult Bot. ❤️\n\n"
                 "Premium Perks:\n"
                 "**Access Premium Commands Like:**\n"
                 "• Unlimited responses from Insult Bot.\n"
@@ -1483,39 +1512,6 @@ async def claim(ctx: lightbulb.Context) -> None:
             await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
-
-# Free premium command
-@bot.command
-@lightbulb.add_cooldown(length=5, uses=1, bucket=lightbulb.UserBucket)
-@lightbulb.command("free", "Get premium for free for a week!")
-@lightbulb.implements(lightbulb.SlashCommand)
-async def free(ctx: lightbulb.Context) -> None:
-    if any(word in str(ctx.author.id) for word in prem_users):
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-
-    data = load_data()
-    user_id = str(ctx.author.id)
-    server_id = str(ctx.guild_id)
-
-    if user_id in data['prem_users']:
-        await ctx.command.cooldown_manager.reset_cooldown(ctx)
-        await ctx.respond("You already have premium. 🤦")
-        return
-    
-    if user_id in data['used_free_trial']:
-        await ctx.respond("You have already claimed the free trial. 😔")
-        return
-
-    data['prem_users'][user_id] = [server_id]
-    data['used_free_trial'].append(user_id)
-    data['free_trial_start_time'][user_id] = asyncio.get_event_loop().time()
-    save_data(data)
-    await ctx.respond("You have premium now! ❤️")
-
-    try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
-    except Exception as e:
-        print(f"{e}")
 
 # Error handling
 @bot.listen(lightbulb.CommandErrorEvent)
