@@ -125,7 +125,7 @@ async def generate_text(prompt, user_id=None):
     try:
         data = load_data()
         
-        system_message = "Answer questions with a mean attitude but still be helpful and keep responses very brief"
+        system_message = "Be sarcastic, rude, and direct. Don't repeat yourself, and don't be overly nice. Keep it short and sharp."
         
         if user_id and user_id in data.get('user_custom_styles', {}):
             system_message = data['user_custom_styles'][user_id]
