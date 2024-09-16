@@ -50,8 +50,6 @@ data = load_data()
 
 # Load data
 prem_users = data.get('prem_users', {})
-used_free_trial = data.get('used_free_trial', [])
-free_trial_start_time = data.get('free_trial_start_time', {})
 user_memory_preferences = data.get('user_memory_preferences', {})
 user_conversation_memory = data.get('user_conversation_memory', {})
 custom_only_servers = data.get('custom_only_servers', [])
