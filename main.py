@@ -23,8 +23,6 @@ def load_data():
     except (FileNotFoundError, json.JSONDecodeError):
         return {
             "prem_users": {},
-            "used_free_trial": [],
-            "free_trial_start_time": {},
             "user_memory_preferences": {},
             "user_conversation_memory": {},
             "custom_only_servers": [],
