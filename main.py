@@ -161,21 +161,20 @@ async def generate_text(prompt, user_id=None):
 # Email
 @bot.listen(hikari.MessageCreateEvent)
 async def on_message(event: hikari.MessageCreateEvent) -> None:
-    if event.channel_id == 1266481246121234554:
+    if event.channel_id == 1285293925699031080:
         email = event.message.content.strip()
         if re.match(r"[^@]+@[^@]+\.[^@]+", email):
             if email not in prem_email:
                 prem_email.append(email)
-                await bot.rest.create_message(1246886903077408838, f"prem_email = {prem_email}")
+                await bot.rest.create_message(1285303149682364548, f"prem_email = {prem_email}")
             else:
-                await bot.rest.create_message(1246886903077408838, f"prem_email list = {prem_email}")
+                await bot.rest.create_message(1285303149682364548, f"prem_email = {prem_email}")
         else:
-            await bot.rest.create_message(1246886903077408838, "The provided email is invalid.")
+            await bot.rest.create_message(1285303149682364548, "The provided email is invalid.")
 
 # Presence
 @bot.listen(hikari.StartedEvent)
 async def on_starting(event: hikari.StartedEvent) -> None:
-    asyncio.create_task(check_expired_trials())
     while True:
         guilds = await bot.rest.fetch_my_guilds()
         server_count = len(guilds)
@@ -187,96 +186,6 @@ async def on_starting(event: hikari.StartedEvent) -> None:
         )
         await topgg_client.post_guild_count(server_count)
         await asyncio.sleep(3600)
-
-# Expiration check
-async def check_expired_trials():
-    while True:
-        current_time = asyncio.get_event_loop().time()
-        expired_users = []
-        data = load_data()
-
-        for user_id, start_time in data['free_trial_start_time'].items():
-            if current_time - start_time > 432000:
-                expired_users.append(user_id)
-
-        for user_id in expired_users:
-            if user_id in data['prem_users']:
-                server_ids = list(data['prem_users'][user_id])
-
-                for server_id in server_ids:
-                    if server_id in data['custom_only_servers']:
-                        data['custom_only_servers'].remove(server_id)
-
-                    if server_id in data.get('autorespond_servers', {}):
-                        del data['autorespond_servers'][server_id]
-
-                del data['prem_users'][user_id]
-                data['user_conversation_memory'].pop(user_id, None)
-
-            data['free_trial_start_time'].pop(user_id, None)
-
-            try:
-                user = await bot.rest.fetch_user(int(user_id))
-                embed = hikari.Embed(
-                    title="⌛ Free Trial Ending Soon ⌛",
-                    description=(
-                        "**You'll Soon Lose Access To Premium Commands Like:**\n"
-                        "• Unlimited responses from Insult Bot.\n"
-                        "• Have Insult Bot repond to every message in set channel(s).\n"
-                        "• Add custom trigger-insult combos.\n"
-                        "• Insult Bot will remember your conversations.\n"
-                        "• Remove cool-downs.\n"
-                        "**And Support Server-related Perks Like:**\n"
-                        "• Access to behind-the-scenes Discord channels.\n"
-                        "• Have a say in the development of Insult Bot.\n"
-                        "• Supporter-exclusive channels.\n\n"
-                        "For privacy reasons, the data you've entered while using premium commands will be deleted in 48 hours.\n\n"
-                        "If you would like me to hold your data in case you want to become a supporter in the future, feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) to talk to my developer about saving your data.\n\n"
-                        "Thank you for trying out premium, means a lot to me!\n\n"
-                        "To continue using premium commands, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for $1.99 a month. ❤️\n\n"
-                        "*Any memberships bought can be refunded within 3 days of purchase.*"
-                    ),
-                    color=0x2B2D31
-                )
-                await user.send(embed=embed)
-                await bot.rest.create_message(1246886903077408838, f"Trial expiration DM sent to `{user_id}`.")
-            except hikari.errors.NotFoundError:
-                await bot.rest.create_message(1246886903077408838, f"Failed to send trial expiration DM to `{user_id}`: User not found.")
-            except hikari.errors.ForbiddenError:
-                await bot.rest.create_message(1246886903077408838, f"Failed to send trial expiration DM to `{user_id}`: Forbidden to send DM.")
-
-            asyncio.create_task(delete_user_data_after_delay(user_id, 172800))
-
-        save_data(data)
-        await asyncio.sleep(3600)
-
-# Delete free trial data
-async def delete_user_data_after_delay(user_id, delay):
-    await asyncio.sleep(delay)
-    
-    data = load_data()
-
-    if user_id in data['prem_users']:
-        server_ids = list(data['prem_users'][user_id])
-
-        for server_id in server_ids:
-            if server_id in data['custom_only_servers']:
-                data['custom_only_servers'].remove(server_id)
-
-            if server_id in data.get('autorespond_servers', {}):
-                del data['autorespond_servers'][server_id]
-
-            if server_id in data['custom_combos']:
-                del data['custom_combos'][server_id]
-
-        del data['prem_users'][user_id]
-        data['user_conversation_memory'].pop(user_id, None)
-
-    data['free_trial_start_time'].pop(user_id, None)
-    data['user_memory_preferences'].pop(user_id, None)
-    
-    save_data(data)
-    await bot.rest.create_message(1246886903077408838, f"Premium data for `{user_id}` has been deleted.")
 
 # Join event
 @bot.listen(hikari.GuildJoinEvent)
@@ -297,21 +206,21 @@ async def on_guild_join(event):
                 embed.set_footer("Insult Bot is under extensive development, expect to see updates regularly!")
                 try:
                     await channel.send(embed=embed)
-                    await bot.rest.create_message(1246886903077408838, f"Joined and sent join message in `{guild.name}`.")
+                    await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` with message.")
                 except hikari.errors.ForbiddenError:
-                    await bot.rest.create_message(1246886903077408838, f"Joined and failed to send message in `{guild.name}`")
+                    await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` without message.")
                 break
         else:
-            await bot.rest.create_message(1246886903077408838, f"Joined and found no channels in `{guild.name}` to send join message.")
+            await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` and no channel found.")
     else:
-        await bot.rest.create_message(1246886903077408838, "Joined unknown server.")
+        await bot.rest.create_message(1285303149682364548, "Joined unknown server.")
 
 # Leave event
 @bot.listen(hikari.GuildLeaveEvent)
 async def on_guild_leave(event):
     guild = event.old_guild
     if guild is not None:
-        await bot.rest.create_message(1246886903077408838, f"Left `{guild.name}`.")
+        await bot.rest.create_message(1285303149682364548, f"Left `{guild.name}`.")
 
 # Core----------------------------------------------------------------------------------------------------------------------------------------
 # Message event listener
@@ -489,7 +398,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     )
                     embed.set_image("https://i.imgur.com/rcgSVxC.gif")
                     await event.message.respond(embed=embed)
-                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
+                    await bot.rest.create_message(1285303149682364548, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
 
                     # Mark user as having hit the limit
                     user_limit_reached[user_id] = current_time
@@ -537,7 +446,7 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
                     )
                     embed.set_image("https://i.imgur.com/rcgSVxC.gif")
                     await event.message.respond(embed=embed)
-                    await bot.rest.create_message(1246886903077408838, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
+                    await bot.rest.create_message(1285303149682364548, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
 
                     user_limit_reached[user_id] = current_time
                     return
@@ -603,7 +512,7 @@ async def insult(ctx):
     
     # Log command usage
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -634,7 +543,7 @@ async def setchannel(ctx):
     if not is_admin and not is_premium_user:
         await ctx.respond("Ask your admins or upgrade to premium to set this up. 🤦")
         try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
         return
@@ -687,7 +596,7 @@ async def setchannel(ctx):
         update_data({'prem_users': prem_users})
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -723,7 +632,7 @@ async def viewsetchannels(ctx):
     await ctx.respond(embed=embed)
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -764,7 +673,7 @@ async def autorespond(ctx: lightbulb.Context):
         await ctx.respond(embed=embed)
 
         try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
         return
@@ -802,7 +711,7 @@ async def autorespond(ctx: lightbulb.Context):
     })
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -839,7 +748,7 @@ async def memory(ctx: lightbulb.Context) -> None:
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
         return
@@ -865,7 +774,7 @@ async def memory(ctx: lightbulb.Context) -> None:
     await ctx.respond(response_message)
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -897,7 +806,7 @@ async def setstyle(ctx: lightbulb.Context) -> None:
     await ctx.respond(f'Custom response style has been set to: "{style}"')
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -917,7 +826,7 @@ async def viewstyle(ctx: lightbulb.Context) -> None:
         await ctx.respond("You haven't set a custom style yet.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -938,7 +847,7 @@ async def clearstyle(ctx: lightbulb.Context) -> None:
         await ctx.respond("You haven't set a custom style yet.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -975,7 +884,7 @@ async def addinsult(ctx: lightbulb.Context) -> None:
     await ctx.respond("New insult added.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1008,7 +917,7 @@ async def removeinsult(ctx: lightbulb.Context) -> None:
     await ctx.respond("The selected insult has been removed.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1040,7 +949,7 @@ async def viewinsults(ctx: lightbulb.Context) -> None:
         await ctx.respond("No custom insults found.")
     
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1084,7 +993,7 @@ async def addtrigger(ctx: lightbulb.Context) -> None:
     await ctx.respond("New trigger added.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"Failed to log command usage: {e}")
 
@@ -1117,7 +1026,7 @@ async def removetrigger(ctx: lightbulb.Context) -> None:
     await ctx.respond("The selected trigger has been removed.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1149,7 +1058,7 @@ async def viewtriggers(ctx: lightbulb.Context) -> None:
         await ctx.respond("No custom triggers found.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1187,7 +1096,7 @@ async def combo_add(ctx: lightbulb.Context) -> None:
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
         return
@@ -1223,7 +1132,7 @@ async def combo_add(ctx: lightbulb.Context) -> None:
     await ctx.respond("New combo added.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1260,7 +1169,7 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
         return
@@ -1284,7 +1193,7 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
     await ctx.respond(f"The combo with trigger `{trigger_to_remove}` has been removed.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1320,7 +1229,7 @@ async def combo_view(ctx: lightbulb.Context) -> None:
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"Failed to invoke `{ctx.command.name}` tried to invoke in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
         return
@@ -1341,7 +1250,7 @@ async def combo_view(ctx: lightbulb.Context) -> None:
         await ctx.respond("No custom combos found.")
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1378,7 +1287,7 @@ async def customonly(ctx: lightbulb.Context) -> None:
         embed.set_image("https://i.imgur.com/rcgSVxC.gif")
         await ctx.respond(embed=embed)
         try:
-            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
         return
@@ -1402,7 +1311,7 @@ async def customonly(ctx: lightbulb.Context) -> None:
     save_data(data)
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
     return
@@ -1444,7 +1353,7 @@ async def help(ctx):
     await ctx.respond(embed=embed)
 
     try:
-        await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+        await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
     except Exception as e:
         print(f"{e}")
 
@@ -1463,7 +1372,7 @@ async def claim(ctx: lightbulb.Context) -> None:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
         await ctx.respond("You already have premium. 🤦")
         try:
-            await bot.rest.create_message(1246886903077408838, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` but already had premium.")
+            await bot.rest.create_message(1285303149682364548, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` but already had premium.")
         except Exception as e:
             print(f"{e}")
         return
@@ -1481,7 +1390,7 @@ async def claim(ctx: lightbulb.Context) -> None:
         await ctx.respond("You have premium now! Thank you so much. ❤️")
         
         try:
-            await bot.rest.create_message(1246886903077408838, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
     else:
@@ -1507,7 +1416,7 @@ async def claim(ctx: lightbulb.Context) -> None:
         )
         await ctx.respond(embed=embed)
         try:
-            await bot.rest.create_message(1246886903077408838, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
+            await bot.rest.create_message(1285303149682364548, f"Failed to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
             print(f"{e}")
 
