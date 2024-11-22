@@ -77,16 +77,19 @@ class TopGGClient:
     def __init__(self, bot, token):
         self.bot = bot
         self.token = token
+        self.session = None
+
+    async def setup(self):
+        """Initialize the aiohttp.ClientSession in an async context."""
         self.session = aiohttp.ClientSession()
 
     async def post_guild_count(self, count):
+        """Post the guild count to Top.gg."""
+        if not self.session:
+            raise RuntimeError("Client session is not initialized. Call setup() first.")
         url = f"https://top.gg/api/bots/{self.bot.get_me().id}/stats"
-        headers = {
-            "Authorization": self.token
-        }
-        payload = {
-            "server_count": count
-        }
+        headers = {"Authorization": self.token}
+        payload = {"server_count": count}
         async with self.session.post(url, json=payload, headers=headers) as response:
             if response.status != 200:
                 print(f"Failed to post guild count to Top.gg: {response.status}")
@@ -94,10 +97,11 @@ class TopGGClient:
                 print("Posted server count to Top.gg")
 
     async def get_user_vote(self, user_id):
+        """Check if a user has voted for the bot on Top.gg."""
+        if not self.session:
+            raise RuntimeError("Client session is not initialized. Call setup() first.")
         url = f"https://top.gg/api/bots/{self.bot.get_me().id}/check?userId={user_id}"
-        headers = {
-            "Authorization": self.token
-        }
+        headers = {"Authorization": self.token}
         try:
             async with self.session.get(url, headers=headers) as response:
                 if response.status == 200:
@@ -111,7 +115,9 @@ class TopGGClient:
             return False
 
     async def close(self):
-        await self.session.close()
+        """Close the aiohttp.ClientSession."""
+        if self.session:
+            await self.session.close()
 
 topgg_token = os.getenv("TOPGG_TOKEN")
 topgg_client = TopGGClient(bot, topgg_token)
@@ -172,7 +178,8 @@ async def on_message(event: hikari.MessageCreateEvent) -> None:
 
 # Presence
 @bot.listen(hikari.StartedEvent)
-async def on_starting(event: hikari.StartedEvent) -> None:
+async def on_starting(event: hikari.StartedEvent):
+    await topgg_client.setup()  # Initialize aiohttp.ClientSession
     while True:
         guilds = await bot.rest.fetch_my_guilds()
         server_count = len(guilds)
@@ -182,7 +189,7 @@ async def on_starting(event: hikari.StartedEvent) -> None:
                 type=hikari.ActivityType.WATCHING,
             )
         )
-        await topgg_client.post_guild_count(server_count)
+        await topgg_client.post_guild_count(server_count)  # Call the method here
         await asyncio.sleep(3600)
 
 # Join event
@@ -1434,7 +1441,7 @@ async def on_error(event: lightbulb.CommandErrorEvent) -> None:
 
 # Top.gg stop
 @bot.listen(hikari.StoppedEvent)
-async def on_stopping(event: hikari.StoppedEvent) -> None:
+async def on_stopping(event: hikari.StoppedEvent):
     await topgg_client.close()
 
 bot.run()
