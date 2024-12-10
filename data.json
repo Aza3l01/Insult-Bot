@@ -2,47 +2,58 @@
     "prem_users": {
         "364400063281102852": {
             "email": "jo.example@example.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 1154230613516238928
         },
         "919005754130829352": {
             "email": "quantumgaming1872@outlook.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 934644448187539517
         },
         "1054440117705650217": {
             "email": "billhamletjr23@gmail.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 1193319104917024849
         },
         "554054577209606174": {
             "email": "brasilejustin1998@gmail.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 1279470645536755732
         },
         "551688126721032192": {
             "email": "meaghan.palin@gmail.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 960473330098524160
         },
         "188214200256954377": {
             "email": "jgambardella90@gmail.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 178677832644427776
         },
         "1129885689929007144": {
             "email": "bmbaldwin231@gmail.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 1226430990877069342
         },
         "363580560280387595": {
             "email": "trejodani2517@gmail.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 1278597658713526304
         },
         "806745715261964288": {
             "email": "themaplefen@icloud.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 1300862413679366175
         },
         "909458412700594206": {
             "email": "laqmil@gmail.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 1223272823959720008
         },
         "152960972942868480": {
             "email": "tannerman9912@yahoo.com",
-            "claim_time": 1733768860
+            "claim_time": 1733768860,
+            "servers": 541064429102432258
         }
     },
     "user_memory_preferences": {
