@@ -199,26 +199,7 @@ async def on_starting(event: hikari.StartedEvent):
 async def on_guild_join(event):
     guild = event.get_guild()
     if guild is not None:
-        for channel in guild.get_channels().values():
-            if isinstance(channel, hikari.TextableChannel):
-                embed = hikari.Embed(
-                    title="Thanks for inviting me ❤️",
-                    description=(
-                        "Reply or Ping me to talk to me.\n\n"
-                        "Use the `/help` command to get an overview of all available commands.\n\n"
-                        "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
-                    ),
-                    color=0x2B2D31
-                )
-                embed.set_footer("Insult Bot is under extensive development, expect to see updates regularly!")
-                try:
-                    await channel.send(embed=embed)
-                    await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` with message.")
-                except hikari.errors.ForbiddenError:
-                    await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` without message.")
-                break
-        else:
-            await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` and no channel found.")
+        await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}`.")
     else:
         await bot.rest.create_message(1285303149682364548, "Joined unknown server.")
 
