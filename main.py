@@ -8,7 +8,6 @@ import re
 import json
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
-import time
 
 load_dotenv()
 hearing = [item for item in os.getenv("HEARING_LIST", "").split(",") if item]
@@ -180,8 +179,7 @@ async def on_message(event: hikari.MessageCreateEvent) -> None:
 # Presence
 @bot.listen(hikari.StartedEvent)
 async def on_starting(event: hikari.StartedEvent):
-    await topgg_client.setup()
-    asyncio.create_task(check_premium_users())
+    await topgg_client.setup()  # Initialize aiohttp.ClientSession
     while True:
         guilds = await bot.rest.fetch_my_guilds()
         server_count = len(guilds)
@@ -191,7 +189,7 @@ async def on_starting(event: hikari.StartedEvent):
                 type=hikari.ActivityType.WATCHING,
             )
         )
-        await topgg_client.post_guild_count(server_count)
+        await topgg_client.post_guild_count(server_count)  # Call the method here
         await asyncio.sleep(3600)
 
 # Join event
@@ -199,7 +197,26 @@ async def on_starting(event: hikari.StartedEvent):
 async def on_guild_join(event):
     guild = event.get_guild()
     if guild is not None:
-        await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}`.")
+        for channel in guild.get_channels().values():
+            if isinstance(channel, hikari.TextableChannel):
+                embed = hikari.Embed(
+                    title="Thanks for inviting me ❤️",
+                    description=(
+                        "Reply or Ping me to talk to me.\n\n"
+                        "Use the `/help` command to get an overview of all available commands.\n\n"
+                        "Feel free to join the [support server](https://discord.com/invite/x7MdgVFUwa) for any help!"
+                    ),
+                    color=0x2B2D31
+                )
+                embed.set_footer("Insult Bot is under extensive development, expect to see updates regularly!")
+                try:
+                    await channel.send(embed=embed)
+                    await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` with message.")
+                except hikari.errors.ForbiddenError:
+                    await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` without message.")
+                break
+        else:
+            await bot.rest.create_message(1285303149682364548, f"Joined `{guild.name}` and no channel found.")
     else:
         await bot.rest.create_message(1285303149682364548, "Joined unknown server.")
 
@@ -210,32 +227,7 @@ async def on_guild_leave(event):
     if guild is not None:
         await bot.rest.create_message(1285303149682364548, f"Left `{guild.name}`.")
 
-# Premium check task
-async def check_premium_users():
-    while True:
-        data = load_data()
-        current_time = int(time.time())
-        updated_prem_users = data.get('prem_users', {})
-
-        for user_id, details in list(updated_prem_users.items()):
-            email = details['email']
-            claim_time = details['claim_time']
-
-            if current_time - claim_time >= 30 * 24 * 60 * 60:
-                if email in prem_email:
-                    updated_prem_users[user_id]["claim_time"] = current_time
-                    prem_email.remove(email)
-                    await bot.rest.create_message(1285303149682364548, f"`{email}` updated with new `claim_time`.")
-                else:
-                    updated_prem_users.pop(user_id)
-                    await bot.rest.create_message(1285303149682364548, f"`{email}` removed from `prem_users`.")
-
-        data['prem_users'] = updated_prem_users
-        save_data(data)
-        await asyncio.sleep(24 * 60 * 60)
-
 # Core----------------------------------------------------------------------------------------------------------------------------------------
-
 # Message event listener
 async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     bot_id = bot.get_me().id
@@ -1379,26 +1371,29 @@ async def help(ctx):
 async def claim(ctx: lightbulb.Context) -> None:
     data = load_data()
     user_id = str(ctx.author.id)
-    email = ctx.options.email
-    current_time = int(time.time())
+    server_id = str(ctx.guild_id)
 
     if user_id in data['prem_users']:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
-        await ctx.respond("You already have premium. Thank you! ❤️")
+        await ctx.respond("You already have premium. 🤦")
         try:
             await bot.rest.create_message(1285303149682364548, f"`{ctx.author.id}` tried to invoke `{ctx.command.name}` in `{ctx.get_guild().name}` but already had premium.")
         except Exception as e:
             print(f"{e}")
         return
-
+    
+    email = ctx.options.email
+    
     if email in prem_email:
-        data['prem_users'][user_id] = {
-            "email": email,
-            "claim_time": current_time,
-        }
-        prem_email.remove(email)
+        if user_id not in data['prem_users']:
+            data['prem_users'][user_id] = [server_id]
+        else:
+            if server_id not in data['prem_users'][user_id]:
+                data['prem_users'][user_id].append(server_id)
+        
         save_data(data)
         await ctx.respond("You have premium now! Thank you so much. ❤️")
+        
         try:
             await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
         except Exception as e:
