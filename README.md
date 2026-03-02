@@ -6,26 +6,44 @@ You can restrict the bot to specific channels using the `/setchannel` command. W
 
 **Scroll down to see images.**
 
-## Core Commands:
-- **`/help:`** List of all the commands.
-- **`/insult:`** Send an insult to someone.
-- **`/setchannel:`** Restrict Insult Bot to particular channel(s).
+## 📚 Help
 
-## Premium Commands:
-- **`/addinsult:`** Add a custom insult to a server of your choice.
-- **`/removeinsult:`** Remove a custom insult you added.
-- **`/viewinsults:`** View the custom insults you have added.
-- **`/addtrigger:`** Add a custom trigger to a server of your choice.
-- **`/removetrigger:`** Remove a custom trigger from a server of your choice.
-- **`/viewtriggers:`** View custom triggers added to a server.
-- **`/customonly:`** Set custom insults and triggers only.
+To talk to **Insult Bot**, reply or ping the bot in chat.  
+Use the `/setchannel_toggle` command to set channels for the bot to respond in.
 
-## Miscellaneous:
-- **`/claim_premium:`** Claim premium by providing your Ko-fi email.
-- **`/invite:`** Invite the bot to your server.
-- **`/support:`** Join the support server.
-- **`/privacy:`** View our privacy policy.
+For suggestions and help, feel free to join the support server.  
+My developer will be happy to help! Click here to invite the bot to your server.
 
-**To use premium commands and help keep the bot running, please consider becoming a [member](https://ko-fi.com/azaelbots) for $1.99 a month. ❤️**
+Use the `/claim` command to receive your perks after becoming a supporter.
+
+---
+
+## Core Commands
+
+- `/insult` — Send an insult to someone.  
+- `/setchannel_toggle` — Restrict Insult Bot to particular channel(s).  
+- `/setchannel_view` — View channel(s) Insult Bot is restricted to.
+
+---
+
+## Chatbot Commands
+
+- `/autorespond` — Have Insult Bot respond to every message in a set channel(s). *(P)*  
+- `/memory` — Make Insult Bot remember your conversations. *(P)*  
+- `/style [set/view/clear]` — Set/view/clear the custom style of Insult Bot.
+
+---
+
+## Replybot Commands
+
+- `/insult_[add/remove/view]` — Add/remove/view custom insults.  
+- `/trigger_[add/remove/view]` — Add/remove/view custom triggers.  
+- `/combo_[add/remove/view]` — Add/remove/view trigger-insult combos. *(P)*  
+- `/customonly` — Set custom insults and triggers only. *(P)*  
+
+---
+
+To use **(P)** premium commands and help cover costs associated with running Insult Bot,  
+consider becoming a supporter. ❤️
 
 ![Failed To Load Example Images](https://i.imgur.com/cGEJeq0.png)
