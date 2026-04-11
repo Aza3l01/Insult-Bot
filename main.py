@@ -50,13 +50,21 @@ def load_data():
             data = json.load(file)
             if "users" not in data:
                 data["users"] = {}
-            if "servers" not in data:
-                data["servers"] = {}
             return data
     except (FileNotFoundError, json.JSONDecodeError):
         return {
             "users": {},
-            "servers": {}
+            "prem_users": {},
+            "user_memory_preferences": {},
+            "user_conversation_memory": {},
+            "custom_only_servers": [],
+            "user_custom_styles": {},
+            "allowed_channels_per_guild": {},
+            "allowed_ai_channel_per_guild": {},
+            "custom_insults": {},
+            "custom_triggers": {},
+            "custom_combos": {},
+            "autorespond_servers": {}
         }
 
 def save_data(data):
@@ -73,7 +81,6 @@ def create_user(data, user_id):
         data["users"] = {}
     if user_id not in data["users"]:
         data["users"][user_id] = {
-            "premium": False,
             "infamy": 0,
             "points": 0,
             "streak": 0,
@@ -85,32 +92,17 @@ def create_user(data, user_id):
             "memory": [],
             "memory_on": False,
             "style": None,
-            "limit_reached_at": None,
         }
         save_data(data)
     return data["users"][user_id]
-
-def create_server(data, server_id):
-    if "servers" not in data:
-        data["servers"] = {}
-    if server_id not in data["servers"]:
-        data["servers"][server_id] = {
-            "allowed_channels": [],
-            "allowed_ai_channels": [],
-            "autorespond": False,
-            "custom_insults": [],
-            "custom_triggers": [],
-            "custom_combos": [],
-            "custom_only": False,
-        }
-    return data["servers"][server_id]
 
 data = load_data()
 
 # Nonpersistent data
 prem_email = []
-user_response_count = {}
 user_reset_time = {}
+user_response_count = {}
+user_limit_reached = {}
 
 # Tokens
 openai_client = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -308,12 +300,12 @@ async def on_guild_leave(event):
 async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     bot_id = bot.get_me().id
     guild_id = str(event.guild_id)
-
+    
     data = load_data()
-    server_data = data.get("servers", {}).get(guild_id, {})
-    allowed_channels = server_data.get("allowed_channels", [])
-    if allowed_channels:
-        if str(event.channel_id) not in allowed_channels:
+    allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
+
+    if guild_id in allowed_channels_per_guild and allowed_channels_per_guild[guild_id]:
+        if str(event.channel_id) not in allowed_channels_per_guild[guild_id]:
             return False
 
     message_content = event.message.content.lower() if isinstance(event.message.content, str) else ""
@@ -321,18 +313,17 @@ async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     
     if event.message.message_reference:
         referenced_message_id = event.message.message_reference.id
-        if referenced_message_id:
-            try:
-                referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
-                if referenced_message.author.id == bot_id:
-                    return False
-            except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError, hikari.errors.BadRequestError):
-                pass
+        try:
+            referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
+            if referenced_message.author.id == bot_id:
+                return False
+        except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
+            pass
 
     return not mentions_bot
 
-@bot.listen(hikari.GuildMessageCreateEvent)
-async def on_general_message(event: hikari.GuildMessageCreateEvent):
+@bot.listen(hikari.MessageCreateEvent)
+async def on_general_message(event: hikari.MessageCreateEvent):
     if not event.is_human or not await should_process_event(event):
         return
 
@@ -340,31 +331,15 @@ async def on_general_message(event: hikari.GuildMessageCreateEvent):
     guild_id = str(event.guild_id)
 
     data = load_data()
-    server_data = data.get("servers", {}).get(guild_id, {})
-    custom_combos = server_data.get("custom_combos", [])
-    custom_insults = server_data.get("custom_insults", [])
-    custom_triggers = server_data.get("custom_triggers", [])
+    custom_combos = data.get('custom_combos', {})
+    custom_insults = data.get('custom_insults', {})
+    custom_triggers = data.get('custom_triggers', {})
+    hearing = data.get('hearing', [])
 
     all_responses = []
 
-    for trigger, insult in custom_combos:
-        if trigger.lower() in message_content:
-            try:
-                await event.message.respond(insult)
-            except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
-                pass
-            await asyncio.sleep(15)
-            return
-
-    if any(word in message_content for word in custom_triggers):
-        all_responses = list(custom_insults)
-
-    if custom_insults:
-        all_responses.extend(custom_insults)
-    all_responses.extend(hearing)
-
-    if all_responses:
-        for trigger, insult in custom_combos:
+    if guild_id in custom_combos:
+        for trigger, insult in custom_combos[guild_id]:
             if trigger.lower() in message_content:
                 try:
                     await event.message.respond(insult)
@@ -372,6 +347,24 @@ async def on_general_message(event: hikari.GuildMessageCreateEvent):
                     pass
                 await asyncio.sleep(15)
                 return
+
+    if guild_id in custom_insults and any(word in message_content for word in custom_triggers.get(guild_id, [])):
+        all_responses = custom_insults[guild_id]
+
+    if guild_id in custom_insults:
+        all_responses.extend(custom_insults[guild_id])
+    all_responses.extend(hearing)
+
+    if all_responses:
+        if guild_id in custom_combos:
+            for trigger, insult in custom_combos[guild_id]:
+                if trigger.lower() in message_content:
+                    try:
+                        await event.message.respond(insult)
+                    except (hikari.errors.BadRequestError, hikari.errors.ForbiddenError):
+                        pass
+                    await asyncio.sleep(15)
+                    return
 
         if any(word in message_content for word in hearing):
             selected_response = random.choice(all_responses)
@@ -382,19 +375,20 @@ async def on_general_message(event: hikari.GuildMessageCreateEvent):
             await asyncio.sleep(15)
             return
 
-        for trigger in custom_triggers:
-            if trigger.lower() in message_content:
-                selected_response = random.choice(all_responses)
-                try:
-                    await event.message.respond(selected_response)
-                except hikari.errors.ForbiddenError:
-                    pass
-                await asyncio.sleep(15)
-                break
+        if guild_id in custom_triggers:
+            for trigger in custom_triggers[guild_id]:
+                if trigger.lower() in message_content:
+                    selected_response = random.choice(all_responses)
+                    try:
+                        await event.message.respond(selected_response)
+                    except hikari.errors.ForbiddenError:
+                        pass
+                    await asyncio.sleep(15)
+                    break
 
 # AI response message event listener
-@bot.listen(hikari.GuildMessageCreateEvent)
-async def on_ai_message(event: hikari.GuildMessageCreateEvent):
+@bot.listen(hikari.MessageCreateEvent)
+async def on_ai_message(event: hikari.MessageCreateEvent):
     if event.message.author.is_bot:
         return
 
@@ -424,31 +418,37 @@ async def on_ai_message(event: hikari.GuildMessageCreateEvent):
     channel_id = str(event.channel_id)
 
     data = load_data()
-    server_data = data.get("servers", {}).get(guild_id, {})
+    autorespond_servers = data.get('autorespond_servers', {})
+    prem_users = data.get('prem_users', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
+
     user_id = str(event.message.author.id)
+    current_time = asyncio.get_event_loop().time()
     real_time = time.time()
     reset_time = user_reset_time.get(user_id, 0)
-    user_data = create_user(data, user_id)
 
-    # Rate limit check (persisted across restarts)
-    limit_reached_at = user_data.get("limit_reached_at")
-    if limit_reached_at:
-        if real_time - limit_reached_at < 21600:
+    if user_id in user_limit_reached:
+        if current_time - user_limit_reached[user_id] < 21600:
             return
         else:
-            user_data["limit_reached_at"] = None
-            save_data(data)
+            del user_limit_reached[user_id]
 
-    autorespond = server_data.get("autorespond", False)
-    allowed_ai_channels = server_data.get("allowed_ai_channels", [])
-    should_respond = autorespond or mentions_bot or is_reference_to_bot
+    should_respond = autorespond_servers.get(guild_id) or mentions_bot or is_reference_to_bot
     if not should_respond:
         return
 
-    if allowed_ai_channels and channel_id not in allowed_ai_channels:
-        return
+    if autorespond_servers.get(guild_id):
+        allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
+        if allowed_channels and channel_id not in allowed_channels:
+            return
+    elif mentions_bot or is_reference_to_bot:
+        allowed_channels = allowed_ai_channel_per_guild.get(guild_id, [])
+        if allowed_channels and channel_id not in allowed_channels:
+            return
 
-    is_premium = user_data.get("premium", False)
+    # Update streak, infamy, and points
+    user_data = create_user(data, user_id)
+    is_premium = user_id in prem_users
 
     last_interaction = user_data.get("last_interaction")
     if last_interaction:
@@ -466,14 +466,14 @@ async def on_ai_message(event: hikari.GuildMessageCreateEvent):
     user_data["insults_received"] = user_data.get("insults_received", 0) + 1
     save_data(data)
 
-    if not is_premium:
-        if real_time - reset_time > 21600:
+    if user_id not in prem_users:
+        if current_time - reset_time > 21600:
             user_response_count[user_id] = 0
-            user_reset_time[user_id] = real_time
+            user_reset_time[user_id] = current_time
         else:
             if user_id not in user_response_count:
                 user_response_count[user_id] = 0
-                user_reset_time[user_id] = real_time
+                user_reset_time[user_id] = current_time
 
         if user_response_count.get(user_id, 0) >= 20:
             has_voted = await topgg_client.get_user_vote(user_id)
@@ -504,11 +504,12 @@ async def on_ai_message(event: hikari.GuildMessageCreateEvent):
                     await bot.rest.create_message(1285303149682364548, f"Voting message sent in `{event.get_guild().name}` to `{event.author.id}`.")
                 except Exception:
                     pass
-                user_data["limit_reached_at"] = real_time
-                save_data(data)
+                user_limit_reached[user_id] = current_time
                 return
             else:
                 # Voted — grant bonus points
+                data = load_data()
+                user_data = create_user(data, user_id)
                 if not user_data.get("point_received"):
                     bonus = 100 if is_premium else 50
                     user_data["points"] = user_data.get("points", 0) + bonus
@@ -533,9 +534,25 @@ async def on_dm_message(event: hikari.DMMessageCreateEvent):
         return
 
     user_id = str(event.message.author.id)
+    content = event.message.content or ""
+    real_time = time.time()
     data = load_data()
     user_data = create_user(data, user_id)
     is_premium = user_data.get("premium", False)
+
+    # Rate limit check (persisted across restarts)
+    limit_reached_at = user_data.get("limit_reached_at")
+    if limit_reached_at:
+        if real_time - limit_reached_at < 21600:
+            return
+        else:
+            user_data["limit_reached_at"] = None
+            save_data(data)
+
+    user_data["last_interaction"] = real_time
+    user_data["infamy"] = user_data.get("infamy", 0) + 1
+    user_data["insults_received"] = user_data.get("insults_received", 0) + 1
+    save_data(data)
 
     if not is_premium:
         embed = hikari.Embed(
@@ -558,26 +575,10 @@ async def on_dm_message(event: hikari.DMMessageCreateEvent):
         await event.message.respond(embed=embed)
         return
 
-    content = event.message.content or ""
-    real_time = time.time()
-
-    # Rate limit check (persisted across restarts)
-    limit_reached_at = user_data.get("limit_reached_at")
-    if limit_reached_at:
-        if real_time - limit_reached_at < 21600:
-            return
-        else:
-            user_data["limit_reached_at"] = None
-            save_data(data)
-
-    user_data["last_interaction"] = real_time
-    user_data["infamy"] = user_data.get("infamy", 0) + 1
-    user_data["insults_received"] = user_data.get("insults_received", 0) + 1
-    save_data(data)
-
     async with bot.rest.trigger_typing(event.channel_id):
         ai_response = await generate_text(content, user_id)
 
+    user_response_count[user_id] = user_response_count.get(user_id, 0) + 1
     try:
         await event.message.respond(ai_response)
     except hikari.errors.ForbiddenError:
@@ -594,9 +595,9 @@ async def on_dm_message(event: hikari.DMMessageCreateEvent):
 async def insult(ctx):
     # Load data
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
+    prem_users = data.get('prem_users', {})
 
-    if user_data.get("premium", False):
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     
     channel = ctx.options.channel
@@ -609,10 +610,9 @@ async def insult(ctx):
         return
     
     guild_id = str(ctx.guild_id)
-    server_data = data.get("servers", {}).get(guild_id, {})
-    srv_custom_insults = server_data.get("custom_insults", [])
-    if srv_custom_insults:
-        all_responses = response + srv_custom_insults
+    fresh_custom_insults = data.get('custom_insults', {})
+    if guild_id in fresh_custom_insults:
+        all_responses = response + fresh_custom_insults[guild_id]
     else:
         all_responses = response
     
@@ -629,6 +629,10 @@ async def insult(ctx):
             await ctx.respond("I don't have access to this channel.")
         except hikari.errors.ForbiddenError:
             await ctx.respond("I don't have permission to send messages in that channel.")
+    
+    if str(ctx.author.id) in prem_users:
+        prem_users[str(ctx.author.id)] = guild_id
+        update_data({'prem_users': prem_users})
     
     # Log command usage
     try:
@@ -647,16 +651,18 @@ async def insult(ctx):
 async def setchannel(ctx):
     # Load data
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    guild_id = str(ctx.guild_id)
-    server_data = create_server(data, guild_id)
-    is_premium_user = user_data.get("premium", False)
-
-    if is_premium_user:
+    prem_users = data.get('prem_users', {})
+    allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
+    
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+
+    guild_id = str(ctx.guild_id)
 
     member = await ctx.bot.rest.fetch_member(ctx.guild_id, ctx.author.id)
     is_admin = any(role.permissions & hikari.Permissions.ADMINISTRATOR for role in member.get_roles())
+    is_premium_user = str(ctx.author.id) in prem_users
 
     if not is_admin and not is_premium_user:
         await ctx.respond("Ask your admins or upgrade to premium to set this up. 🤦")
@@ -666,40 +672,52 @@ async def setchannel(ctx):
             print(f"{e}")
         return
 
+    if guild_id not in allowed_channels_per_guild:
+        allowed_channels_per_guild[guild_id] = []
+    if guild_id not in allowed_ai_channel_per_guild:
+        allowed_ai_channel_per_guild[guild_id] = []
+
     toggle = ctx.options.toggle
     channel_id = str(ctx.options.channel.id) if ctx.options.channel else None
     channel_type = ctx.options.type
 
     if toggle == "on":
         if channel_type == "replybot":
-            if channel_id and channel_id not in server_data["allowed_channels"]:
-                server_data["allowed_channels"].append(channel_id)
+            if channel_id and channel_id not in allowed_channels_per_guild[guild_id]:
+                allowed_channels_per_guild[guild_id].append(channel_id)
                 await ctx.respond(f"Insult Bot will only respond with replybot in <#{channel_id}>.")
-            elif channel_id in server_data["allowed_channels"]:
+            elif channel_id in allowed_channels_per_guild[guild_id]:
                 await ctx.respond(f"Insult Bot is already restricted to replybot in <#{channel_id}>.")
             else:
                 await ctx.respond("Please specify a valid channel.")
         elif channel_type == "chatbot":
-            if channel_id and channel_id not in server_data["allowed_ai_channels"]:
-                server_data["allowed_ai_channels"].append(channel_id)
+            if channel_id and channel_id not in allowed_ai_channel_per_guild[guild_id]:
+                allowed_ai_channel_per_guild[guild_id].append(channel_id)
                 await ctx.respond(f"Insult Bot will only respond as a chatbot in <#{channel_id}>.")
-            elif channel_id in server_data["allowed_ai_channels"]:
+            elif channel_id in allowed_ai_channel_per_guild[guild_id]:
                 await ctx.respond(f"Insult Bot is already a chatbot in <#{channel_id}>.")
             else:
                 await ctx.respond("Please specify a valid channel.")
     elif toggle == "off":
-        if channel_type == "replybot" and channel_id in server_data["allowed_channels"]:
-            server_data["allowed_channels"].remove(channel_id)
+        if channel_type == "replybot" and channel_id in allowed_channels_per_guild[guild_id]:
+            allowed_channels_per_guild[guild_id].remove(channel_id)
             await ctx.respond(f"Bot's restriction to send replybot in <#{channel_id}> has been removed.")
-        elif channel_type == "chatbot" and channel_id in server_data["allowed_ai_channels"]:
-            server_data["allowed_ai_channels"].remove(channel_id)
+        elif channel_type == "chatbot" and channel_id in allowed_ai_channel_per_guild[guild_id]:
+            allowed_ai_channel_per_guild[guild_id].remove(channel_id)
             await ctx.respond(f"Bot's restriction as a chatbot in <#{channel_id}> has been removed.")
         else:
             await ctx.respond("Channel is not currently restricted.")
     else:
         await ctx.respond("Invalid toggle. Use `/setchannel on <#channel>` or `/setchannel off <#channel>`.")
 
-    save_data(data)
+    update_data({
+        'allowed_channels_per_guild': allowed_channels_per_guild,
+        'allowed_ai_channel_per_guild': allowed_ai_channel_per_guild
+    })
+
+    if str(ctx.author.id) in prem_users:
+        prem_users[str(ctx.author.id)] = guild_id
+        update_data({'prem_users': prem_users})
 
     try:
         await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
@@ -713,15 +731,16 @@ async def setchannel(ctx):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewsetchannels(ctx):
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    guild_id = str(ctx.guild_id)
-    server_data = data.get("servers", {}).get(guild_id, {})
-
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    allowed_channels_per_guild = data.get('allowed_channels_per_guild', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
+    
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
-    keyword_channels = server_data.get("allowed_channels", [])
-    chatbot_channels = server_data.get("allowed_ai_channels", [])
+    guild_id = str(ctx.guild_id)
+    keyword_channels = allowed_channels_per_guild.get(guild_id, [])
+    chatbot_channels = allowed_ai_channel_per_guild.get(guild_id, [])
 
     keyword_channel_list = "\n".join([f"<#{channel_id}>" for channel_id in keyword_channels]) if keyword_channels else "No channels set."
     chatbot_channel_list = "\n".join([f"<#{channel_id}>" for channel_id in chatbot_channels]) if chatbot_channels else "No channels set."
@@ -753,8 +772,8 @@ async def autorespond(ctx: lightbulb.Context):
     server_id = str(ctx.guild_id)
     data = load_data()
 
-    user_data = create_user(data, user_id)
-    if not user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if user_id not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -783,27 +802,37 @@ async def autorespond(ctx: lightbulb.Context):
             print(f"{e}")
         return
 
-    server_data = create_server(data, server_id)
+    autorespond_servers = data.get('autorespond_servers', {})
+    allowed_ai_channel_per_guild = data.get('allowed_ai_channel_per_guild', {})
 
-    if not server_data.get("allowed_ai_channels"):
+    if server_id not in allowed_ai_channel_per_guild or not allowed_ai_channel_per_guild[server_id]:
         await ctx.respond("Please set a channel for AI responses using the `/setchannel_toggle` command before enabling autorespond.")
         return
 
     toggle = ctx.options.toggle
     if toggle == "on":
-        if not server_data.get("autorespond"):
-            server_data["autorespond"] = True
+        if not autorespond_servers.get(server_id):
+            autorespond_servers[server_id] = True
             await ctx.respond("Autorespond has been enabled for this server.")
         else:
             await ctx.respond("Autorespond is already enabled for this server.")
     elif toggle == "off":
-        if server_data.get("autorespond"):
-            server_data["autorespond"] = False
+        if autorespond_servers.get(server_id):
+            autorespond_servers[server_id] = False
             await ctx.respond("Autorespond has been disabled for this server.")
         else:
             await ctx.respond("Autorespond is already disabled for this server.")
 
-    save_data(data)
+    if user_id not in prem_users:
+        prem_users[user_id] = [server_id]
+    elif server_id not in prem_users[user_id]:
+        prem_users[user_id].append(server_id)
+
+    update_data({
+        'autorespond_servers': autorespond_servers,
+        'allowed_ai_channel_per_guild': allowed_ai_channel_per_guild,
+        'prem_users': prem_users
+    })
 
     try:
         await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
@@ -819,8 +848,8 @@ async def memory(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     toggle = ctx.options.toggle
     data = load_data()
-    user_data = create_user(data, user_id)
-    if not user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if user_id not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -849,6 +878,7 @@ async def memory(ctx: lightbulb.Context) -> None:
         return
 
     await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    user_data = create_user(data, user_id)
 
     if toggle == 'on':
         user_data["memory_on"] = True
@@ -876,9 +906,9 @@ async def memory(ctx: lightbulb.Context) -> None:
 async def setstyle(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     data = load_data()
-    user_data = create_user(data, user_id)
+    prem_users = data.get('prem_users', {})
 
-    if not user_data.get("premium", False):
+    if user_id not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -909,6 +939,7 @@ async def setstyle(ctx: lightbulb.Context) -> None:
 
     await ctx.command.cooldown_manager.reset_cooldown(ctx)
     selected_style = ctx.options.style
+    user_data = create_user(data, user_id)
     user_data["style"] = selected_style if selected_style != "Classic" else None
     save_data(data)
     await ctx.respond(f'Roast style set to **{selected_style}**.')
@@ -926,8 +957,8 @@ async def setstyle(ctx: lightbulb.Context) -> None:
 async def viewstyle(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     data = load_data()
-    user_data = create_user(data, user_id)
-    if not user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if user_id not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -956,6 +987,7 @@ async def viewstyle(ctx: lightbulb.Context) -> None:
         return
 
     await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    user_data = create_user(data, user_id)
     style = user_data.get("style") or "Classic"
     await ctx.respond(f'Your current roast style is: **{style}**.')
 
@@ -972,8 +1004,8 @@ async def viewstyle(ctx: lightbulb.Context) -> None:
 async def clearstyle(ctx: lightbulb.Context) -> None:
     user_id = str(ctx.author.id)
     data = load_data()
-    user_data = create_user(data, user_id)
-    if not user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if user_id not in prem_users:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -1002,6 +1034,7 @@ async def clearstyle(ctx: lightbulb.Context) -> None:
         return
 
     await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    user_data = create_user(data, user_id)
     user_data["style"] = None
     save_data(data)
     await ctx.respond("Your roast style has been reset to **Classic**.")
@@ -1020,8 +1053,8 @@ async def clearstyle(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addinsult(ctx: lightbulb.Context) -> None:
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     server_id = str(ctx.guild_id)
     insult = ctx.options.insult
@@ -1034,8 +1067,11 @@ async def addinsult(ctx: lightbulb.Context) -> None:
         await ctx.respond("Your insult does not comply with Discord's TOS.")
         return
 
-    server_data = create_server(data, server_id)
-    server_data["custom_insults"].append(insult)
+    if server_id not in data['custom_insults']:
+        data['custom_insults'][server_id] = []
+
+    data['custom_insults'][server_id].append(insult)
+    
     save_data(data)
     
     await ctx.respond("New insult added.")
@@ -1053,22 +1089,22 @@ async def addinsult(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removeinsult(ctx: lightbulb.Context) -> None:
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     server_id = str(ctx.guild_id)
     insult_to_remove = ctx.options.insult
 
-    server_data = data.get("servers", {}).get(server_id, {})
-    if not server_data.get("custom_insults"):
+    if server_id not in data['custom_insults'] or not data['custom_insults'][server_id]:
         await ctx.respond("No insults found.")
         return
 
-    if insult_to_remove not in server_data["custom_insults"]:
+    if insult_to_remove not in data['custom_insults'][server_id]:
         await ctx.respond("Insult not found in the list.")
         return
 
-    server_data["custom_insults"].remove(insult_to_remove)
+    data['custom_insults'][server_id].remove(insult_to_remove)
+    
     save_data(data)
     
     await ctx.respond("The selected insult has been removed.")
@@ -1085,21 +1121,23 @@ async def removeinsult(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewinsults(ctx: lightbulb.Context) -> None:
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     server_id = str(ctx.guild_id)
 
-    server_data = data.get("servers", {}).get(server_id, {})
-    insults_list = server_data.get("custom_insults", [])
-    if insults_list:
-        insults_text = "\n".join(insults_list)
-        embed = hikari.Embed(
-            title="🔹 Custom Insults 🔹",
-            description=insults_text,
-            color=0x2B2D31
-        )
-        await ctx.respond(embed=embed)
+    if server_id in data.get('custom_insults', {}):
+        insults_list = data['custom_insults'][server_id]
+        if insults_list:
+            insults_text = "\n".join(insults_list)
+            embed = hikari.Embed(
+                title="🔹 Custom Insults 🔹",
+                description=insults_text,
+                color=0x2B2D31
+            )
+            await ctx.respond(embed=embed)
+        else:
+            await ctx.respond("No custom insults found.")
     else:
         await ctx.respond("No custom insults found.")
     
@@ -1116,8 +1154,8 @@ async def viewinsults(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def addtrigger(ctx: lightbulb.Context) -> None:
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
     server_id = str(ctx.guild_id)
@@ -1127,20 +1165,23 @@ async def addtrigger(ctx: lightbulb.Context) -> None:
         await ctx.respond("Your trigger is too long. Keep it under 200 characters.")
         return
 
-    server_data = create_server(data, server_id)
+    if server_id not in data['custom_triggers']:
+        data['custom_triggers'][server_id] = []
+
+    custom_combos = data.get('custom_combos', {}).get(server_id, [])
 
     # Check if the trigger already exists in custom_triggers
-    if trigger in (t.lower() for t in server_data["custom_triggers"]):
+    if trigger in (t.lower() for t in data['custom_triggers'][server_id]):
         await ctx.respond("This trigger already exists in this server.")
         return
 
     # Check if the trigger already exists in custom_combos
-    if any(trigger == t.lower() for t, _ in server_data["custom_combos"]):
+    if any(trigger == t.lower() for t, _ in custom_combos):
         await ctx.respond("This trigger already exists in `/combo_add`. Please remove it from there before adding it here.")
         return
 
     # Add the new trigger
-    server_data["custom_triggers"].append(trigger)
+    data['custom_triggers'][server_id].append(trigger)
     save_data(data)
     await ctx.respond("New trigger added.")
 
@@ -1157,23 +1198,22 @@ async def addtrigger(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def removetrigger(ctx: lightbulb.Context) -> None:
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
     server_id = str(ctx.guild_id)
     trigger_to_remove = ctx.options.trigger
 
-    server_data = data.get("servers", {}).get(server_id, {})
-    if not server_data.get("custom_triggers"):
+    if server_id not in data['custom_triggers'] or not data['custom_triggers'][server_id]:
         await ctx.respond("No triggers found.")
         return
 
-    if trigger_to_remove not in server_data["custom_triggers"]:
+    if trigger_to_remove not in data['custom_triggers'][server_id]:
         await ctx.respond("Trigger not found in the list.")
         return
 
-    server_data["custom_triggers"].remove(trigger_to_remove)
+    data['custom_triggers'][server_id].remove(trigger_to_remove)
     save_data(data)
     await ctx.respond("The selected trigger has been removed.")
 
@@ -1189,23 +1229,25 @@ async def removetrigger(ctx: lightbulb.Context) -> None:
 @lightbulb.implements(lightbulb.SlashCommand)
 async def viewtriggers(ctx: lightbulb.Context) -> None:
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     server_id = str(ctx.guild_id)
 
-    server_data = data.get("servers", {}).get(server_id, {})
-    triggers_list = server_data.get("custom_triggers", [])
-    if not triggers_list:
+    if server_id in data['custom_triggers']:
+        triggers_list = data['custom_triggers'][server_id]
+        if not triggers_list:
+            await ctx.respond("No custom triggers found.")
+            return
+        triggers_text = "\n".join(triggers_list)
+        embed = hikari.Embed(
+            title="🔹 Custom Triggers 🔹",
+            description=triggers_text,
+            color=0x2B2D31
+        )
+        await ctx.respond(embed=embed)
+    else:
         await ctx.respond("No custom triggers found.")
-        return
-    triggers_text = "\n".join(triggers_list)
-    embed = hikari.Embed(
-        title="🔹 Custom Triggers 🔹",
-        description=triggers_text,
-        color=0x2B2D31
-    )
-    await ctx.respond(embed=embed)
 
     try:
         await bot.rest.create_message(1285303149682364548, f"`{ctx.command.name}` invoked in `{ctx.get_guild().name}` by `{ctx.author.id}`.")
@@ -1222,9 +1264,8 @@ async def combo_add(ctx: lightbulb.Context) -> None:
     data = load_data()
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-    user_data = create_user(data, user_id)
 
-    if not user_data.get("premium", False):
+    if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -1259,20 +1300,25 @@ async def combo_add(ctx: lightbulb.Context) -> None:
         await ctx.respond("Your insult does not comply with Discord's TOS.")
         return
 
-    server_data = create_server(data, server_id)
+    # Initialize server data if it doesn't exist
+    if server_id not in data['custom_combos']:
+        data['custom_combos'][server_id] = []
+
+    custom_triggers = data.get('custom_triggers', {}).get(server_id, [])
 
     # Check if the trigger already exists in custom_combos
-    if any(trigger == t.lower() for t, _ in server_data["custom_combos"]):
+    if any(trigger == t.lower() for t, _ in data['custom_combos'][server_id]):
         await ctx.respond("This trigger already exists in `/combo_add`. Please remove it from there before adding it here.")
         return
 
     # Check if the trigger already exists in custom_triggers
-    if trigger in (t.lower() for t in server_data["custom_triggers"]):
+    if trigger in (t.lower() for t in custom_triggers):
         await ctx.respond("This trigger already exists in `/trigger_add`. Please remove it from there before adding it here.")
         return
 
     # Add the new combo
-    server_data["custom_combos"].append((trigger, insult))
+    data['custom_combos'][server_id].append((trigger, insult))
+    
     save_data(data)
     
     await ctx.respond("New combo added.")
@@ -1291,9 +1337,8 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
     data = load_data()
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-    user_data = create_user(data, user_id)
 
-    if not user_data.get("premium", False):
+    if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -1322,20 +1367,19 @@ async def combo_remove(ctx: lightbulb.Context) -> None:
         return
 
     trigger_to_remove = ctx.options.trigger
-    server_data = data.get("servers", {}).get(server_id, {})
 
-    if not server_data.get("custom_combos"):
+    if server_id not in data['custom_combos'] or not data['custom_combos'][server_id]:
         await ctx.respond("No combos found.")
         return
 
-    combos = server_data["custom_combos"]
+    combos = data['custom_combos'][server_id]
     filtered_combos = [combo for combo in combos if combo[0] != trigger_to_remove]
 
     if len(filtered_combos) == len(combos):
         await ctx.respond("Combo not found.")
         return
 
-    server_data["custom_combos"] = filtered_combos
+    data['custom_combos'][server_id] = filtered_combos
     save_data(data)
     
     await ctx.respond(f"The combo with trigger `{trigger_to_remove}` has been removed.")
@@ -1353,9 +1397,8 @@ async def combo_view(ctx: lightbulb.Context) -> None:
     data = load_data()
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-    user_data = create_user(data, user_id)
 
-    if not user_data.get("premium", False):
+    if user_id not in data.get('prem_users', {}):
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -1383,16 +1426,18 @@ async def combo_view(ctx: lightbulb.Context) -> None:
             print(f"{e}")
         return
 
-    server_data = data.get("servers", {}).get(server_id, {})
-    combos = server_data.get("custom_combos", [])
-    if combos:
-        combo_list = "\n".join([f"`{trigger}`: `{insult}`" for trigger, insult in combos])
-        embed = hikari.Embed(
-            title="🔹 Custom Combos 🔹",
-            description=combo_list,
-            color=0x2B2D31
-        )
-        await ctx.respond(embed=embed)
+    if server_id in data['custom_combos']:
+        combos = data['custom_combos'][server_id]
+        if combos:
+            combo_list = "\n".join([f"`{trigger}`: `{insult}`" for trigger, insult in combos])
+            embed = hikari.Embed(
+                title="🔹 Custom Combos 🔹",
+                description=combo_list,
+                color=0x2B2D31
+            )
+            await ctx.respond(embed=embed)
+        else:
+            await ctx.respond("No custom combos found.")
     else:
         await ctx.respond("No custom combos found.")
 
@@ -1410,9 +1455,8 @@ async def customonly(ctx: lightbulb.Context) -> None:
     data = load_data()
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-    user_data = create_user(data, user_id)
 
-    if not user_data.get("premium", False):
+    if user_id not in data['prem_users']:
         embed = hikari.Embed(
             title="You found a premium command",
             description=(
@@ -1439,21 +1483,23 @@ async def customonly(ctx: lightbulb.Context) -> None:
         except Exception as e:
             print(f"{e}")
         return
+    
+    if server_id not in data['prem_users'][user_id]:
+        data['prem_users'][user_id].append(server_id)
 
-    server_data = create_server(data, server_id)
     if ctx.options.toggle == "on":
-        if not server_data.get("custom_only"):
-            server_data["custom_only"] = True
+        if server_id not in data['custom_only_servers']:
+            data['custom_only_servers'].append(server_id)
             await ctx.respond(f"Custom insults and triggers only mode enabled for this server.")
         else:
             await ctx.respond(f"Custom insults and triggers only mode is already enabled for this server.")
     elif ctx.options.toggle == "off":
-        if server_data.get("custom_only"):
-            server_data["custom_only"] = False
+        if server_id in data['custom_only_servers']:
+            data['custom_only_servers'].remove(server_id)
             await ctx.respond(f"Custom insults and triggers only mode disabled for this server.")
         else:
             await ctx.respond(f"Custom insults and triggers only mode is not enabled for this server.")
-
+    
     save_data(data)
 
     try:
@@ -1471,9 +1517,10 @@ async def customonly(ctx: lightbulb.Context) -> None:
 async def memory_clear(ctx: lightbulb.Context):
     user_id = str(ctx.author.id)
     data = load_data()
-    user_data = create_user(data, user_id)
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if user_id in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
+    user_data = create_user(data, user_id)
     if user_data["memory"]:
         user_data["memory"] = []
         save_data(data)
@@ -1494,15 +1541,14 @@ async def memory_clear(ctx: lightbulb.Context):
 async def reset_data(ctx: lightbulb.Context):
     user_id = str(ctx.author.id)
     data = load_data()
-    user_data = create_user(data, user_id)
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if user_id in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
     if user_id in data.get("users", {}):
-        was_premium = data["users"][user_id].get("premium", False)
         del data["users"][user_id]
-        if was_premium:
-            create_user(data, user_id)
-            data["users"][user_id]["premium"] = True
+        save_data(data)
+        await ctx.respond("All your data has been permanently deleted. (**This cannot be undone.**)")
+    else:
         await ctx.respond("You have no saved data to delete.")
 
     try:
@@ -1518,11 +1564,12 @@ async def reset_data(ctx: lightbulb.Context):
 async def profile(ctx: lightbulb.Context):
     user_id = str(ctx.author.id)
     data = load_data()
-    user_data = create_user(data, user_id)
-    is_premium = user_data.get("premium", False)
+    prem_users = data.get('prem_users', {})
+    is_premium = user_id in prem_users
     if is_premium:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
+    user_data = create_user(data, user_id)
     has_voted = await topgg_client.get_user_vote(user_id)
 
     # Grant vote points if not yet received
@@ -1568,8 +1615,8 @@ async def profile(ctx: lightbulb.Context):
 async def leaderboard(ctx: lightbulb.Context):
     data = load_data()
     current_user_id = str(ctx.author.id)
-    current_user_data = create_user(data, current_user_id)
-    if current_user_data.get("premium", False) and ctx.command.cooldown_manager:
+    prem_users = data.get('prem_users', {})
+    if current_user_id in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
     all_users = [
@@ -1634,8 +1681,8 @@ async def leaderboard(ctx: lightbulb.Context):
 @lightbulb.implements(lightbulb.SlashCommand)
 async def help(ctx):
     data = load_data()
-    user_data = create_user(data, str(ctx.author.id))
-    if user_data.get("premium", False):
+    prem_users = data.get('prem_users', {})
+    if str(ctx.author.id) in prem_users:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
 
     embed = hikari.Embed(
@@ -1697,9 +1744,8 @@ async def claim(ctx: lightbulb.Context) -> None:
     data = load_data()
     user_id = str(ctx.author.id)
     server_id = str(ctx.guild_id)
-    user_data = create_user(data, user_id)
 
-    if user_data.get("premium", False):
+    if user_id in data['prem_users']:
         await ctx.command.cooldown_manager.reset_cooldown(ctx)
         await ctx.respond("You already have premium. 🤦")
         try:
@@ -1711,7 +1757,12 @@ async def claim(ctx: lightbulb.Context) -> None:
     email = ctx.options.email
     
     if email in prem_email:
-        user_data["premium"] = True
+        if user_id not in data['prem_users']:
+            data['prem_users'][user_id] = [server_id]
+        else:
+            if server_id not in data['prem_users'][user_id]:
+                data['prem_users'][user_id].append(server_id)
+        
         save_data(data)
         await ctx.respond("You have premium now! Thank you so much. ❤️")
         
