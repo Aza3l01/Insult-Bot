@@ -321,17 +321,18 @@ async def should_process_event(event: hikari.MessageCreateEvent) -> bool:
     
     if event.message.message_reference:
         referenced_message_id = event.message.message_reference.id
-        try:
-            referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
-            if referenced_message.author.id == bot_id:
-                return False
-        except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError):
-            pass
+        if referenced_message_id:
+            try:
+                referenced_message = await bot.rest.fetch_message(event.channel_id, referenced_message_id)
+                if referenced_message.author.id == bot_id:
+                    return False
+            except (hikari.errors.ForbiddenError, hikari.errors.NotFoundError, hikari.errors.BadRequestError):
+                pass
 
     return not mentions_bot
 
-@bot.listen(hikari.MessageCreateEvent)
-async def on_general_message(event: hikari.MessageCreateEvent):
+@bot.listen(hikari.GuildMessageCreateEvent)
+async def on_general_message(event: hikari.GuildMessageCreateEvent):
     if not event.is_human or not await should_process_event(event):
         return
 
@@ -392,8 +393,8 @@ async def on_general_message(event: hikari.MessageCreateEvent):
                 break
 
 # AI response message event listener
-@bot.listen(hikari.MessageCreateEvent)
-async def on_ai_message(event: hikari.MessageCreateEvent):
+@bot.listen(hikari.GuildMessageCreateEvent)
+async def on_ai_message(event: hikari.GuildMessageCreateEvent):
     if event.message.author.is_bot:
         return
 
@@ -522,6 +523,63 @@ async def on_ai_message(event: hikari.MessageCreateEvent):
     response_message = f"{event.message.author.mention} {ai_response}"
     try:
         await event.message.respond(response_message)
+    except hikari.errors.ForbiddenError:
+        pass
+
+# DM message listener
+@bot.listen(hikari.DMMessageCreateEvent)
+async def on_dm_message(event: hikari.DMMessageCreateEvent):
+    if event.message.author.is_bot:
+        return
+
+    user_id = str(event.message.author.id)
+    data = load_data()
+    user_data = create_user(data, user_id)
+    is_premium = user_data.get("premium", False)
+
+    if not is_premium:
+        embed = hikari.Embed(
+            title="DMs are a Premium Feature",
+            description=(
+                "To chat with Insult Bot in DMs, consider becoming a [supporter](http://ko-fi.com/azaelbots/tiers) for only $3.99 a month.\n\n"
+                "I will never paywall the main functions of the bot but these few extra commands help keep the bot running. ❤️\n\n"
+                "**Access Premium Commands Like:**\n"
+                "• Chat with Insult Bot in DMs.\n"
+                "• Unlimited responses from Insult Bot.\n"
+                "• Have Insult Bot respond to every message in set channel(s).\n"
+                "• Add custom trigger-insult combos.\n"
+                "• Insult Bot will remember your conversations.\n"
+                "• Remove cool-downs.\n\n"
+                "*Any memberships bought can be refunded within 3 days of purchase.*"
+            ),
+            color=0x2B2D31
+        )
+        embed.set_image("https://i.imgur.com/rcgSVxC.gif")
+        await event.message.respond(embed=embed)
+        return
+
+    content = event.message.content or ""
+    real_time = time.time()
+
+    # Rate limit check (persisted across restarts)
+    limit_reached_at = user_data.get("limit_reached_at")
+    if limit_reached_at:
+        if real_time - limit_reached_at < 21600:
+            return
+        else:
+            user_data["limit_reached_at"] = None
+            save_data(data)
+
+    user_data["last_interaction"] = real_time
+    user_data["infamy"] = user_data.get("infamy", 0) + 1
+    user_data["insults_received"] = user_data.get("insults_received", 0) + 1
+    save_data(data)
+
+    async with bot.rest.trigger_typing(event.channel_id):
+        ai_response = await generate_text(content, user_id)
+
+    try:
+        await event.message.respond(ai_response)
     except hikari.errors.ForbiddenError:
         pass
 
